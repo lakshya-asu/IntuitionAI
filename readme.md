@@ -18,4 +18,3 @@ This repository contains a prototype for a RAG-based personalized learning syste
 1. Clone the repository:
    ```bash
    git clone https://github.com/lakshya-asu/IntuitionAI.git
-   cd personalized-learning-prototype
