@@ -495,6 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Important: specific routes like "types" should come BEFORE param routes like ":id"
   app.get("/api/assessments/types", requireAuth, async (req, res) => {
     try {
       // This would normally fetch from the database
