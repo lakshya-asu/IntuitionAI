@@ -368,28 +368,59 @@ export default function Settings() {
                       <p className="text-slate-500 mb-6 max-w-md mx-auto">
                         Continue interacting with the chatbot and completing learning activities to generate your personalized learning profile.
                       </p>
-                      <Button 
-                        onClick={() => {
-                          apiRequest("POST", "/api/user/analyze-persona", {})
-                            .then(() => {
-                              queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] });
-                              toast({
-                                title: "Analysis started",
-                                description: "Analyzing your learning patterns. This may take a moment."
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button 
+                          onClick={() => {
+                            apiRequest("POST", "/api/user/analyze-persona", {})
+                              .then(() => {
+                                queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] });
+                                toast({
+                                  title: "Analysis started",
+                                  description: "Analyzing your learning patterns. This may take a moment."
+                                });
+                              })
+                              .catch(error => {
+                                toast({
+                                  title: "Error",
+                                  description: error.message || "Failed to analyze learning profile. Try again after more interactions.",
+                                  variant: "destructive"
+                                });
                               });
-                            })
-                            .catch(error => {
-                              toast({
-                                title: "Error",
-                                description: error.message || "Failed to analyze learning profile. Try again after more interactions.",
-                                variant: "destructive"
-                              });
+                          }}
+                        >
+                          <span className="material-icons mr-2 text-sm">auto_awesome</span>
+                          Generate Learning Profile
+                        </Button>
+                        
+                        <Button 
+                          variant="secondary"
+                          onClick={() => {
+                            toast({
+                              title: "Generating demo profile",
+                              description: "Creating a sample learning profile for demonstration..."
                             });
-                        }}
-                      >
-                        <span className="material-icons mr-2 text-sm">auto_awesome</span>
-                        Generate Learning Profile
-                      </Button>
+                            
+                            apiRequest("POST", "/api/debug/generate-test-persona", {})
+                              .then(() => {
+                                queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] });
+                                toast({
+                                  title: "Demo profile created",
+                                  description: "A sample learning profile has been generated for demonstration."
+                                });
+                              })
+                              .catch(error => {
+                                toast({
+                                  title: "Generation failed",
+                                  description: error.message || "Could not create the demo profile.",
+                                  variant: "destructive"
+                                });
+                              });
+                          }}
+                        >
+                          <span className="material-icons mr-2 text-sm">science</span>
+                          Create Demo Profile
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>
