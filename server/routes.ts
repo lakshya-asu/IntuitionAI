@@ -79,15 +79,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Debug route for getting test user data without login (for testing only)
+  app.get("/api/debug/test-user", async (req, res) => {
+    try {
+      let user = await storage.getUserByUsername("testuser");
+      
+      if (!user) {
+        user = await storage.createUser({
+          username: "testuser",
+          password: "testpass123",
+          name: "Test User",
+          email: "test@example.com"
+        });
+        console.log("Created test user:", user.id);
+      }
+      
+      // Return the user without password
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Debug test user error:", error);
+      res.status(500).json({ 
+        message: "Failed to get test user data", 
+        error: String(error) 
+      });
+    }
+  });
+  
   app.post("/api/debug/login-test-user", async (req, res) => {
     try {
-      // Get test user
-      const user = await storage.getUserByUsername("testuser");
+      // Create a test user if it doesn't exist
+      let user = await storage.getUserByUsername("testuser");
+      
       if (!user) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "Test user not found. Create a test user first." 
+        user = await storage.createUser({
+          username: "testuser",
+          password: "testpass123",  // This would normally be hashed
+          name: "Test User",
+          email: "test@example.com"
         });
+        console.log("Created test user:", user.id);
       }
       
       console.log("Debug login as test user:", user.id);

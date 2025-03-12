@@ -5,8 +5,9 @@ import Recommendations from "@/components/dashboard/Recommendations";
 import AdaptiveAssessment from "@/components/dashboard/AdaptiveAssessment";
 import SkillProficiency from "@/components/dashboard/SkillProficiency";
 import Chatbot from "@/components/dashboard/Chatbot";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { loginAsTestUser } from "@/lib/utils";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
