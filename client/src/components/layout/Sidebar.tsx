@@ -46,7 +46,7 @@ export default function Sidebar() {
       <div className="flex items-center justify-between p-4 border-b border-slate-200">
         <div className="flex items-center">
           <span className="material-icons text-primary text-3xl">psychology</span>
-          <h1 className="ml-2 text-xl font-semibold text-primary">AdaptLearn</h1>
+          <h1 className="ml-2 text-xl font-semibold text-primary">IntuitionAI</h1>
         </div>
         <button 
           className="md:hidden text-slate-500"

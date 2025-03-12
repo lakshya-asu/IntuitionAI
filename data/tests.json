@@ -1,0 +1,89 @@
+{
+  "tests": [
+    {
+      "id": "test1",
+      "title": "Data Structures Assessment",
+      "topic": "Data Structures",
+      "questions": [
+        {
+          "id": "q1",
+          "difficulty": "beginner",
+          "text": "Which data structure uses LIFO (Last In, First Out) principle?",
+          "options": ["Queue", "Stack", "Linked List", "Array"],
+          "correctAnswer": "Stack",
+          "explanation": "A stack is a linear data structure that follows the LIFO principle - the last element added is the first one to be removed."
+        },
+        {
+          "id": "q2",
+          "difficulty": "intermediate",
+          "text": "What is the time complexity of searching for an element in a balanced binary search tree?",
+          "options": ["O(1)", "O(log n)", "O(n)", "O(n²)"],
+          "correctAnswer": "O(log n)",
+          "explanation": "In a balanced binary search tree, each comparison eliminates roughly half of the remaining tree, resulting in logarithmic time complexity."
+        },
+        {
+          "id": "q3",
+          "difficulty": "advanced",
+          "text": "When implementing a hash table, what is a good approach to handle collisions?",
+          "options": ["Ignore collisions", "Linear probing", "Always create a new table", "Decrease the table size"],
+          "correctAnswer": "Linear probing",
+          "explanation": "Linear probing is a collision resolution technique where we sequentially search for the next available slot in the hash table."
+        }
+      ]
+    },
+    {
+      "id": "test2",
+      "title": "Algorithms Assessment",
+      "topic": "Algorithms",
+      "questions": [
+        {
+          "id": "q4",
+          "difficulty": "beginner",
+          "text": "What is the time complexity of Bubble Sort in the worst case?",
+          "options": ["O(1)", "O(log n)", "O(n)", "O(n²)"],
+          "correctAnswer": "O(n²)",
+          "explanation": "Bubble Sort uses nested loops, comparing adjacent elements and swapping them if they're in the wrong order."
+        },
+        {
+          "id": "q5",
+          "difficulty": "intermediate",
+          "text": "Which algorithm is commonly used for finding the shortest path in a weighted graph?",
+          "options": ["Depth-First Search", "Breadth-First Search", "Dijkstra's Algorithm", "Binary Search"],
+          "correctAnswer": "Dijkstra's Algorithm",
+          "explanation": "Dijkstra's Algorithm is specifically designed to find the shortest path between nodes in a graph with non-negative edge weights."
+        },
+        {
+          "id": "q6",
+          "difficulty": "advanced",
+          "text": "What is the maximum number of comparisons needed to find an element in a sorted array of size n using binary search?",
+          "options": ["n", "n/2", "log₂(n)", "n log₂(n)"],
+          "correctAnswer": "log₂(n)",
+          "explanation": "Binary search halves the search space with each comparison, resulting in a worst-case of log₂(n) comparisons."
+        }
+      ]
+    },
+    {
+      "id": "test3",
+      "title": "Machine Learning Basics",
+      "topic": "Machine Learning",
+      "questions": [
+        {
+          "id": "q7",
+          "difficulty": "beginner",
+          "text": "Which of the following is an example of supervised learning?",
+          "options": ["Clustering", "Dimensionality reduction", "Classification", "Anomaly detection"],
+          "correctAnswer": "Classification",
+          "explanation": "Classification is a supervised learning task where the model learns to assign labels to input data based on labeled training examples."
+        },
+        {
+          "id": "q8",
+          "difficulty": "intermediate",
+          "text": "What is the purpose of regularization in machine learning models?",
+          "options": ["To increase model complexity", "To prevent overfitting", "To speed up training time", "To add more features"],
+          "correctAnswer": "To prevent overfitting",
+          "explanation": "Regularization adds a penalty term to the loss function to discourage the model from learning overly complex patterns that don't generalize well."
+        }
+      ]
+    }
+  ]
+}

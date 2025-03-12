@@ -1,0 +1,59 @@
+2️⃣ User Persona Retrieval (Retrieval 1)
+🔹 Goal: Understand user preferences, learning patterns, and cognitive profile.
+
+Chat interactions are stored in a local JSON database (user_profiles.json).
+A separate function analyzes chat interactions and refines:
+Preferred content format ("video", "text", "interactive").
+Study habits ("morning learner", "short attention span").
+Current weaknesses ("struggles with algebra").
+🛠️ Tech Used:
+
+Replit File System (user_profiles.json) for storing user data.
+Python/Node.js backend for managing user profiles.
+Express.js/Flask API handling updates.
+3️⃣ Subject Matter Retrieval (Retrieval 2)
+🔹 Goal: Fetch personalized content from local JSON knowledge bases.
+
+The system retrieves the best-suited learning resources from:
+Localized JSON files (subjects.json) containing structured knowledge.
+External APIs (Wikipedia, Khan Academy, YouTube) for supplementary learning.
+🛠️ Tech Used:
+
+JSON Database (subjects.json) to store topics, links, and exercises.
+Backend API (Express.js/Flask) to serve data to the frontend.
+Web Scraping/API Requests for missing data (Optional).
+4️⃣ Adaptive Testing & Evaluation
+🔹 Goal: Measure mastery, push students beyond average performance.
+
+Checkpoints Trigger Evaluation:
+
+When a user finishes a study session or topic, a test is triggered.
+The test dynamically adapts:
+If the student answers correctly, the next question is harder.
+If they fail, the next question is easier.
+Performance Tracking & Standardized Testing:
+
+The system records correct/incorrect responses to measure improvement.
+Periodic standardized tests provide a broader comparison.
+🛠️ Tech Used:
+
+Tests stored in JSON (tests.json) with multiple difficulty levels.
+Evaluation Logic in Express.js/Flask Backend.
+Frontend UI to Display Adaptive Questions.
+5️⃣ Tailored Study Plan Generation
+🔹 Goal: Update the learning path dynamically.
+
+After each test, the system modifies the student’s study plan:
+
+Focus more on weak areas.
+Change the learning format (if a student struggles with text, switch to videos).
+Recommend new topics based on previous performance.
+Reinforcement Learning (Long-term Adaptation)
+
+If a student keeps improving, they get more advanced content.
+If struggling, the system re-adjusts to maintain optimal challenge.
+🛠️ Tech Used:
+
+Backend updates study_plans.json based on test results.
+React Frontend reads the updated plan for display.
+Optional AI Model (Locally Hosted LLM/OpenAI API) for optimizing recommendations.

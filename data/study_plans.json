@@ -1,0 +1,57 @@
+{
+  "plans": [
+    {
+      "id": "plan1",
+      "userId": 1,
+      "title": "Computer Science Fundamentals",
+      "description": "A personalized path to master computer science fundamentals",
+      "modules": [
+        {
+          "id": "module1",
+          "title": "Data Structures Fundamentals",
+          "status": "in-progress",
+          "progress": 35,
+          "recommendedResources": ["res1", "res2", "res3"],
+          "exercises": ["ex1", "ex2"],
+          "assessments": ["test1"],
+          "dueDate": "2025-04-15",
+          "priority": "high",
+          "format": "video"
+        },
+        {
+          "id": "module2",
+          "title": "Algorithm Basics",
+          "status": "upcoming",
+          "progress": 0,
+          "recommendedResources": ["res4"],
+          "exercises": ["ex3"],
+          "assessments": ["test2"],
+          "dueDate": "2025-04-30",
+          "priority": "medium",
+          "format": "interactive"
+        }
+      ],
+      "goals": [
+        {
+          "id": "goal1",
+          "title": "Master basic data structures",
+          "description": "Understand and implement common data structures",
+          "progress": 30,
+          "deadline": "2025-05-15"
+        },
+        {
+          "id": "goal2",
+          "title": "Learn sorting algorithms",
+          "description": "Understand and implement common sorting algorithms",
+          "progress": 10,
+          "deadline": "2025-06-01"
+        }
+      ],
+      "adaptiveRecommendations": {
+        "focusAreas": ["Arrays", "Linked Lists"],
+        "suggestedNextSteps": "Complete the Arrays exercises to reinforce understanding",
+        "learningFormatChanges": "Try more interactive content based on your visual learning style"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "User",
+      "profile": {
+        "preferredContentFormat": ["video", "interactive", "text"],
+        "studyHabits": ["evening learner", "focused sessions"],
+        "currentWeaknesses": ["data structures", "algorithms"],
+        "strengths": ["problem solving", "front-end development"],
+        "learningStyle": "visual",
+        "contentHistory": [],
+        "assessmentResults": []
+      }
+    }
+  ]
+}

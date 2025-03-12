@@ -1,0 +1,132 @@
+{
+  "subjects": [
+    {
+      "id": "cs101",
+      "title": "Computer Science Fundamentals",
+      "topics": [
+        {
+          "id": "topic1",
+          "title": "Data Structures",
+          "subtopics": [
+            {
+              "id": "subtopic1",
+              "title": "Arrays",
+              "resources": [
+                {
+                  "id": "res1",
+                  "title": "Introduction to Arrays",
+                  "type": "video",
+                  "url": "https://example.com/arrays-video",
+                  "duration": "15 minutes"
+                },
+                {
+                  "id": "res2",
+                  "title": "Arrays in Practice",
+                  "type": "text",
+                  "url": "https://example.com/arrays-text",
+                  "readTime": "10 minutes"
+                }
+              ],
+              "exercises": [
+                {
+                  "id": "ex1",
+                  "title": "Array Manipulation",
+                  "difficulty": "beginner",
+                  "type": "coding"
+                }
+              ]
+            },
+            {
+              "id": "subtopic2",
+              "title": "Linked Lists",
+              "resources": [
+                {
+                  "id": "res3",
+                  "title": "Understanding Linked Lists",
+                  "type": "interactive",
+                  "url": "https://example.com/linked-lists-interactive",
+                  "duration": "20 minutes"
+                }
+              ],
+              "exercises": [
+                {
+                  "id": "ex2",
+                  "title": "Implementing a Linked List",
+                  "difficulty": "intermediate",
+                  "type": "coding"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "topic2",
+          "title": "Algorithms",
+          "subtopics": [
+            {
+              "id": "subtopic3",
+              "title": "Sorting Algorithms",
+              "resources": [
+                {
+                  "id": "res4",
+                  "title": "Basic Sorting Algorithms",
+                  "type": "video",
+                  "url": "https://example.com/sorting-video",
+                  "duration": "25 minutes"
+                }
+              ],
+              "exercises": [
+                {
+                  "id": "ex3",
+                  "title": "Implement Bubble Sort",
+                  "difficulty": "beginner",
+                  "type": "coding"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai101",
+      "title": "Artificial Intelligence Basics",
+      "topics": [
+        {
+          "id": "topic3",
+          "title": "Machine Learning Foundations",
+          "subtopics": [
+            {
+              "id": "subtopic4",
+              "title": "Supervised Learning",
+              "resources": [
+                {
+                  "id": "res5",
+                  "title": "Introduction to Supervised Learning",
+                  "type": "text",
+                  "url": "https://example.com/supervised-learning-text",
+                  "readTime": "15 minutes"
+                },
+                {
+                  "id": "res6",
+                  "title": "Supervised Learning in Action",
+                  "type": "video",
+                  "url": "https://example.com/supervised-learning-video",
+                  "duration": "30 minutes"
+                }
+              ],
+              "exercises": [
+                {
+                  "id": "ex4",
+                  "title": "Linear Regression Implementation",
+                  "difficulty": "intermediate",
+                  "type": "coding"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
