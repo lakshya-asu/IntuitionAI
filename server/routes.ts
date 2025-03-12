@@ -105,7 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/user/stats", async (req, res) => {
+  app.get("/api/user/stats", requireAuth, async (req, res) => {
     try {
       const stats = await storage.getUserStats();
       res.json(stats);
@@ -149,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Learning path endpoints
-  app.get("/api/learning-path", async (req, res) => {
+  app.get("/api/learning-path", requireAuth, async (req, res) => {
     try {
       const learningPath = await storage.getLearningPath();
       res.json(learningPath);
@@ -159,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Curriculum endpoints
-  app.get("/api/curriculum", async (req, res) => {
+  app.get("/api/curriculum", requireAuth, async (req, res) => {
     try {
       const curriculum = await storage.getCurriculum();
       res.json(curriculum);
@@ -169,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Learning library endpoints
-  app.get("/api/learning-library", async (req, res) => {
+  app.get("/api/learning-library", requireAuth, async (req, res) => {
     try {
       const library = await storage.getLearningLibrary();
       res.json(library);
@@ -232,13 +232,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get user data needed for personalized assessments
         const user = await storage.getCurrentUser();
         
+        // User will always be available because of requireAuth middleware
         const userData = {
-          id: user.id,
-          name: user.name,
-          level: user.level,
-          interests: user.interests,
-          strengths: user.strengths,
-          weaknesses: user.weaknesses
+          id: user!.id,
+          name: user!.name,
+          level: user!.level,
+          interests: user!.interests,
+          strengths: user!.strengths,
+          weaknesses: user!.weaknesses
         };
         
         const userStats = await storage.getUserStats();
@@ -308,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics endpoints
-  app.get("/api/analytics", async (req, res) => {
+  app.get("/api/analytics", requireAuth, async (req, res) => {
     try {
       const timeRange = req.query.timeRange || 'month';
       const analytics = await storage.getUserAnalytics(timeRange as string);

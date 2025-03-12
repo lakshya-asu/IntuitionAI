@@ -111,6 +111,18 @@ export const chatMessages = pgTable("chat_messages", {
   conversationId: text("conversation_id").notNull(),
 });
 
+// User Persona schema
+export const userPersonas = pgTable("user_personas", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  contentFormat: text("content_format").array().notNull().default([]), // 'video', 'text', 'interactive'
+  studyHabits: text("study_habits").array().notNull().default([]), // 'morning learner', 'short attention span'
+  currentWeaknesses: text("current_weaknesses").array().notNull().default([]), // 'struggles with algebra'
+  learningStyle: text("learning_style").notNull().default("visual"), // 'visual', 'auditory', 'kinesthetic'
+  lastAnalyzed: timestamp("last_analyzed").notNull().defaultNow(),
+  rawAnalysis: json("raw_analysis").notNull().default({})
+});
+
 // Create insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -137,6 +149,12 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   timestamp: true
 });
 
+export const insertUserPersonaSchema = createInsertSchema(userPersonas).omit({
+  id: true,
+  lastAnalyzed: true,
+  rawAnalysis: true
+});
+
 // Define types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -156,3 +174,6 @@ export type Recommendation = typeof recommendations.$inferSelect;
 export type Skill = typeof skills.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
+export type UserPersona = typeof userPersonas.$inferSelect;
+export type InsertUserPersona = z.infer<typeof insertUserPersonaSchema>;
