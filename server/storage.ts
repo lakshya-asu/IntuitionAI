@@ -6,7 +6,7 @@ import {
   chatMessages, userPersonas
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -624,8 +624,12 @@ export class DatabaseStorage implements IStorage {
     return db
       .select()
       .from(chatMessages)
-      .where(eq(chatMessages.userId, userId))
-      .where(eq(chatMessages.conversationId, conversationId))
+      .where(
+        and(
+          eq(chatMessages.userId, userId),
+          eq(chatMessages.conversationId, conversationId)
+        )
+      )
       .orderBy(chatMessages.timestamp);
   }
   
@@ -975,6 +979,6 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Comment out MemStorage and use DatabaseStorage instead
-export const storage = new MemStorage();
-// export const storage = new DatabaseStorage();
+// Using DatabaseStorage for persistent storage
+// export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
