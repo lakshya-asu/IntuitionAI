@@ -978,6 +978,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Helper endpoint for demo purposes - creates sample chat messages
+  app.post("/api/demo/create-chat-messages", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const conversationId = "default-conversation";
+      
+      // Sample messages that reveal learning preferences
+      const sampleMessages = [
+        {
+          role: "user",
+          content: "I find it easier to understand concepts when they're presented as videos or diagrams."
+        },
+        {
+          role: "assistant",
+          content: "That's great to know! Visual learning is an effective way to grasp complex concepts. Would you like me to recommend some visual resources for the topics you're currently studying?"
+        },
+        {
+          role: "user",
+          content: "Yes please. I'm struggling with the mathematical parts of machine learning, especially probability distributions."
+        },
+        {
+          role: "assistant",
+          content: "I understand that the math can be challenging. I'll find some visual explanations of probability distributions for you. Do you prefer shorter videos or more comprehensive ones?"
+        },
+        {
+          role: "user",
+          content: "I prefer shorter videos because I lose focus after about 15 minutes of watching."
+        },
+        {
+          role: "assistant",
+          content: "Got it. I'll recommend bite-sized videos that explain one concept at a time. Short attention spans are common, and breaking learning into smaller chunks can be very effective."
+        },
+        {
+          role: "user",
+          content: "I also like to study in the evenings after dinner when it's quiet."
+        },
+        {
+          role: "assistant",
+          content: "Evening study sessions can be very productive when there are fewer distractions. Would you like me to help you create a study schedule that takes advantage of your preferred evening time?"
+        }
+      ];
+      
+      // Save each message to the database
+      for (const msg of sampleMessages) {
+        await storage.saveChatMessage({
+          userId,
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+          conversationId
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "Sample chat messages created for persona analysis",
+        count: sampleMessages.length
+      });
+    } catch (error: any) {
+      console.error("Error creating sample messages:", error);
+      res.status(500).json({ 
+        message: "Failed to create sample chat messages",
+        error: error.message
+      });
+    }
+  });
+
   // User Persona Retrieval - Analyze user chat history for persona creation
   app.post("/api/user/analyze-persona", requireAuth, async (req, res) => {
     try {

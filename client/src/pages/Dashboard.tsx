@@ -4,6 +4,7 @@ import LearningPath from "@/components/dashboard/LearningPath";
 import Recommendations from "@/components/dashboard/Recommendations";
 import SuggestedAssessments from "@/components/dashboard/SuggestedAssessments";
 import SkillProficiency from "@/components/dashboard/SkillProficiency";
+import UserPersona from "@/components/dashboard/UserPersona";
 import Chatbot from "@/components/dashboard/Chatbot";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -136,7 +137,14 @@ export default function Dashboard() {
         ) : (
           // Logged in and content loaded
           <>
-            <ProgressSummary stats={statsData as any} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="md:col-span-2">
+                <ProgressSummary stats={statsData as any} />
+              </div>
+              <div className="md:col-span-1">
+                <UserPersona onAnalysisDone={() => queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] })} />
+              </div>
+            </div>
             <LearningPath learningPath={learningPathData as any} />
             <Recommendations recommendations={recommendationsData as any} />
             <SuggestedAssessments assessments={assessmentsData as any} />
