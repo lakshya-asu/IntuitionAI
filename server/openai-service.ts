@@ -66,12 +66,12 @@ export async function generateRecommendations({
     const prompt = `
       Generate 3 personalized learning recommendations for a student based on their profile.
       Student profile:
-      - Name: ${userData.name}
-      - Level: ${userData.level}
-      - Interests: ${userData.interests.join(', ')}
-      - Strengths: ${userData.strengths.join(', ')}
-      - Weaknesses: ${userData.weaknesses.join(', ')}
-      - Current mastery score: ${userStats.masteryScore}/100
+      - Name: ${userData?.name || 'Anonymous'}
+      - Level: ${userData?.level || 'Beginner'}
+      - Interests: ${userData?.interests?.join(', ') || 'Not specified'}
+      - Strengths: ${userData?.strengths?.join(', ') || 'Not specified'}
+      - Weaknesses: ${userData?.weaknesses?.join(', ') || 'Not specified'}
+      - Current mastery score: ${userStats?.masteryScore || 0}/100
       - Completed modules: ${userStats.completedModules} out of ${userStats.totalModules}
       - Focus areas: ${userStats.focusAreas.map(area => `${area.name} (${area.percentage}%)`).join(', ')}
       
@@ -157,16 +157,16 @@ export async function generateAdaptiveTesting({
     const prompt = `
       Generate 2 personalized assessment recommendations for a student based on their profile.
       Student profile:
-      - Name: ${userData.name}
-      - Level: ${userData.level}
-      - Strengths: ${userData.strengths.join(', ')}
-      - Weaknesses: ${userData.weaknesses.join(', ')}
-      - Current mastery score: ${userStats.masteryScore}/100
-      - Focus areas: ${userStats.focusAreas.map(area => `${area.name} (${area.percentage}%)`).join(', ')}
+      - Name: ${userData?.name || 'Anonymous'}
+      - Level: ${userData?.level || 'Beginner'}
+      - Strengths: ${userData?.strengths?.join(', ') || 'Not specified'}
+      - Weaknesses: ${userData?.weaknesses?.join(', ') || 'Not specified'}
+      - Current mastery score: ${userStats?.masteryScore || 0}/100
+      - Focus areas: ${userStats?.focusAreas?.map(area => `${area.name} (${area.percentage}%)`).join(', ') || 'Not specified'}
       
       Recent learning activity:
-      - Completed modules: ${learningHistory.completedModules.map(m => m.title).join(', ')}
-      - In-progress modules: ${learningHistory.inProgressModules.map(m => m.title).join(', ')}
+      - Completed modules: ${learningHistory?.completedModules?.map(m => m.title).join(', ') || 'None'}
+      - In-progress modules: ${learningHistory?.inProgressModules?.map(m => m.title).join(', ') || 'None'}
       
       For each assessment recommendation, provide:
       1. id - A unique identifier
@@ -231,14 +231,14 @@ export async function generateSkillAssessment({
       Generate a comprehensive skill proficiency assessment for a student based on their learning history and assessment results.
       
       Student profile:
-      - Name: ${userData.name}
-      - Level: ${userData.level}
-      - Strengths: ${userData.strengths.join(', ')}
-      - Weaknesses: ${userData.weaknesses.join(', ')}
+      - Name: ${userData?.name || 'Anonymous'}
+      - Level: ${userData?.level || 'Beginner'}
+      - Strengths: ${userData?.strengths?.join(', ') || 'Not specified'}
+      - Weaknesses: ${userData?.weaknesses?.join(', ') || 'Not specified'}
       
       Learning history:
-      - Completed modules: ${learningHistory.completedModules.map(m => `${m.title} (${m.score}%)`).join(', ')}
-      - Recent assessments: ${assessmentResults.map(a => `${a.title} (${a.score}%)`).join(', ')}
+      - Completed modules: ${learningHistory?.completedModules?.map(m => `${m.title} (${m.score}%)`).join(', ') || 'None'}
+      - Recent assessments: ${assessmentResults?.map(a => `${a.title} (${a.score}%)`).join(', ') || 'None'}
       
       Provide a skill assessment with the following:
       
