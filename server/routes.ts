@@ -13,14 +13,22 @@ declare module 'express-session' {
 
 // Auth middleware for protected routes
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+  console.log("Checking authentication, session data:", req.session);
+  
   // Check if user ID exists in session
   if (!req.session.userId) {
+    console.log("Auth failed: No userId in session");
     return res.status(401).json({ message: "User not authenticated" });
   }
   
+  console.log("Found userId in session:", req.session.userId);
+  
   // Set the current user in storage based on session
   const user = await storage.getUser(req.session.userId);
+  console.log("User lookup result:", user ? "User found in storage" : "User not found in storage");
+  
   if (!user) {
+    console.log("Auth failed: User not found in storage with id:", req.session.userId);
     // Clear invalid session
     req.session.destroy(err => {
       if (err) console.error("Session destroy error:", err);
@@ -28,30 +36,73 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({ message: "User not authenticated" });
   }
   
+  console.log("User authenticated successfully:", user.id);
   // Set current user in storage
   await storage.setCurrentUser(user);
   next();
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Debug endpoints (remove in production)
+  app.get("/api/debug/session", (req, res) => {
+    console.log("Debug session data:", req.session);
+    res.json({ 
+      session: req.session,
+      sessionID: req.sessionID,
+      hasUserId: !!req.session.userId,
+      userId: req.session.userId
+    });
+  });
+  
+  app.get("/api/debug/users", async (req, res) => {
+    const users = Array.from((storage as any).users?.values() || []);
+    console.log("Debug users data:", users.length, "users found");
+    res.json({ 
+      userCount: users.length,
+      userIds: users.map(user => ({ id: user.id, username: user.username }))
+    });
+  });
+  
+  app.post("/api/debug/create-test-user", async (req, res) => {
+    try {
+      const testUser = await storage.createUser({
+        username: "testuser",
+        password: "testpassword",
+        name: "Test User",
+        email: "test@example.com"
+      });
+      console.log("Test user created:", testUser);
+      res.json({ success: true, user: testUser });
+    } catch (error) {
+      console.error("Failed to create test user:", error);
+      res.status(500).json({ success: false, error: String(error) });
+    }
+  });
+  
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {
+      console.log("Registration attempt:", req.body);
       const { username, password, name, email } = req.body;
       
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(username);
+      console.log("Existing user check:", existingUser ? "User exists" : "User does not exist");
+      
       if (existingUser) {
         return res.status(400).json({ message: "Username already exists" });
       }
       
       // Create new user
+      console.log("Creating new user with data:", { username, name, email });
       const user = await storage.createUser({
         username,
         password, // Note: In a real app, you'd hash the password
         name,
         email
       });
+      
+      console.log("User created successfully:", user.id);
       
       // Return the user without password
       const { password: _, ...userWithoutPassword } = user;
@@ -64,19 +115,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/auth/login", async (req, res) => {
     try {
+      console.log("Login attempt:", req.body);
       const { username, password } = req.body;
       
       // Get user
       const user = await storage.getUserByUsername(username);
+      console.log("User lookup result:", user ? "User found" : "User not found");
+      
       if (!user || user.password !== password) { // Note: In a real app, you'd compare hashed passwords
+        console.log("Password check failed:", !user ? "User doesn't exist" : "Password mismatch");
         return res.status(401).json({ message: "Invalid username or password" });
       }
+      
+      console.log("Login successful, setting session for user:", user.id);
       
       // Set user ID in session
       req.session.userId = user.id;
       
       // Set as current user in storage
       await storage.setCurrentUser(user);
+      
+      console.log("User session established:", req.session.userId);
       
       // Return the user without password
       const { password: _, ...userWithoutPassword } = user;
