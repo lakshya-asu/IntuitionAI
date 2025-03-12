@@ -9,6 +9,14 @@ import { db } from "./db";
 import { eq, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
+  // Calendar management
+  getCalendarEvents(userId: number): Promise<CalendarEvent[]>;
+  getCalendarEvent(id: number): Promise<CalendarEvent | undefined>;
+  createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent>;
+  updateCalendarEvent(id: number, event: Partial<CalendarEvent>): Promise<CalendarEvent>;
+  deleteCalendarEvent(id: number): Promise<void>;
+  updateGoogleEventId(id: number, googleEventId: string): Promise<void>;
+
   // User management
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -185,6 +193,7 @@ export class MemStorage implements IStorage {
     userSkills: any;
     learningHistory: any;
     analytics: any;
+    calendarEvents: CalendarEvent[];
   };
 
   constructor() {
@@ -296,6 +305,7 @@ export class MemStorage implements IStorage {
           },
         ],
       },
+      calendarEvents: [],
       analytics: {
         activityData: Array(30).fill(null).map((_, i) => ({
           date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
@@ -488,6 +498,58 @@ export class MemStorage implements IStorage {
     };
   }
   
+  // Calendar event methods
+  async getCalendarEvents(userId: number): Promise<CalendarEvent[]> {
+    return this.mockData.calendarEvents.filter(event => event.userId === userId);
+  }
+
+  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {
+    return this.mockData.calendarEvents.find(event => event.id === id);
+  }
+
+  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> {
+    const newEvent: CalendarEvent = {
+      ...event,
+      id: this.mockData.calendarEvents.length + 1,
+      googleEventId: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.mockData.calendarEvents.push(newEvent);
+    return newEvent;
+  }
+
+  async updateCalendarEvent(id: number, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
+    const index = this.mockData.calendarEvents.findIndex(e => e.id === id);
+    if (index === -1) throw new Error("Calendar event not found");
+    
+    const updatedEvent = {
+      ...this.mockData.calendarEvents[index],
+      ...event,
+      updatedAt: new Date()
+    };
+    this.mockData.calendarEvents[index] = updatedEvent;
+    return updatedEvent;
+  }
+
+  async deleteCalendarEvent(id: number): Promise<void> {
+    const index = this.mockData.calendarEvents.findIndex(e => e.id === id);
+    if (index !== -1) {
+      this.mockData.calendarEvents.splice(index, 1);
+    }
+  }
+
+  async updateGoogleEventId(id: number, googleEventId: string): Promise<void> {
+    const index = this.mockData.calendarEvents.findIndex(e => e.id === id);
+    if (index === -1) throw new Error("Calendar event not found");
+    
+    this.mockData.calendarEvents[index] = {
+      ...this.mockData.calendarEvents[index],
+      googleEventId,
+      updatedAt: new Date()
+    };
+  }
+
   // Chat message methods
   async getChatMessages(userId: number, conversationId: string): Promise<ChatMessage[]> {
     // In memory implementation just returns an empty array
@@ -617,6 +679,60 @@ export class DatabaseStorage implements IStorage {
     
     this.currentUser = updatedUser;
     return updatedUser;
+  }
+
+  // Calendar events
+  async getCalendarEvents(userId: number): Promise<CalendarEvent[]> {
+    return db
+      .select()
+      .from(calendarEvents)
+      .where(eq(calendarEvents.userId, userId));
+  }
+
+  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {
+    const [event] = await db
+      .select()
+      .from(calendarEvents)
+      .where(eq(calendarEvents.id, id));
+    return event;
+  }
+
+  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> {
+    const [newEvent] = await db
+      .insert(calendarEvents)
+      .values(event)
+      .returning();
+    return newEvent;
+  }
+
+  async updateCalendarEvent(id: number, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
+    const [updatedEvent] = await db
+      .update(calendarEvents)
+      .set({
+        ...event,
+        updatedAt: new Date()
+      })
+      .where(eq(calendarEvents.id, id))
+      .returning();
+    
+    if (!updatedEvent) throw new Error("Calendar event not found");
+    return updatedEvent;
+  }
+
+  async deleteCalendarEvent(id: number): Promise<void> {
+    await db
+      .delete(calendarEvents)
+      .where(eq(calendarEvents.id, id));
+  }
+
+  async updateGoogleEventId(id: number, googleEventId: string): Promise<void> {
+    await db
+      .update(calendarEvents)
+      .set({
+        googleEventId,
+        updatedAt: new Date()
+      })
+      .where(eq(calendarEvents.id, id));
   }
 
   // Chat messages
