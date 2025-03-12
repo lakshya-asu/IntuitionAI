@@ -66,52 +66,65 @@ export default function Assessment() {
 
   const submitAnswerMutation = useMutation({
     mutationFn: async ({ questionId, answer }: { questionId: string, answer: string }) => {
-      // In a real app, you would send this to the server
-      // For demo purposes, we'll fake the API call
-      return new Promise<{ correct: boolean; feedback: string }>((resolve) => {
-        setTimeout(() => {
-          const question = assessmentData?.questions.find(q => q.id === questionId);
-          const correct = question?.correctAnswer === answer;
-          resolve({
-            correct,
-            feedback: question?.explanation || 
-              (correct ? "That's correct!" : "That's not quite right.")
-          });
-        }, 300);
-      });
+      try {
+        if (!assessmentData) throw new Error("Assessment data not found");
+        
+        const response = await apiRequest(`/api/assessments/${assessmentData.id}/answer`, {
+          method: 'POST',
+          body: JSON.stringify({ questionId, answer })
+        });
+        
+        return response;
+      } catch (error) {
+        console.error("Error submitting answer:", error);
+        // Fallback to client-side validation if API fails
+        const question = assessmentData?.questions.find(q => q.id === questionId);
+        const correct = question?.correctAnswer === answer;
+        return {
+          correct,
+          feedback: question?.explanation || 
+            (correct ? "That's correct!" : "That's not quite right.")
+        };
+      }
     }
   });
 
   const completeAssessmentMutation = useMutation({
     mutationFn: async () => {
-      // In a real app, you would send this to the server
-      // For demo purposes, we'll fake the API call
-      return new Promise<{ score: number; feedback: string }>((resolve) => {
-        setTimeout(() => {
-          if (!assessmentData) return;
-          
-          const correctAnswers = Object.entries(selectedAnswers).filter(([questionId, answer]) => {
-            const question = assessmentData.questions.find(q => q.id === questionId);
-            return question?.correctAnswer === answer;
-          }).length;
-          
-          const totalScore = Math.round((correctAnswers / assessmentData.questions.length) * 100);
-          
-          let feedbackText = "";
-          if (totalScore >= 90) {
-            feedbackText = "Excellent! You have a very strong understanding of machine learning fundamentals.";
-          } else if (totalScore >= 70) {
-            feedbackText = "Good job! You have a solid grasp of the core concepts, but there's room to deepen your understanding.";
-          } else {
-            feedbackText = "You've made a good start, but it would be beneficial to revisit some of the fundamental concepts of machine learning.";
-          }
-          
-          resolve({
-            score: totalScore,
-            feedback: feedbackText
-          });
-        }, 500);
-      });
+      try {
+        if (!assessmentData) throw new Error("Assessment data not found");
+        
+        const response = await apiRequest(`/api/assessments/${assessmentData.id}/complete`, {
+          method: 'POST'
+        });
+        
+        return response;
+      } catch (error) {
+        console.error("Error completing assessment:", error);
+        // Fallback to client-side calculation if API fails
+        if (!assessmentData) throw new Error("Assessment data not found");
+        
+        const correctAnswers = Object.entries(selectedAnswers).filter(([questionId, answer]) => {
+          const question = assessmentData.questions.find(q => q.id === questionId);
+          return question?.correctAnswer === answer;
+        }).length;
+        
+        const totalScore = Math.round((correctAnswers / assessmentData.questions.length) * 100);
+        
+        let feedbackText = "";
+        if (totalScore >= 90) {
+          feedbackText = "Excellent! You have a very strong understanding of machine learning fundamentals.";
+        } else if (totalScore >= 70) {
+          feedbackText = "Good job! You have a solid grasp of the core concepts, but there's room to deepen your understanding.";
+        } else {
+          feedbackText = "You've made a good start, but it would be beneficial to revisit some of the fundamental concepts of machine learning.";
+        }
+        
+        return {
+          score: totalScore,
+          feedback: feedbackText
+        };
+      }
     },
     onSuccess: (data) => {
       setScore(data.score);

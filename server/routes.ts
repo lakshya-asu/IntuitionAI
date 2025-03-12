@@ -495,55 +495,218 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/assessments/types", requireAuth, async (req, res) => {
+    try {
+      // This would normally fetch from the database
+      // For the demo, we'll return a sample list of assessment types
+      const assessmentTypes = [
+        {
+          id: "ml-basics",
+          title: "Machine Learning Basics",
+          description: "Tests fundamental understanding of machine learning principles and algorithms.",
+          difficulty: "beginner",
+          estimatedTime: "10 min",
+          topics: ["Supervised Learning", "Algorithms", "Neural Networks"]
+        },
+        {
+          id: "prob-reasoning",
+          title: "Probabilistic Reasoning",
+          description: "Tests advanced understanding of probability theory and Bayesian inference.",
+          difficulty: "advanced",
+          estimatedTime: "15 min",
+          topics: ["Probability Theory", "Bayesian Statistics", "Random Variables"]
+        },
+        {
+          id: "philosophy",
+          title: "Philosophy of Mind",
+          description: "Tests understanding of key philosophical concepts related to consciousness and cognition.",
+          difficulty: "intermediate",
+          estimatedTime: "12 min",
+          topics: ["Consciousness", "Dualism", "Identity Theory"]
+        },
+        {
+          id: "quantum-physics",
+          title: "Quantum Physics Essentials",
+          description: "Tests foundational knowledge of quantum physics principles and mathematics.",
+          difficulty: "advanced",
+          estimatedTime: "20 min",
+          topics: ["Quantum Mechanics", "Wave Functions", "Uncertainty Principle"]
+        },
+        {
+          id: "perception",
+          title: "Perception Systems",
+          description: "Tests understanding of human and machine perception mechanisms.",
+          difficulty: "intermediate",
+          estimatedTime: "15 min",
+          topics: ["Visual Processing", "Pattern Recognition", "Sensory Systems"]
+        },
+        {
+          id: "cognitive-systems",
+          title: "Cognitive Systems",
+          description: "Tests knowledge of cognitive architectures and information processing.",
+          difficulty: "intermediate",
+          estimatedTime: "15 min",
+          topics: ["Memory Systems", "Decision Making", "Attention Mechanisms"]
+        }
+      ];
+      
+      res.json(assessmentTypes);
+    } catch (error) {
+      console.error("Assessment types fetch error:", error);
+      res.status(500).json({ message: "Failed to get assessment types" });
+    }
+  });
+
   app.get("/api/assessments/:id", requireAuth, async (req, res) => {
     try {
       const assessmentId = req.params.id;
       
-      // This would normally fetch the assessment from the database
-      // For the demo, we'll return a sample machine learning assessment with mathematical content
-      const assessment = {
-        id: assessmentId,
-        title: "Machine Learning Basics Review",
-        description: "This assessment covers fundamental concepts in machine learning theory and application.",
-        questions: [
-          {
-            id: "q1",
-            type: "mcq",
-            text: "In gradient descent optimization for a neural network, which of the following expressions correctly represents the weight update rule for a single weight $w_{ij}$ using backpropagation where $\\eta$ is the learning rate, $E$ is the error function, and $\\frac{\\partial E}{\\partial w_{ij}}$ is the partial derivative of the error with respect to the weight?",
-            options: [
-              { id: "a", text: "$w_{ij}^{new} = w_{ij}^{old} - \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
-              { id: "b", text: "$w_{ij}^{new} = w_{ij}^{old} + \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
-              { id: "c", text: "$w_{ij}^{new} = w_{ij}^{old} - \\frac{\\partial E}{\\partial w_{ij}} \\cdot \\eta$" },
-              { id: "d", text: "$w_{ij}^{new} = w_{ij}^{old} \\cdot (1 - \\eta \\frac{\\partial E}{\\partial w_{ij}})$" }
-            ],
-            correctAnswer: "a"
-          },
-          {
-            id: "q2",
-            type: "mcq",
-            text: "What is the primary difference between supervised and unsupervised learning?",
-            options: [
-              { id: "a", text: "Supervised learning requires a GPU, while unsupervised learning works on CPU" },
-              { id: "b", text: "Supervised learning uses labeled training data, while unsupervised learning does not" },
-              { id: "c", text: "Supervised learning is always more accurate than unsupervised learning" },
-              { id: "d", text: "Supervised learning works with image data, while unsupervised learning works with text data" }
-            ],
-            correctAnswer: "b"
-          },
-          {
-            id: "q3",
-            type: "mcq",
-            text: "If the accuracy of a machine learning model on the training set is 95% but only 70% on the test set, this is most likely an example of:",
-            options: [
-              { id: "a", text: "Underfitting" },
-              { id: "b", text: "Overfitting" },
-              { id: "c", text: "Regularization" },
-              { id: "d", text: "Normalization" }
-            ],
-            correctAnswer: "b"
-          }
-        ]
-      };
+      // In a real system, we would select the right assessment based on ID
+      // For now, we'll serve different assessments based on the ID
+      let assessment;
+      
+      if (assessmentId === "ml-basics" || assessmentId === "assessment-001") {
+        // Machine Learning assessment
+        assessment = {
+          id: assessmentId,
+          title: "Machine Learning Basics Review",
+          description: "This assessment covers fundamental concepts in machine learning theory and application.",
+          questions: [
+            {
+              id: "q1",
+              type: "mcq",
+              text: "In gradient descent optimization for a neural network, which of the following expressions correctly represents the weight update rule for a single weight $w_{ij}$ using backpropagation where $\\eta$ is the learning rate, $E$ is the error function, and $\\frac{\\partial E}{\\partial w_{ij}}$ is the partial derivative of the error with respect to the weight?",
+              options: [
+                { id: "a", text: "$w_{ij}^{new} = w_{ij}^{old} - \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
+                { id: "b", text: "$w_{ij}^{new} = w_{ij}^{old} + \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
+                { id: "c", text: "$w_{ij}^{new} = w_{ij}^{old} - \\frac{\\partial E}{\\partial w_{ij}} \\cdot \\eta$" },
+                { id: "d", text: "$w_{ij}^{new} = w_{ij}^{old} \\cdot (1 - \\eta \\frac{\\partial E}{\\partial w_{ij}})$" }
+              ],
+              correctAnswer: "a",
+              explanation: "In gradient descent, we update weights by moving in the direction opposite to the gradient of the error function. The correct formula subtracts the gradient multiplied by the learning rate from the current weight value."
+            },
+            {
+              id: "q2",
+              type: "mcq",
+              text: "What is the primary difference between supervised and unsupervised learning?",
+              options: [
+                { id: "a", text: "Supervised learning requires a GPU, while unsupervised learning works on CPU" },
+                { id: "b", text: "Supervised learning uses labeled training data, while unsupervised learning does not" },
+                { id: "c", text: "Supervised learning is always more accurate than unsupervised learning" },
+                { id: "d", text: "Supervised learning works with image data, while unsupervised learning works with text data" }
+              ],
+              correctAnswer: "b",
+              explanation: "Supervised learning uses labeled training data where the target outputs are known, while unsupervised learning works with unlabeled data and tries to find patterns or structure in the data without explicit guidance."
+            },
+            {
+              id: "q3",
+              type: "mcq",
+              text: "If the accuracy of a machine learning model on the training set is 95% but only 70% on the test set, this is most likely an example of:",
+              options: [
+                { id: "a", text: "Underfitting" },
+                { id: "b", text: "Overfitting" },
+                { id: "c", text: "Regularization" },
+                { id: "d", text: "Normalization" }
+              ],
+              correctAnswer: "b",
+              explanation: "This scenario describes overfitting, where the model performs well on the training data but fails to generalize to unseen data. The large gap between training and test performance is a classic sign of overfitting."
+            }
+          ]
+        };
+      } else if (assessmentId === "prob-reasoning" || assessmentId === "assessment-002") {
+        // Probabilistic Reasoning assessment
+        assessment = {
+          id: assessmentId,
+          title: "Probabilistic Reasoning Challenge",
+          description: "This advanced assessment tests your ability to apply probability theory to complex problems.",
+          questions: [
+            {
+              id: "q1",
+              type: "mcq",
+              text: "Given a joint probability distribution $P(X,Y)$ and marginal distributions $P(X)$ and $P(Y)$, which of the following expressions correctly represents the conditional independence of random variables $X$ and $Y$ given a third variable $Z$?",
+              options: [
+                { id: "a", text: "$P(X,Y|Z) = P(X|Z)P(Y|Z)$" },
+                { id: "b", text: "$P(X,Y|Z) = P(X|Y,Z)P(Y|Z)$" },
+                { id: "c", text: "$P(X,Y|Z) = P(X|Z)P(Y)$" },
+                { id: "d", text: "$P(X,Y|Z) = \\frac{P(X,Y,Z)}{P(Z)}$" }
+              ],
+              correctAnswer: "a",
+              explanation: "Conditional independence means that knowing Z, the value of X provides no additional information about Y, and vice versa. Mathematically, this is expressed as P(X,Y|Z) = P(X|Z)P(Y|Z)."
+            },
+            {
+              id: "q2",
+              type: "mcq",
+              text: "In Bayesian inference, which of the following best describes the relationship between the prior probability $P(\\theta)$, the likelihood $P(D|\\theta)$, and the posterior probability $P(\\theta|D)$?",
+              options: [
+                { id: "a", text: "$P(\\theta|D) = P(D|\\theta) \\cdot P(\\theta)$" },
+                { id: "b", text: "$P(\\theta|D) = \\frac{P(D|\\theta) \\cdot P(\\theta)}{P(D)}$" },
+                { id: "c", text: "$P(\\theta|D) = P(D|\\theta) + P(\\theta)$" },
+                { id: "d", text: "$P(\\theta|D) = P(D|\\theta) - P(\\theta)$" }
+              ],
+              correctAnswer: "b",
+              explanation: "Bayes' theorem states that the posterior probability is proportional to the likelihood multiplied by the prior probability, divided by the marginal likelihood (evidence): P(θ|D) = [P(D|θ) × P(θ)] / P(D)."
+            },
+            {
+              id: "q3",
+              type: "mcq",
+              text: "Which of the following correctly represents the entropy $H(X)$ of a discrete random variable $X$ with probability mass function $p(x)$?",
+              options: [
+                { id: "a", text: "$H(X) = \\sum_x p(x) \\log p(x)$" },
+                { id: "b", text: "$H(X) = -\\sum_x p(x) \\log p(x)$" },
+                { id: "c", text: "$H(X) = \\sum_x \\log p(x)$" },
+                { id: "d", text: "$H(X) = -\\sum_x \\log p(x)$" }
+              ],
+              correctAnswer: "b",
+              explanation: "The entropy of a discrete random variable X is defined as the negative sum of the probability of each possible outcome multiplied by the log of the probability: H(X) = -∑x p(x) log p(x). This measures the average information or uncertainty associated with X."
+            }
+          ]
+        };
+      } else {
+        // Default to ML assessment if ID not recognized
+        assessment = {
+          id: assessmentId,
+          title: "Machine Learning Basics Review",
+          description: "This assessment covers fundamental concepts in machine learning theory and application.",
+          questions: [
+            {
+              id: "q1",
+              type: "mcq",
+              text: "In gradient descent optimization for a neural network, which of the following expressions correctly represents the weight update rule for a single weight $w_{ij}$ using backpropagation where $\\eta$ is the learning rate, $E$ is the error function, and $\\frac{\\partial E}{\\partial w_{ij}}$ is the partial derivative of the error with respect to the weight?",
+              options: [
+                { id: "a", text: "$w_{ij}^{new} = w_{ij}^{old} - \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
+                { id: "b", text: "$w_{ij}^{new} = w_{ij}^{old} + \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
+                { id: "c", text: "$w_{ij}^{new} = w_{ij}^{old} - \\frac{\\partial E}{\\partial w_{ij}} \\cdot \\eta$" },
+                { id: "d", text: "$w_{ij}^{new} = w_{ij}^{old} \\cdot (1 - \\eta \\frac{\\partial E}{\\partial w_{ij}})$" }
+              ],
+              correctAnswer: "a"
+            },
+            {
+              id: "q2",
+              type: "mcq",
+              text: "What is the primary difference between supervised and unsupervised learning?",
+              options: [
+                { id: "a", text: "Supervised learning requires a GPU, while unsupervised learning works on CPU" },
+                { id: "b", text: "Supervised learning uses labeled training data, while unsupervised learning does not" },
+                { id: "c", text: "Supervised learning is always more accurate than unsupervised learning" },
+                { id: "d", text: "Supervised learning works with image data, while unsupervised learning works with text data" }
+              ],
+              correctAnswer: "b"
+            },
+            {
+              id: "q3",
+              type: "mcq",
+              text: "If the accuracy of a machine learning model on the training set is 95% but only 70% on the test set, this is most likely an example of:",
+              options: [
+                { id: "a", text: "Underfitting" },
+                { id: "b", text: "Overfitting" },
+                { id: "c", text: "Regularization" },
+                { id: "d", text: "Normalization" }
+              ],
+              correctAnswer: "b"
+            }
+          ]
+        };
+      }
       
       res.json(assessment);
     } catch (error) {
