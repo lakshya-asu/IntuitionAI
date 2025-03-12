@@ -68,11 +68,54 @@ export default function Dashboard() {
           <p className="mt-2 text-slate-500">Continue your personalized learning journey</p>
         </div>
 
-        {isLoading ? (
+        {userLoading ? (
+          // Initial loading state
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : !userData ? (
+          // Not logged in
+          <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg shadow p-8">
+            <h2 className="text-xl font-semibold mb-4">Session Expired</h2>
+            <p className="text-slate-600 mb-6 text-center">Your session has expired or you are not logged in. Please log in to continue your learning journey.</p>
+            <div className="flex flex-col gap-3 w-full max-w-xs">
+              <a href="/login" className="w-full">
+                <button className="w-full py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+                  Log In
+                </button>
+              </a>
+              <button 
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/debug/login-test-user', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      }
+                    });
+                    
+                    if (!response.ok) {
+                      throw new Error('Debug login failed');
+                    }
+                    
+                    window.location.reload();
+                  } catch (err) {
+                    console.error("Debug login error:", err);
+                  }
+                }}
+                className="w-full py-2 px-4 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 transition-colors"
+              >
+                Debug Login (Test User)
+              </button>
+            </div>
+          </div>
+        ) : isLoading ? (
+          // Content loading after login
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : (
+          // Logged in and content loaded
           <>
             <ProgressSummary stats={statsData as any} />
             <LearningPath learningPath={learningPathData as any} />
