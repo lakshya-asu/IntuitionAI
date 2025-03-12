@@ -647,6 +647,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calendar endpoints
+  app.get("/api/calendar/auth-url", requireAuth, async (req, res) => {
+    try {
+      const authUrl = await getAuthUrl();
+      res.json({ url: authUrl });
+    } catch (error) {
+      console.error("Failed to get auth URL:", error);
+      res.status(500).json({ message: "Failed to get Google Calendar authorization URL" });
+    }
+  });
+
+  app.get("/api/calendar/oauth-callback", requireAuth, async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code || typeof code !== 'string') {
+        return res.status(400).json({ message: "Authorization code is required" });
+      }
+      
+      await handleOAuthCallback(code);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      res.status(500).json({ message: "Failed to complete Google Calendar authorization" });
+    }
+  });
+
+  app.get("/api/calendar/events", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const events = await storage.getCalendarEvents(userId);
+      res.json(events);
+    } catch (error) {
+      console.error("Failed to get calendar events:", error);
+      res.status(500).json({ message: "Failed to get calendar events" });
+    }
+  });
+
+  app.post("/api/calendar/events", requireAuth, async (req, res) => {
+    try {
+      // Validate request body
+      const eventData = insertCalendarEventSchema.parse({
+        ...req.body,
+        userId: req.session.userId
+      });
+
+      // Create event in our database
+      const event = await storage.createCalendarEvent(eventData);
+
+      // If we have Google Calendar integration, sync the event
+      try {
+        const googleEventId = await addEventToCalendar({
+          title: event.title,
+          description: event.description || '',
+          startTime: event.startTime,
+          endTime: event.endTime,
+          location: event.location
+        });
+
+        // Store the Google Calendar event ID
+        await storage.updateGoogleEventId(event.id, googleEventId);
+      } catch (syncError) {
+        console.warn("Failed to sync with Google Calendar:", syncError);
+        // Continue without Google Calendar sync
+      }
+
+      res.status(201).json(event);
+    } catch (error) {
+      console.error("Failed to create calendar event:", error);
+      res.status(500).json({ message: "Failed to create calendar event" });
+    }
+  });
+
+  app.put("/api/calendar/events/:id", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const eventId = parseInt(id);
+      
+      // Get existing event
+      const existingEvent = await storage.getCalendarEvent(eventId);
+      if (!existingEvent) {
+        return res.status(404).json({ message: "Calendar event not found" });
+      }
+
+      // Update event in our database
+      const updatedEvent = await storage.updateCalendarEvent(eventId, req.body);
+
+      // If we have Google Calendar integration and the event has a Google ID, update it there too
+      if (existingEvent.googleEventId) {
+        try {
+          await updateEventInCalendar(existingEvent.googleEventId, {
+            title: updatedEvent.title,
+            description: updatedEvent.description || '',
+            startTime: updatedEvent.startTime,
+            endTime: updatedEvent.endTime,
+            location: updatedEvent.location
+          });
+        } catch (syncError) {
+          console.warn("Failed to sync update with Google Calendar:", syncError);
+          // Continue without Google Calendar sync
+        }
+      }
+
+      res.json(updatedEvent);
+    } catch (error) {
+      console.error("Failed to update calendar event:", error);
+      res.status(500).json({ message: "Failed to update calendar event" });
+    }
+  });
+
+  app.delete("/api/calendar/events/:id", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const eventId = parseInt(id);
+      
+      // Get existing event
+      const existingEvent = await storage.getCalendarEvent(eventId);
+      if (!existingEvent) {
+        return res.status(404).json({ message: "Calendar event not found" });
+      }
+
+      // Delete from our database
+      await storage.deleteCalendarEvent(eventId);
+
+      // If we have Google Calendar integration and the event has a Google ID, delete it there too
+      if (existingEvent.googleEventId) {
+        try {
+          await deleteEventFromCalendar(existingEvent.googleEventId);
+        } catch (syncError) {
+          console.warn("Failed to sync deletion with Google Calendar:", syncError);
+          // Continue without Google Calendar sync
+        }
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Failed to delete calendar event:", error);
+      res.status(500).json({ message: "Failed to delete calendar event" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
