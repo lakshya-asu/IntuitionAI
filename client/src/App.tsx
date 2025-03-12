@@ -9,6 +9,7 @@ import Library from "@/pages/Library";
 import Analytics from "@/pages/Analytics";
 import Settings from "@/pages/Settings";
 import Calendar from "@/pages/Calendar";
+import Assessment from "@/pages/Assessment";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/settings" component={Settings} />
       <Route path="/calendar" component={Calendar} />
+      <Route path="/assessment/:id" component={Assessment} />
       <Route component={NotFound} />
     </Switch>
   );
