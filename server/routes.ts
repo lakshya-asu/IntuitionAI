@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
+import type { ChatMessage } from "../shared/schema";
 
 // Define session interface for TypeScript
 declare module 'express-session' {
@@ -376,6 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/chatbot", requireAuth, async (req, res) => {
     try {
       const { messages } = req.body;
+      const userId = req.session.userId!;
       
       if (!messages || !Array.isArray(messages)) {
         return res.status(400).json({ 
@@ -384,11 +386,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const response = await generateChatbotResponse(messages);
+      
+      // Store the message in the database
+      const conversationId = req.body.conversationId || "default-conversation";
+      await storage.saveChatMessage({
+        userId,
+        role: "user",
+        content: messages[messages.length - 1].content,
+        conversationId
+      });
+      
+      // Store the assistant's response
+      await storage.saveChatMessage({
+        userId,
+        role: "assistant",
+        content: response,
+        conversationId
+      });
+      
       res.json({ response });
     } catch (error: any) {
       console.error("Chatbot error:", error);
       res.status(500).json({ 
         message: "Failed to get chatbot response",
+        error: error.message
+      });
+    }
+  });
+  
+  // Get user persona
+  app.get("/api/user/persona", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const persona = await storage.getUserPersona(userId);
+      
+      if (!persona) {
+        return res.status(404).json({
+          message: "User persona not found. Use the analyze-persona endpoint to create one."
+        });
+      }
+      
+      res.json(persona);
+    } catch (error: any) {
+      console.error("Get persona error:", error);
+      res.status(500).json({ 
+        message: "Failed to get user persona",
+        error: error.message
+      });
+    }
+  });
+  
+  // User Persona Retrieval - Analyze user chat history for persona creation
+  app.post("/api/user/analyze-persona", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      
+      // Retrieve all chat messages for this user
+      const conversations = await storage.getConversations(userId);
+      let allMessages: ChatMessage[] = [];
+      
+      // Get messages from each conversation
+      for (const conversation of conversations) {
+        const messages = await storage.getChatMessages(userId, conversation.id);
+        allMessages = [...allMessages, ...messages];
+      }
+      
+      if (allMessages.length < 3) {
+        return res.status(400).json({
+          message: "Not enough chat history to analyze. Continue chatting to build your persona."
+        });
+      }
+      
+      // Format messages for OpenAI analysis
+      const messagesForAnalysis = allMessages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+      
+      // Analyze user chat history with OpenAI
+      const analysis = await analyzeUserPersona(messagesForAnalysis);
+      
+      // Save the analyzed persona to the database
+      const userPersona = await storage.saveUserPersona(userId, {
+        contentFormat: analysis.contentFormat || [],
+        studyHabits: analysis.studyHabits || [],
+        currentWeaknesses: analysis.currentWeaknesses || [],
+        learningStyle: analysis.learningStyle || "visual",
+        rawAnalysis: analysis
+      });
+      
+      res.json({ 
+        success: true, 
+        persona: userPersona,
+        analysis: analysis.analysis
+      });
+    } catch (error: any) {
+      console.error("Persona analysis error:", error);
+      res.status(500).json({ 
+        message: "Failed to analyze user persona",
         error: error.message
       });
     }
