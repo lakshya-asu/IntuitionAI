@@ -2,8 +2,8 @@ import {
   users, type User, type InsertUser, 
   type Module, type Resource, type Assessment,
   type UserModule, type UserAssessment, type Recommendation, type Skill, 
-  type ChatMessage, type InsertChatMessage,
-  chatMessages
+  type ChatMessage, type InsertChatMessage, type UserPersona,
+  chatMessages, userPersonas
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -22,6 +22,16 @@ export interface IStorage {
     emailNotifications: boolean;
     pushNotifications: boolean;
   }): Promise<User>;
+  
+  // User persona management
+  getUserPersona(userId: number): Promise<UserPersona | undefined>;
+  saveUserPersona(userId: number, persona: {
+    contentFormat: string[];
+    studyHabits: string[];
+    currentWeaknesses: string[];
+    learningStyle: string;
+    rawAnalysis?: any;
+  }): Promise<UserPersona>;
 
   // Learning path and curriculum
   getLearningPath(): Promise<{
@@ -500,6 +510,32 @@ export class MemStorage implements IStorage {
     // In memory implementation just returns an empty array
     return [];
   }
+  
+  // User persona methods
+  async getUserPersona(userId: number): Promise<UserPersona | undefined> {
+    // Memory storage always returns undefined for new users
+    return undefined;
+  }
+  
+  async saveUserPersona(userId: number, persona: {
+    contentFormat: string[];
+    studyHabits: string[];
+    currentWeaknesses: string[];
+    learningStyle: string;
+    rawAnalysis?: any;
+  }): Promise<UserPersona> {
+    // In memory implementation returns a mock persona
+    return {
+      id: 1,
+      userId,
+      contentFormat: persona.contentFormat,
+      studyHabits: persona.studyHabits,
+      currentWeaknesses: persona.currentWeaknesses,
+      learningStyle: persona.learningStyle,
+      lastAnalyzed: new Date(),
+      rawAnalysis: persona.rawAnalysis || {}
+    };
+  }
 }
 
 // Database implementation
@@ -881,6 +917,61 @@ export class DatabaseStorage implements IStorage {
       success: true,
       message: "Module completed successfully",
     };
+  }
+  
+  // User persona methods
+  async getUserPersona(userId: number): Promise<UserPersona | undefined> {
+    const [persona] = await db
+      .select()
+      .from(userPersonas)
+      .where(eq(userPersonas.userId, userId));
+    
+    return persona;
+  }
+  
+  async saveUserPersona(userId: number, persona: {
+    contentFormat: string[];
+    studyHabits: string[];
+    currentWeaknesses: string[];
+    learningStyle: string;
+    rawAnalysis?: any;
+  }): Promise<UserPersona> {
+    // Check if persona already exists
+    const existingPersona = await this.getUserPersona(userId);
+    
+    if (existingPersona) {
+      // Update existing persona
+      const [updatedPersona] = await db
+        .update(userPersonas)
+        .set({
+          contentFormat: persona.contentFormat,
+          studyHabits: persona.studyHabits,
+          currentWeaknesses: persona.currentWeaknesses,
+          learningStyle: persona.learningStyle,
+          lastAnalyzed: new Date(),
+          rawAnalysis: persona.rawAnalysis || {}
+        })
+        .where(eq(userPersonas.id, existingPersona.id))
+        .returning();
+      
+      return updatedPersona;
+    } else {
+      // Create new persona
+      const [newPersona] = await db
+        .insert(userPersonas)
+        .values({
+          userId,
+          contentFormat: persona.contentFormat,
+          studyHabits: persona.studyHabits,
+          currentWeaknesses: persona.currentWeaknesses,
+          learningStyle: persona.learningStyle,
+          lastAnalyzed: new Date(),
+          rawAnalysis: persona.rawAnalysis || {}
+        })
+        .returning();
+      
+      return newPersona;
+    }
   }
 }
 

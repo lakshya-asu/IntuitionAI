@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse } from "./openai-service";
+import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
 
 // Define session interface for TypeScript
 declare module 'express-session' {

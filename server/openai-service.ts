@@ -319,3 +319,59 @@ export async function generateSkillAssessment({
     };
   }
 }
+
+// User Persona Retrieval - Analyze chat history to understand user preferences
+export async function analyzeUserPersona(chatMessages: {
+  role: string;
+  content: string;
+  timestamp: Date;
+}[]) {
+  try {
+    // Format the chat messages for analysis
+    const conversationHistory = chatMessages
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n\n');
+
+    const prompt = `
+      Analyze the following conversation history between a user and the learning assistant.
+      Extract user preferences, learning patterns, and cognitive profile.
+      
+      Conversation history:
+      ${conversationHistory}
+      
+      Based on this conversation, provide:
+      
+      1. contentFormat - An array of the user's preferred content formats (options: "video", "text", "interactive", "audio"). Limit to 1-3 formats.
+      
+      2. studyHabits - An array describing study habits (e.g., "morning learner", "short attention span", "prefers spaced repetition", "needs frequent breaks"). Limit to 2-4 habits.
+      
+      3. currentWeaknesses - An array identifying specific areas the user struggles with (e.g., "struggles with algebra", "difficulty with technical terms"). Limit to 1-3 weaknesses.
+      
+      4. learningStyle - The primary learning style: "visual", "auditory", "reading/writing", or "kinesthetic".
+      
+      5. analysis - A brief paragraph summarizing key insights about this user's learning preferences.
+      
+      Format the response as JSON with these fields.
+    `;
+
+    // Call OpenAI API for user persona analysis
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { 
+          role: "system", 
+          content: "You are an educational AI that specializes in analyzing conversation data to extract learning preferences and patterns." 
+        },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error analyzing user persona:", error);
+    throw error;
+  }
+}
