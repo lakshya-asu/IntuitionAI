@@ -92,9 +92,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getCurrentUser();
       // User will always be available because of the requireAuth middleware
       
-      // Return the user without password
-      const { password: _, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      // Return the user without sensitive information
+      if (user) {
+        const { password, ...userWithoutPassword } = user as any;
+        res.json(userWithoutPassword);
+      } else {
+        // This shouldn't happen due to requireAuth, but just to be safe
+        res.status(401).json({ message: "User not authenticated" });
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to get user" });
     }
@@ -109,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/user/settings", async (req, res) => {
+  app.get("/api/user/settings", requireAuth, async (req, res) => {
     try {
       const settings = await storage.getUserSettings();
       res.json(settings);
@@ -118,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/user/profile", async (req, res) => {
+  app.put("/api/user/profile", requireAuth, async (req, res) => {
     try {
       const { name, email } = req.body;
       const updatedProfile = await storage.updateUserProfile({ name, email });
@@ -128,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/user/preferences", async (req, res) => {
+  app.put("/api/user/preferences", requireAuth, async (req, res) => {
     try {
       const { learningSpeed, dailyGoal, emailNotifications, pushNotifications } = req.body;
       const updatedPreferences = await storage.updateUserPreferences({
@@ -174,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Recommendations endpoints
-  app.get("/api/recommendations", async (req, res) => {
+  app.get("/api/recommendations", requireAuth, async (req, res) => {
     try {
       // First try to get from storage
       const cachedRecommendations = await storage.getRecommendations();
@@ -184,17 +189,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get user data needed for personalized recommendations
         const user = await storage.getCurrentUser();
         
-        if (!user) {
-          return res.status(401).json({ message: "User not authenticated" });
-        }
-        
+        // User will always be available because of requireAuth middleware
         const userData = {
-          id: user.id,
-          name: user.name,
-          level: user.level,
-          interests: user.interests,
-          strengths: user.strengths,
-          weaknesses: user.weaknesses
+          id: user!.id,
+          name: user!.name,
+          level: user!.level,
+          interests: user!.interests,
+          strengths: user!.strengths,
+          weaknesses: user!.weaknesses
         };
         
         const userStats = await storage.getUserStats();
@@ -221,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Assessment endpoints
-  app.get("/api/assessments/suggested", async (req, res) => {
+  app.get("/api/assessments/suggested", requireAuth, async (req, res) => {
     try {
       // Check if we have cached suggested assessments
       const cachedAssessments = await storage.getSuggestedAssessments();
@@ -229,10 +231,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!cachedAssessments || cachedAssessments.length === 0) {
         // Get user data needed for personalized assessments
         const user = await storage.getCurrentUser();
-        
-        if (!user) {
-          return res.status(401).json({ message: "User not authenticated" });
-        }
         
         const userData = {
           id: user.id,
@@ -267,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Skills endpoints
-  app.get("/api/skills", async (req, res) => {
+  app.get("/api/skills", requireAuth, async (req, res) => {
     try {
       // Check if we have cached skills data
       const cachedSkills = await storage.getUserSkills();
@@ -276,17 +274,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get user data needed for skill assessment
         const user = await storage.getCurrentUser();
         
-        if (!user) {
-          return res.status(401).json({ message: "User not authenticated" });
-        }
-        
+        // User will always be available because of requireAuth middleware
         const userData = {
-          id: user.id,
-          name: user.name,
-          level: user.level,
-          interests: user.interests,
-          strengths: user.strengths,
-          weaknesses: user.weaknesses
+          id: user!.id,
+          name: user!.name,
+          level: user!.level,
+          interests: user!.interests,
+          strengths: user!.strengths,
+          weaknesses: user!.weaknesses
         };
         
         const learningHistory = await storage.getLearningHistory();
@@ -324,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Module interaction endpoints
-  app.post("/api/modules/:moduleId/start", async (req, res) => {
+  app.post("/api/modules/:moduleId/start", requireAuth, async (req, res) => {
     try {
       const { moduleId } = req.params;
       const result = await storage.startModule(moduleId);
@@ -334,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/modules/:moduleId/complete", async (req, res) => {
+  app.post("/api/modules/:moduleId/complete", requireAuth, async (req, res) => {
     try {
       const { moduleId } = req.params;
       const result = await storage.completeModule(moduleId);
@@ -345,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Assessment interaction endpoints
-  app.post("/api/assessments/start", async (req, res) => {
+  app.post("/api/assessments/start", requireAuth, async (req, res) => {
     try {
       const { assessmentType } = req.body;
       const assessment = await storage.startAssessment(assessmentType);
@@ -355,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/assessments/:assessmentId/answer", async (req, res) => {
+  app.post("/api/assessments/:assessmentId/answer", requireAuth, async (req, res) => {
     try {
       const { assessmentId } = req.params;
       const { questionId, answer } = req.body;
@@ -366,7 +361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/assessments/:assessmentId/complete", async (req, res) => {
+  app.post("/api/assessments/:assessmentId/complete", requireAuth, async (req, res) => {
     try {
       const { assessmentId } = req.params;
       const result = await storage.completeAssessment(assessmentId);
@@ -377,7 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chatbot endpoint
-  app.post("/api/chatbot", async (req, res) => {
+  app.post("/api/chatbot", requireAuth, async (req, res) => {
     try {
       const { messages } = req.body;
       
