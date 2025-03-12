@@ -14,6 +14,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   getCurrentUser(): Promise<User | undefined>;
+  setCurrentUser(user: User): Promise<void>;
   updateUserProfile(profile: { name: string; email: string }): Promise<User>;
   updateUserPreferences(preferences: {
     learningSpeed: number;
@@ -159,6 +160,11 @@ export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private currentId: number;
   private currentUser: User | undefined;
+  
+  async setCurrentUser(user: User): Promise<void> {
+    this.currentUser = user;
+  }
+  
   private mockData: {
     learningPath: any[];
     curriculum: { modules: any[] };
@@ -388,7 +394,12 @@ export class MemStorage implements IStorage {
     return {
       name: this.currentUser.name,
       email: this.currentUser.email,
-      preferences: this.currentUser.preferences,
+      preferences: this.currentUser.preferences as {
+        learningSpeed: number;
+        dailyGoal: number;
+        emailNotifications: boolean;
+        pushNotifications: boolean;
+      },
     };
   }
 
@@ -499,6 +510,10 @@ export class DatabaseStorage implements IStorage {
   async getCurrentUser(): Promise<User | undefined> {
     return this.currentUser;
   }
+  
+  async setCurrentUser(user: User): Promise<void> {
+    this.currentUser = user;
+  }
 
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -573,10 +588,8 @@ export class DatabaseStorage implements IStorage {
     return db
       .select()
       .from(chatMessages)
-      .where(
-        eq(chatMessages.userId, userId),
-        eq(chatMessages.conversationId, conversationId)
-      )
+      .where(eq(chatMessages.userId, userId))
+      .where(eq(chatMessages.conversationId, conversationId))
       .orderBy(chatMessages.timestamp);
   }
   

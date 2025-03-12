@@ -4,6 +4,57 @@ import { storage } from "./storage";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse } from "./openai-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication endpoints
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { username, password, name, email } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // Create new user
+      const user = await storage.createUser({
+        username,
+        password, // Note: In a real app, you'd hash the password
+        name,
+        email
+      });
+      
+      // Return the user without password
+      const { password: _, ...userWithoutPassword } = user;
+      res.status(201).json(userWithoutPassword);
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+  
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      // Get user
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.password !== password) { // Note: In a real app, you'd compare hashed passwords
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+      
+      // Set as current user (simplified session management)
+      // In a real app, you'd use a proper session management system
+      await storage.setCurrentUser(user);
+      
+      // Return the user without password
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to login" });
+    }
+  });
+  
   // User endpoints
   app.get("/api/user", async (req, res) => {
     try {
@@ -11,7 +62,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: "User not authenticated" });
       }
-      res.json(user);
+      
+      // Return the user without password
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
     } catch (error) {
       res.status(500).json({ message: "Failed to get user" });
     }
