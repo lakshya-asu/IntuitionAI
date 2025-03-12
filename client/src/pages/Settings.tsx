@@ -33,10 +33,31 @@ export default function Settings() {
     queryKey: ["/api/user/settings"],
   });
   
-  const { data: userPersona, isLoading: personaLoading } = useQuery({
-    queryKey: ["/api/user/persona"],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  // Mock user persona data for demo
+  const mockUserPersona = {
+    id: 1,
+    userId: 1,
+    learningStyle: "visual",
+    contentFormat: ["video", "interactive", "text"],
+    studyHabits: [
+      "Prefers evening study sessions",
+      "Needs frequent breaks",
+      "Learns best with concrete examples",
+      "Responsive to visual explanations"
+    ],
+    currentWeaknesses: [
+      "Struggles with abstract quantum concepts",
+      "Difficulty connecting philosophical theories to practical applications",
+      "Challenges with complex mathematical proofs in machine learning"
+    ],
+    rawAnalysis: {}
+  };
+  
+  // For demo purposes, we'll use the mock data instead of the API call
+  const { data: userPersona, isLoading: personaLoading } = {
+    data: mockUserPersona,
+    isLoading: false
+  };
   
   const isLoading = settingsLoading || personaLoading;
 
