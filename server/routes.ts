@@ -79,6 +79,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  app.post("/api/debug/login-test-user", async (req, res) => {
+    try {
+      // Get test user
+      const user = await storage.getUserByUsername("testuser");
+      if (!user) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "Test user not found. Create a test user first." 
+        });
+      }
+      
+      console.log("Debug login as test user:", user.id);
+      
+      // Set user ID in session
+      req.session.userId = user.id;
+      console.log("Debug login: Session ID set to", req.session.userId);
+      
+      // Explicitly save the session to ensure it persists
+      req.session.save((err) => {
+        if (err) {
+          console.error("Debug login: Error saving session", err);
+          return res.status(500).json({ 
+            success: false, 
+            message: "Failed to save session" 
+          });
+        }
+        
+        console.log("Debug login: Session saved successfully");
+        
+        // Set as current user in storage
+        storage.setCurrentUser(user)
+          .then(() => {
+            console.log("Debug login: Current user set in storage");
+            // Return user info without password
+            const { password: _, ...userWithoutPassword } = user;
+            res.json({ 
+              success: true, 
+              message: "Test user logged in successfully", 
+              user: userWithoutPassword
+            });
+          })
+          .catch(error => {
+            console.error("Debug login: Error setting current user", error);
+            res.status(500).json({ 
+              success: false, 
+              message: "Failed to set current user in storage" 
+            });
+          });
+      });
+    } catch (error) {
+      console.error("Debug login error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to login test user", 
+        error: String(error) 
+      });
+    }
+  });
+  
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {
