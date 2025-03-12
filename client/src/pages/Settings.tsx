@@ -29,9 +29,16 @@ const preferencesFormSchema = z.object({
 export default function Settings() {
   const { toast } = useToast();
   
-  const { data: userSettings, isLoading } = useQuery({
+  const { data: userSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/user/settings"],
   });
+  
+  const { data: userPersona, isLoading: personaLoading } = useQuery({
+    queryKey: ["/api/user/persona"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+  
+  const isLoading = settingsLoading || personaLoading;
 
   const profileForm = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -120,6 +127,7 @@ export default function Settings() {
             <TabsList className="mb-6">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="preferences">Learning Preferences</TabsTrigger>
+              <TabsTrigger value="learning-profile">Learning Profile</TabsTrigger>
               <TabsTrigger value="account">Account</TabsTrigger>
             </TabsList>
             
@@ -267,6 +275,123 @@ export default function Settings() {
                       <Button type="submit">Save Preferences</Button>
                     </form>
                   </Form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="learning-profile">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI-Powered Learning Profile</CardTitle>
+                  <CardDescription>
+                    Your personalized learning profile generated from your interactions with the platform
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {userPersona ? (
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-lg font-medium mb-3">Learning Style</h3>
+                        <div className="bg-primary/5 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <span className="material-icons text-primary mr-2">psychology</span>
+                            <span className="font-medium text-lg text-primary">{userPersona.learningStyle}</span>
+                          </div>
+                          <p className="text-slate-600">Your primary learning style indicates how you best process and retain information.</p>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-lg font-medium mb-3">Preferred Content Formats</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {userPersona.contentFormat.map((format, index) => (
+                            <Badge key={index} variant="secondary" className="px-3 py-1 capitalize">
+                              {format === 'text' && <span className="material-icons mr-1 text-xs">description</span>}
+                              {format === 'video' && <span className="material-icons mr-1 text-xs">videocam</span>}
+                              {format === 'interactive' && <span className="material-icons mr-1 text-xs">touch_app</span>}
+                              {format === 'audio' && <span className="material-icons mr-1 text-xs">headphones</span>}
+                              {format}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-lg font-medium mb-3">Study Habits</h3>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {userPersona.studyHabits.map((habit, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="material-icons text-primary mr-2 text-xs mt-1">check_circle</span>
+                              <span className="text-slate-700">{habit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-lg font-medium mb-3">Areas for Improvement</h3>
+                        <ul className="space-y-2">
+                          {userPersona.currentWeaknesses.map((weakness, index) => (
+                            <li key={index} className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-amber-700">
+                              <div className="flex items-center">
+                                <span className="material-icons mr-2 text-sm">priority_high</span>
+                                <span>{weakness}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div className="pt-2 border-t border-slate-100">
+                        <Button 
+                          variant="outline"
+                          onClick={() => {
+                            queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] });
+                            toast({
+                              title: "Refreshing learning profile",
+                              description: "Updating your learning profile based on recent activity..."
+                            });
+                          }}
+                          className="mt-2"
+                        >
+                          <span className="material-icons mr-2 text-sm">refresh</span>
+                          Refresh Analysis
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="mx-auto mb-4 bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center">
+                        <span className="material-icons text-slate-400 text-2xl">psychology_alt</span>
+                      </div>
+                      <h3 className="text-lg font-medium mb-2">No Learning Profile Yet</h3>
+                      <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                        Continue interacting with the chatbot and completing learning activities to generate your personalized learning profile.
+                      </p>
+                      <Button 
+                        onClick={() => {
+                          apiRequest("POST", "/api/user/analyze-persona", {})
+                            .then(() => {
+                              queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] });
+                              toast({
+                                title: "Analysis started",
+                                description: "Analyzing your learning patterns. This may take a moment."
+                              });
+                            })
+                            .catch(error => {
+                              toast({
+                                title: "Error",
+                                description: error.message || "Failed to analyze learning profile. Try again after more interactions.",
+                                variant: "destructive"
+                              });
+                            });
+                        }}
+                      >
+                        <span className="material-icons mr-2 text-sm">auto_awesome</span>
+                        Generate Learning Profile
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
