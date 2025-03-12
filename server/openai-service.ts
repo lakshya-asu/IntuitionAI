@@ -217,6 +217,37 @@ export async function generateAdaptiveTesting({
 }
 
 // Generate skill assessment and recommendations
+// Chatbot service using GPT-4o
+export async function generateChatbotResponse(
+  messages: { role: 'user' | 'assistant' | 'system'; content: string }[]
+): Promise<string> {
+  try {
+    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI learning assistant for IntuitionAI, an adaptive learning platform. 
+          Your purpose is to help users navigate their personalized learning journey, suggest resources, 
+          answer questions about educational content, and provide guidance on their learning path.
+          Keep responses helpful, encouraging, and focused on the user's educational goals.
+          When appropriate, suggest assessments, learning modules, or resources that might benefit them.
+          Always maintain a supportive, patient tone. Your goal is to empower the user in their learning journey.`
+        },
+        ...messages
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    });
+
+    return response.choices[0].message.content || "I'm sorry, I couldn't generate a response.";
+  } catch (error) {
+    console.error("Error generating chatbot response:", error);
+    throw error;
+  }
+}
+
 export async function generateSkillAssessment({ 
   userData, 
   learningHistory, 

@@ -48,19 +48,35 @@ export default function Chatbot() {
     setIsLoading(true);
     
     try {
-      // Call API to get response (using mock data for now)
-      // TODO: Replace with actual API call
-      setTimeout(() => {
-        const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: getAIResponse(inputMessage),
-          timestamp: new Date().toISOString(),
-        };
-        
-        setMessages(prev => [...prev, assistantMessage]);
-        setIsLoading(false);
-      }, 1000);
+      // Call the chatbot API to get a GPT-4o response
+      const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: messages.concat(userMessage).map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to get response from chatbot');
+      }
+      
+      const data = await response.json();
+      
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response || "I'm sorry, I couldn't generate a response. Please try again.",
+        timestamp: new Date().toISOString(),
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+      setIsLoading(false);
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -71,30 +87,6 @@ export default function Chatbot() {
       });
       setIsLoading(false);
     }
-  };
-
-  // Temporary function to generate responses
-  // Will be replaced with actual API call
-  const getAIResponse = (userMessage: string): string => {
-    const lowerCaseMessage = userMessage.toLowerCase();
-    
-    if (lowerCaseMessage.includes('help') || lowerCaseMessage.includes('how')) {
-      return 'I can help you find learning resources, create a study plan, or assess your skills. What would you like to focus on today?';
-    }
-    
-    if (lowerCaseMessage.includes('data structure') || lowerCaseMessage.includes('algorithm')) {
-      return "I see you're interested in data structures and algorithms! These are fundamental computer science concepts. Would you like to see some resources or take an assessment to measure your current understanding?";
-    }
-    
-    if (lowerCaseMessage.includes('recommend') || lowerCaseMessage.includes('suggest')) {
-      return 'Based on your profile, I recommend focusing on data structures, particularly arrays and linked lists. Would you like me to create a personalized study plan?';
-    }
-    
-    if (lowerCaseMessage.includes('assessment') || lowerCaseMessage.includes('test')) {
-      return "I'd be happy to set up an assessment for you. This will help us understand your current level and customize your learning path. Would you like to start a quick assessment now?";
-    }
-    
-    return "I'm here to help with your learning journey. You can ask me about learning resources, study plans, or take an assessment to gauge your skills.";
   };
 
   const formatTimestamp = (timestamp: string): string => {

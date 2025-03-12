@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment } from "./openai-service";
+import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse } from "./openai-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // User endpoints
@@ -105,7 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Generate personalized recommendations using OpenAI
         const newRecommendations = await generateRecommendations({
-          userData,
+          userData: userData as any,
           userStats,
           learningHistory
         });
@@ -248,6 +248,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       res.status(500).json({ message: "Failed to complete assessment" });
+    }
+  });
+
+  // Chatbot endpoint
+  app.post("/api/chatbot", async (req, res) => {
+    try {
+      const { messages } = req.body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ 
+          message: "Invalid request. 'messages' array is required." 
+        });
+      }
+      
+      const response = await generateChatbotResponse(messages);
+      res.json({ response });
+    } catch (error: any) {
+      console.error("Chatbot error:", error);
+      res.status(500).json({ 
+        message: "Failed to get chatbot response",
+        error: error.message
+      });
     }
   });
 
