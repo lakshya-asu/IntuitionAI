@@ -925,6 +925,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conversationId
       });
       
+      // After several messages, analyze the user's learning persona
+      const userMessages = await storage.getChatMessages(userId, conversationId);
+      if (userMessages.length >= 5) {
+        try {
+          // Analyze user persona based on chat history
+          const personaAnalysis = await analyzeUserPersona(userMessages);
+          
+          // Save the persona
+          await storage.saveUserPersona(userId, {
+            contentFormat: personaAnalysis.contentFormat || [],
+            studyHabits: personaAnalysis.studyHabits || [],
+            currentWeaknesses: personaAnalysis.currentWeaknesses || [],
+            learningStyle: personaAnalysis.learningStyle || "visual",
+            rawAnalysis: personaAnalysis
+          });
+        } catch (personaError) {
+          console.error("Error analyzing user persona:", personaError);
+          // Don't fail the entire request if persona analysis fails
+        }
+      }
+      
       res.json({ response });
     } catch (error: any) {
       console.error("Chatbot error:", error);
