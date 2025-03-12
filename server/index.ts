@@ -1,18 +1,21 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
-import memoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import pgSession from "connect-pg-simple";
+import { pool } from "./db";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Initialize session with in-memory store
-const MemoryStore = memoryStore(session);
+// Initialize session with PostgreSQL store
+const PgStore = pgSession(session);
 app.use(session({
-  store: new MemoryStore({
-    checkPeriod: 86400000 // prune expired entries every 24h
+  store: new PgStore({
+    pool,
+    tableName: 'session', // Use default table name
+    createTableIfMissing: true
   }),
   secret: process.env.SESSION_SECRET || "intuition_ai_dev_secret",
   resave: false,

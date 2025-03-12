@@ -29,11 +29,31 @@ const preferencesFormSchema = z.object({
 export default function Settings() {
   const { toast } = useToast();
   
-  const { data: userSettings, isLoading: settingsLoading } = useQuery({
+  // Define types for API responses
+  type UserSettingsResponse = {
+    name: string;
+    email: string;
+    preferences: {
+      learningSpeed: number;
+      dailyGoal: number;
+      emailNotifications: boolean;
+      pushNotifications: boolean;
+    };
+  };
+  
+  type UserPersonaResponse = {
+    contentFormat: string[];
+    studyHabits: string[];
+    currentWeaknesses: string[];
+    learningStyle: string;
+    rawAnalysis?: any;
+  };
+  
+  const { data: userSettings, isLoading: settingsLoading } = useQuery<UserSettingsResponse>({
     queryKey: ["/api/user/settings"],
   });
   
-  const { data: userPersona, isLoading: personaLoading } = useQuery({
+  const { data: userPersona, isLoading: personaLoading } = useQuery<UserPersonaResponse>({
     queryKey: ["/api/user/persona"],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
