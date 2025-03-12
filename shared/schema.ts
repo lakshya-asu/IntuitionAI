@@ -101,6 +101,16 @@ export const skills = pgTable("skills", {
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 
+// Chatbot messages schema
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  role: text("role").notNull(), // 'user' or 'assistant'
+  content: text("content").notNull(),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  conversationId: text("conversation_id").notNull(),
+});
+
 // Create insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -122,6 +132,11 @@ export const insertAssessmentSchema = createInsertSchema(assessments).omit({
   id: true
 });
 
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  timestamp: true
+});
+
 // Define types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -139,3 +154,5 @@ export type UserModule = typeof userModules.$inferSelect;
 export type UserAssessment = typeof userAssessments.$inferSelect;
 export type Recommendation = typeof recommendations.$inferSelect;
 export type Skill = typeof skills.$inferSelect;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;

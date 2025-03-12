@@ -1,8 +1,12 @@
 import { 
   users, type User, type InsertUser, 
   type Module, type Resource, type Assessment,
-  type UserModule, type UserAssessment, type Recommendation, type Skill
+  type UserModule, type UserAssessment, type Recommendation, type Skill, 
+  type ChatMessage, type InsertChatMessage,
+  chatMessages
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User management
