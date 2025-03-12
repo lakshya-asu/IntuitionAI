@@ -16,9 +16,9 @@ export default function Chatbot() {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hi there! I'm your personalized learning assistant. How can I help you today?',
+      content: "Hi there! I'm your personalized learning assistant. How can I help you today?",
       timestamp: new Date().toISOString(),
-    },
+    }
   ]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -83,7 +83,7 @@ export default function Chatbot() {
     }
     
     if (lowerCaseMessage.includes('data structure') || lowerCaseMessage.includes('algorithm')) {
-      return 'I see you\'re interested in data structures and algorithms! These are fundamental computer science concepts. Would you like to see some resources or take an assessment to measure your current understanding?';
+      return "I see you're interested in data structures and algorithms! These are fundamental computer science concepts. Would you like to see some resources or take an assessment to measure your current understanding?";
     }
     
     if (lowerCaseMessage.includes('recommend') || lowerCaseMessage.includes('suggest')) {
@@ -91,10 +91,10 @@ export default function Chatbot() {
     }
     
     if (lowerCaseMessage.includes('assessment') || lowerCaseMessage.includes('test')) {
-      return 'I\'d be happy to set up an assessment for you. This will help us understand your current level and customize your learning path. Would you like to start a quick assessment now?';
+      return "I'd be happy to set up an assessment for you. This will help us understand your current level and customize your learning path. Would you like to start a quick assessment now?";
     }
     
-    return 'I\'m here to help with your learning journey. You can ask me about learning resources, study plans, or take an assessment to gauge your skills.';
+    return "I'm here to help with your learning journey. You can ask me about learning resources, study plans, or take an assessment to gauge your skills.";
   };
 
   const formatTimestamp = (timestamp: string): string => {

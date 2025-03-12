@@ -4,6 +4,7 @@ import LearningPath from "@/components/dashboard/LearningPath";
 import Recommendations from "@/components/dashboard/Recommendations";
 import AdaptiveAssessment from "@/components/dashboard/AdaptiveAssessment";
 import SkillProficiency from "@/components/dashboard/SkillProficiency";
+import Chatbot from "@/components/dashboard/Chatbot";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -73,11 +74,12 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            <ProgressSummary stats={statsData} />
-            <LearningPath learningPath={learningPathData} />
-            <Recommendations recommendations={recommendationsData} />
-            <AdaptiveAssessment assessments={assessmentsData} />
-            <SkillProficiency skills={skillsData} />
+            <ProgressSummary stats={statsData as any} />
+            <LearningPath learningPath={learningPathData as any} />
+            <Recommendations recommendations={recommendationsData as any} />
+            <AdaptiveAssessment assessments={assessmentsData as any} />
+            <SkillProficiency skills={skillsData as any} />
+            <Chatbot />
           </>
         )}
       </main>
