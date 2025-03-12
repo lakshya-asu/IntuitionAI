@@ -375,9 +375,13 @@ export class MemStorage implements IStorage {
     pushNotifications: boolean;
   }): Promise<User> {
     if (!this.currentUser) throw new Error("No user logged in");
+    
+    // Get the current preferences as a plain JavaScript object
+    const currentPrefs = this.currentUser.preferences || {};
+    
     this.currentUser = { 
       ...this.currentUser, 
-      preferences: { ...this.currentUser.preferences, ...preferences }
+      preferences: { ...currentPrefs, ...preferences }
     };
     this.users.set(this.currentUser.id, this.currentUser);
     return this.currentUser;
@@ -449,15 +453,15 @@ export class MemStorage implements IStorage {
     return this.mockData.analytics;
   }
 
-  async startAssessment(assessmentType: string) {
+  async startAssessment(assessmentType: string): Promise<Assessment> {
     return {
-      id: "new-assessment",
+      id: 101,
       title: "Dynamic Assessment",
       description: "Adaptive assessment based on your skill level",
       type: assessmentType,
       difficulty: "medium",
       estimatedTime: "30 minutes",
-    };
+    } as Assessment;
   }
 
   async submitAnswer(assessmentId: string, questionId: string, answer: string) {
@@ -604,11 +608,14 @@ export class DatabaseStorage implements IStorage {
   }): Promise<User> {
     if (!this.currentUser) throw new Error("No user logged in");
     
+    // Get the current preferences as a plain JavaScript object
+    const currentPrefs = this.currentUser.preferences || {};
+    
     const [updatedUser] = await db
       .update(users)
       .set({
         preferences: { 
-          ...this.currentUser.preferences as any, 
+          ...currentPrefs, 
           ...preferences 
         }
       })
@@ -879,8 +886,9 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async startAssessment(assessmentType: string) {
-    // Would be implemented with database queries
+  async startAssessment(assessmentType: string): Promise<Assessment> {
+    // Would be implemented with database queries to create a real assessment
+    // For now, we're returning a mock assessment that matches the database schema
     return {
       id: 123,
       title: "Dynamic Assessment",
