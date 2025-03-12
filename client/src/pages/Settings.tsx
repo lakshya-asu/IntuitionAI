@@ -324,7 +324,7 @@ export default function Settings() {
                       <div>
                         <h3 className="text-lg font-medium mb-3">Preferred Content Formats</h3>
                         <div className="flex flex-wrap gap-2">
-                          {userPersona.contentFormat.map((format, index) => (
+                          {userPersona.contentFormat.map((format: string, index: number) => (
                             <Badge key={index} variant="secondary" className="px-3 py-1 capitalize">
                               {format === 'text' && <span className="material-icons mr-1 text-xs">description</span>}
                               {format === 'video' && <span className="material-icons mr-1 text-xs">videocam</span>}
@@ -339,7 +339,7 @@ export default function Settings() {
                       <div>
                         <h3 className="text-lg font-medium mb-3">Study Habits</h3>
                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {userPersona.studyHabits.map((habit, index) => (
+                          {userPersona.studyHabits.map((habit: string, index: number) => (
                             <li key={index} className="flex items-start">
                               <span className="material-icons text-primary mr-2 text-xs mt-1">check_circle</span>
                               <span className="text-slate-700">{habit}</span>
@@ -351,7 +351,7 @@ export default function Settings() {
                       <div>
                         <h3 className="text-lg font-medium mb-3">Areas for Improvement</h3>
                         <ul className="space-y-2">
-                          {userPersona.currentWeaknesses.map((weakness, index) => (
+                          {userPersona.currentWeaknesses.map((weakness: string, index: number) => (
                             <li key={index} className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-amber-700">
                               <div className="flex items-center">
                                 <span className="material-icons mr-2 text-sm">priority_high</span>
