@@ -232,14 +232,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get user data needed for personalized assessments
         const user = await storage.getCurrentUser();
         
-        // User will always be available because of requireAuth middleware
         const userData = {
-          id: user!.id,
-          name: user!.name,
-          level: user!.level,
-          interests: user!.interests,
-          strengths: user!.strengths,
-          weaknesses: user!.weaknesses
+          id: user.id,
+          name: user.name,
+          level: user.level,
+          interests: user.interests,
+          strengths: user.strengths,
+          weaknesses: user.weaknesses
         };
         
         const userStats = await storage.getUserStats();
