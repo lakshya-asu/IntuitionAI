@@ -35,6 +35,7 @@ export default function Sidebar() {
     { href: "/", label: "Dashboard", icon: "dashboard" },
     { href: "/curriculum", label: "My Curriculum", icon: "school" },
     { href: "/library", label: "Learning Library", icon: "local_library" },
+    { href: "/calendar", label: "Learning Schedule", icon: "event" },
     { href: "/analytics", label: "My Analytics", icon: "analytics" },
     { href: "/settings", label: "Settings", icon: "settings" },
   ];

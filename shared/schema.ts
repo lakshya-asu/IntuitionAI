@@ -112,6 +112,19 @@ export const chatMessages = pgTable("chat_messages", {
 });
 
 // User Persona schema
+export const calendarEvents = pgTable("calendar_events", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  moduleId: text("module_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  googleEventId: text("google_event_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const userPersonas = pgTable("user_personas", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
@@ -177,3 +190,13 @@ export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
 export type UserPersona = typeof userPersonas.$inferSelect;
 export type InsertUserPersona = z.infer<typeof insertUserPersonaSchema>;
+
+export const insertCalendarEventSchema = createInsertSchema(calendarEvents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  googleEventId: true
+});
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = z.infer<typeof insertCalendarEventSchema>;

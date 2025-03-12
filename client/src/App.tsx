@@ -8,6 +8,7 @@ import Curriculum from "@/pages/Curriculum";
 import Library from "@/pages/Library";
 import Analytics from "@/pages/Analytics";
 import Settings from "@/pages/Settings";
+import Calendar from "@/pages/Calendar";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/library" component={Library} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/settings" component={Settings} />
+      <Route path="/calendar" component={Calendar} />
       <Route component={NotFound} />
     </Switch>
   );
