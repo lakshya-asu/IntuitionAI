@@ -99,13 +99,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If we don't have recommendations or they're stale, generate new ones
       if (!cachedRecommendations || cachedRecommendations.length === 0) {
         // Get user data needed for personalized recommendations
-        const userData = await storage.getCurrentUser();
+        const user = await storage.getCurrentUser();
+        
+        if (!user) {
+          return res.status(401).json({ message: "User not authenticated" });
+        }
+        
+        const userData = {
+          id: user.id,
+          name: user.name,
+          level: user.level,
+          interests: user.interests,
+          strengths: user.strengths,
+          weaknesses: user.weaknesses
+        };
+        
         const userStats = await storage.getUserStats();
         const learningHistory = await storage.getLearningHistory();
         
         // Generate personalized recommendations using OpenAI
         const newRecommendations = await generateRecommendations({
-          userData: userData as any,
+          userData,
           userStats,
           learningHistory
         });
@@ -131,7 +145,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!cachedAssessments || cachedAssessments.length === 0) {
         // Get user data needed for personalized assessments
-        const userData = await storage.getCurrentUser();
+        const user = await storage.getCurrentUser();
+        
+        if (!user) {
+          return res.status(401).json({ message: "User not authenticated" });
+        }
+        
+        const userData = {
+          id: user.id,
+          name: user.name,
+          level: user.level,
+          interests: user.interests,
+          strengths: user.strengths,
+          weaknesses: user.weaknesses
+        };
+        
         const userStats = await storage.getUserStats();
         const learningHistory = await storage.getLearningHistory();
         
@@ -163,7 +191,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!cachedSkills) {
         // Get user data needed for skill assessment
-        const userData = await storage.getCurrentUser();
+        const user = await storage.getCurrentUser();
+        
+        if (!user) {
+          return res.status(401).json({ message: "User not authenticated" });
+        }
+        
+        const userData = {
+          id: user.id,
+          name: user.name,
+          level: user.level,
+          interests: user.interests,
+          strengths: user.strengths,
+          weaknesses: user.weaknesses
+        };
+        
         const learningHistory = await storage.getLearningHistory();
         const assessmentResults = await storage.getAssessmentResults();
         
