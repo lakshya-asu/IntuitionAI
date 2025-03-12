@@ -784,19 +784,34 @@ export class DatabaseStorage implements IStorage {
     return [
       {
         id: "path1",
-        title: "Web Development Fundamentals",
-        description: "Learn the basics of web development",
+        title: "Machine Learning Foundations",
+        description: "Learn the essential concepts of machine learning",
         status: 'completed' as const,
         completedOn: "2025-03-01",
-        topics: ["HTML", "CSS", "JavaScript"],
+        topics: ["Linear Regression", "Classification", "Neural Networks"],
       },
       {
         id: "path2",
-        title: "Frontend Development",
-        description: "Master modern frontend frameworks",
+        title: "Philosophy of Mind",
+        description: "Explore philosophical concepts related to consciousness and cognition",
         status: 'in-progress' as const,
-        progress: 45,
-        topics: ["React", "TypeScript", "Redux"],
+        progress: 65,
+        topics: ["Consciousness", "Free Will", "Mind-Body Problem"],
+      },
+      {
+        id: "path3",
+        title: "Introduction to Causality",
+        description: "Understanding causal inference and its applications",
+        status: 'in-progress' as const,
+        progress: 30,
+        topics: ["Causal Graphs", "Interventions", "Counterfactuals"],
+      },
+      {
+        id: "path4",
+        title: "Quantum Physics Fundamentals",
+        description: "Explore the fascinating world of quantum mechanics",
+        status: 'upcoming' as const,
+        topics: ["Wave Functions", "Uncertainty Principle", "Quantum Entanglement"],
       },
     ];
   }
@@ -807,12 +822,39 @@ export class DatabaseStorage implements IStorage {
       modules: [
         {
           id: 1,
-          title: "Getting Started with React",
-          description: "Learn the fundamentals of React",
-          icon: "code",
-          topics: ["JSX", "Components", "Props", "State"],
-          difficulty: 1,
-          estimatedTime: 60,
+          title: "Machine Learning Fundamentals",
+          description: "Learn the core concepts of machine learning",
+          icon: "brain",
+          topics: ["Supervised Learning", "Neural Networks", "Model Evaluation"],
+          difficulty: 2,
+          estimatedTime: 120,
+        },
+        {
+          id: 2,
+          title: "Introduction to Philosophy of Mind",
+          description: "Explore the philosophical concepts of consciousness",
+          icon: "lightbulb",
+          topics: ["Mind-Body Problem", "Consciousness", "Free Will"],
+          difficulty: 3,
+          estimatedTime: 90,
+        },
+        {
+          id: 3,
+          title: "Causal Inference",
+          description: "Understanding causality and statistical inference",
+          icon: "git-branch",
+          topics: ["Causal Graphs", "Pearl's Causal Theory", "Interventions"],
+          difficulty: 4,
+          estimatedTime: 150,
+        },
+        {
+          id: 4,
+          title: "Quantum Mechanics Basics",
+          description: "Introduction to the fundamental concepts of quantum physics",
+          icon: "atom",
+          topics: ["Wave Functions", "Uncertainty Principle", "Quantum Entanglement"],
+          difficulty: 3,
+          estimatedTime: 120,
         },
       ] as Module[],
     };
@@ -824,13 +866,85 @@ export class DatabaseStorage implements IStorage {
       resources: [
         {
           id: 1,
-          title: "React Hooks Deep Dive",
-          description: "Master React Hooks with practical examples",
+          title: "Introduction to Reinforcement Learning",
+          description: "Essential concepts of machine learning reinforcement techniques",
           type: "article",
-          tags: ["React", "Hooks", "Frontend"],
-          duration: "15 mins",
-          url: "https://example.com/react-hooks",
+          tags: ["Machine Learning", "AI", "Reinforcement Learning"],
+          duration: "12 mins",
+          url: "https://example.com/intro-reinforcement-learning",
         },
+        {
+          id: 2,
+          title: "The Philosophy of Causality",
+          description: "Explore the philosophical foundations of cause and effect",
+          type: "article",
+          tags: ["Philosophy", "Causality", "Metaphysics"],
+          duration: "18 mins",
+          url: "https://example.com/philosophy-causality",
+        },
+        {
+          id: 3,
+          title: "Quantum Entanglement Explained",
+          description: "A simplified guide to understanding quantum entanglement",
+          type: "article",
+          tags: ["Quantum Physics", "Physics", "Entanglement"],
+          duration: "15 mins",
+          url: "https://example.com/quantum-entanglement",
+        },
+        {
+          id: 4,
+          title: "Making Sense of Podcast",
+          description: "Sam Harris discusses causality with Judea Pearl",
+          type: "podcast",
+          tags: ["Causality", "Philosophy", "Statistics"],
+          duration: "1 hr 45 mins",
+          url: "https://example.com/making-sense-causality",
+        },
+        {
+          id: 5,
+          title: "Lex Fridman Podcast - Geoffrey Hinton",
+          description: "Deep discussion on neural networks and the future of AI",
+          type: "podcast",
+          tags: ["Machine Learning", "AI", "Neural Networks"],
+          duration: "2 hrs 20 mins",
+          url: "https://example.com/lex-fridman-hinton",
+        },
+        {
+          id: 6,
+          title: "Sean Carroll's Mindscape: Quantum Mechanics",
+          description: "Detailed exploration of quantum mechanics fundamentals",
+          type: "podcast",
+          tags: ["Quantum Physics", "Physics", "Science"],
+          duration: "1 hr 30 mins",
+          url: "https://example.com/mindscape-quantum",
+        },
+        {
+          id: 7,
+          title: "The Book of Why",
+          description: "Judea Pearl's seminal work on causality and causal inference",
+          type: "book",
+          tags: ["Causality", "Statistics", "AI"],
+          duration: "Est. reading: 8 hrs",
+          url: "https://example.com/book-of-why",
+        },
+        {
+          id: 8,
+          title: "Deep Learning",
+          description: "Comprehensive textbook by Goodfellow, Bengio, and Courville",
+          type: "book",
+          tags: ["Machine Learning", "Deep Learning", "AI"],
+          duration: "Est. reading: 15 hrs",
+          url: "https://example.com/deep-learning-book",
+        },
+        {
+          id: 9,
+          title: "Something Deeply Hidden",
+          description: "Sean Carroll's exploration of quantum mechanics and the Many-Worlds theory",
+          type: "book",
+          tags: ["Quantum Physics", "Physics", "Cosmology"],
+          duration: "Est. reading: 7 hrs",
+          url: "https://example.com/deeply-hidden",
+        }
       ] as Resource[],
     };
   }
@@ -838,19 +952,21 @@ export class DatabaseStorage implements IStorage {
   async getUserStats() {
     // Would be implemented with database queries
     return {
-      masteryScore: 75,
-      masteryGrowth: "+5% this week",
-      streak: 7,
+      masteryScore: 68,
+      masteryGrowth: "+7% this week",
+      streak: 9,
       streakDays: Array(7).fill(null).map((_, i) => ({
         date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
         completed: true
       })),
-      completedModules: 8,
-      totalModules: 12,
+      completedModules: 6,
+      totalModules: 15,
       focusAreas: [
-        { name: "React", percentage: 45, color: "#3B82F6" },
-        { name: "TypeScript", percentage: 30, color: "#8B5CF6" },
-        { name: "Testing", percentage: 25, color: "#10B981" },
+        { name: "Machine Learning", percentage: 38, color: "#3B82F6" },
+        { name: "Philosophy", percentage: 25, color: "#8B5CF6" },
+        { name: "Quantum Physics", percentage: 15, color: "#10B981" },
+        { name: "Causality", percentage: 12, color: "#F59E0B" },
+        { name: "Statistics", percentage: 10, color: "#EC4899" },
       ],
     };
   }
@@ -875,28 +991,49 @@ export class DatabaseStorage implements IStorage {
       completedModules: [
         {
           id: "cm1",
-          title: "React Basics",
-          topics: ["Components", "Props", "State"],
+          title: "Intro to Neural Networks",
+          topics: ["Perceptrons", "Activation Functions", "Backpropagation"],
           completedAt: "2025-02-28",
-          score: 95,
+          score: 88,
+        },
+        {
+          id: "cm2",
+          title: "Philosophy of Consciousness",
+          topics: ["Hard Problem", "Qualia", "Identity Theory"],
+          completedAt: "2025-03-05",
+          score: 92,
         },
       ],
       inProgressModules: [
         {
           id: "im1",
-          title: "Advanced React Patterns",
-          topics: ["HOCs", "Render Props", "Custom Hooks"],
-          progress: 60,
+          title: "Causal Inference in ML",
+          topics: ["Causal Graphs", "Interventions", "Do-calculus"],
+          progress: 65,
+        },
+        {
+          id: "im2",
+          title: "Quantum Computing Basics",
+          topics: ["Qubits", "Superposition", "Quantum Gates"],
+          progress: 40,
         },
       ],
       assessmentResults: [
         {
           id: "ar1",
-          type: "Module Assessment",
-          score: 85,
+          type: "Machine Learning Assessment",
+          score: 82,
           completedAt: "2025-02-28",
-          strengths: ["Component Design", "State Management"],
-          weaknesses: ["Performance Optimization"],
+          strengths: ["Supervised Learning", "Model Evaluation"],
+          weaknesses: ["Reinforcement Learning", "Neural Architecture Search"],
+        },
+        {
+          id: "ar2",
+          type: "Philosophy Quiz",
+          score: 75,
+          completedAt: "2025-03-07",
+          strengths: ["Mind-Body Problem", "Free Will"],
+          weaknesses: ["Epistemology", "Ethics"],
         },
       ],
     };
@@ -904,7 +1041,48 @@ export class DatabaseStorage implements IStorage {
 
   async getRecommendations() {
     // Would be implemented with database queries
-    return [] as Recommendation[];
+    return [
+      {
+        id: "rec1",
+        title: "Causality in Machine Learning",
+        description: "Learn how causal inference can improve machine learning models",
+        match: 95,
+        icon: "git-branch",
+        iconBg: "#4F46E5",
+        topics: ["Causality", "Machine Learning", "Inference"],
+        estimatedTime: "2 hours",
+      },
+      {
+        id: "rec2",
+        title: "Quantum Entanglement and Philosophy",
+        description: "Explore the philosophical implications of quantum entanglement",
+        match: 92,
+        icon: "atom",
+        iconBg: "#10B981",
+        topics: ["Quantum Physics", "Philosophy", "Metaphysics"],
+        estimatedTime: "1.5 hours",
+      },
+      {
+        id: "rec3", 
+        title: "Neural Networks and Decision Making",
+        description: "Advanced concepts in neural architecture for decision systems",
+        match: 88,
+        icon: "cpu",
+        iconBg: "#3B82F6",
+        topics: ["Machine Learning", "Neural Networks", "Decision Theory"],
+        estimatedTime: "2.5 hours",
+      },
+      {
+        id: "rec4",
+        title: "Statistical Methods for Causal Inference",
+        description: "Practical statistical techniques for establishing causality",
+        match: 85,
+        icon: "bar-chart",
+        iconBg: "#F59E0B",
+        topics: ["Statistics", "Causality", "Data Analysis"],
+        estimatedTime: "3 hours",
+      },
+    ] as Recommendation[];
   }
 
   async saveRecommendations(recommendations: Recommendation[]) {
@@ -913,7 +1091,38 @@ export class DatabaseStorage implements IStorage {
 
   async getSuggestedAssessments() {
     // Would be implemented with database queries
-    return [] as Assessment[];
+    return [
+      {
+        id: "sa1",
+        title: "Causal Inference Challenge",
+        type: "challenge",
+        typeLabel: "Challenge",
+        description: "Test your understanding of advanced causal inference concepts",
+        duration: "25 minutes",
+        difficulty: "hard",
+        estimatedTime: "25 minutes",
+      },
+      {
+        id: "sa2",
+        title: "Philosophy of Mind Review",
+        type: "review",
+        typeLabel: "Review",
+        description: "Review and reinforce your knowledge of philosophy of mind concepts",
+        duration: "15 minutes",
+        difficulty: "medium",
+        estimatedTime: "15 minutes",
+      },
+      {
+        id: "sa3",
+        title: "Machine Learning Skills Snapshot",
+        type: "recommended",
+        typeLabel: "Recommended",
+        description: "A personalized assessment of your current machine learning knowledge",
+        duration: "20 minutes",
+        difficulty: "medium",
+        estimatedTime: "20 minutes",
+      },
+    ] as Assessment[];
   }
 
   async saveSuggestedAssessments(assessments: Assessment[]) {
@@ -925,13 +1134,35 @@ export class DatabaseStorage implements IStorage {
     return [
       {
         id: "ar1",
-        title: "React Fundamentals",
-        score: 85,
+        title: "Machine Learning Fundamentals",
+        score: 82,
         date: "2025-02-28",
         topics: [
-          { name: "Components", score: 90 },
-          { name: "Hooks", score: 80 },
-          { name: "State Management", score: 85 },
+          { name: "Supervised Learning", score: 88 },
+          { name: "Neural Networks", score: 85 },
+          { name: "Feature Engineering", score: 75 },
+        ],
+      },
+      {
+        id: "ar2",
+        title: "Philosophy of Mind",
+        score: 75,
+        date: "2025-03-05",
+        topics: [
+          { name: "Consciousness", score: 82 },
+          { name: "Free Will", score: 78 },
+          { name: "Mind-Body Problem", score: 65 },
+        ],
+      },
+      {
+        id: "ar3",
+        title: "Introduction to Quantum Physics",
+        score: 65,
+        date: "2025-03-10",
+        topics: [
+          { name: "Wave Functions", score: 72 },
+          { name: "Uncertainty Principle", score: 68 },
+          { name: "Quantum Entanglement", score: 58 },
         ],
       },
     ];
@@ -941,18 +1172,18 @@ export class DatabaseStorage implements IStorage {
     // Would be implemented with database queries
     return {
       radar: {
-        labels: ["React", "TypeScript", "Testing", "State Management", "Performance"],
-        current: [80, 65, 45, 70, 60],
-        average: [65, 60, 55, 65, 55],
+        labels: ["Machine Learning", "Philosophy", "Causality", "Quantum Physics", "Statistics"],
+        current: [75, 60, 40, 55, 70],
+        average: [60, 50, 45, 50, 65],
       },
       breakdown: [
-        { skill: "React", score: 80 },
-        { skill: "TypeScript", score: 65 },
-        { skill: "Testing", score: 45 },
-        { skill: "State Management", score: 70 },
-        { skill: "Performance", score: 60 },
+        { skill: "Machine Learning", score: 75 },
+        { skill: "Philosophy", score: 60 },
+        { skill: "Causality", score: 40 },
+        { skill: "Quantum Physics", score: 55 },
+        { skill: "Statistics", score: 70 },
       ],
-      recommendation: "Focus on improving your testing skills to become a more well-rounded developer.",
+      recommendation: "Focus on improving your understanding of causality and its application in both philosophy and quantum physics.",
     };
   }
 
@@ -972,21 +1203,21 @@ export class DatabaseStorage implements IStorage {
         score: Math.min(100, 65 + Math.floor(Math.random() * 20)),
       })),
       assessmentData: [
-        { name: "React Fundamentals", score: 85, average: 75 },
-        { name: "TypeScript Basics", score: 78, average: 72 },
-        { name: "Testing Principles", score: 65, average: 68 },
+        { name: "Machine Learning Foundations", score: 82, average: 70 },
+        { name: "Philosophy of Mind", score: 75, average: 68 },
+        { name: "Quantum Theory", score: 65, average: 62 },
       ],
       skillData: [
-        { subject: "React", score: 80, previousScore: 70 },
-        { subject: "TypeScript", score: 65, previousScore: 55 },
-        { subject: "Testing", score: 45, previousScore: 35 },
-        { subject: "State Mgmt", score: 70, previousScore: 60 },
-        { subject: "Performance", score: 60, previousScore: 50 },
+        { subject: "Machine Learning", score: 75, previousScore: 65 },
+        { subject: "Philosophy", score: 60, previousScore: 50 },
+        { subject: "Causality", score: 40, previousScore: 30 },
+        { subject: "Quantum Physics", score: 55, previousScore: 45 },
+        { subject: "Statistics", score: 70, previousScore: 60 },
       ],
       efficiency: {
         completionRate: 85,
-        avgLearningTime: 45,
-        knowledgeRetention: 88,
+        avgLearningTime: 52,
+        knowledgeRetention: 78,
       },
     };
   }
