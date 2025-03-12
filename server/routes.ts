@@ -1,8 +1,10 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
 import type { ChatMessage } from "../shared/schema";
+import { users } from "../shared/schema";
 
 // Define session interface for TypeScript
 declare module 'express-session' {
@@ -55,12 +57,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.get("/api/debug/users", async (req, res) => {
-    const users = Array.from((storage as any).users?.values() || []);
-    console.log("Debug users data:", users.length, "users found");
-    res.json({ 
-      userCount: users.length,
-      userIds: users.map(user => ({ id: user.id, username: user.username }))
-    });
+    try {
+      // Get all users from the database
+      const allUsers = await db.select({ id: users.id, username: users.username }).from(users);
+      console.log("Debug users data:", allUsers.length, "users found");
+      res.json({ 
+        userCount: allUsers.length,
+        userIds: allUsers
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
   });
   
   app.post("/api/debug/create-test-user", async (req, res) => {
