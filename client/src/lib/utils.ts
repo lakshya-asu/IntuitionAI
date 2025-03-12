@@ -25,6 +25,7 @@ export async function loginAsTestUser() {
   try {
     const response = await fetch('/api/debug/login-test-user', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       }
@@ -38,6 +39,6 @@ export async function loginAsTestUser() {
     return data.user;
   } catch (error) {
     console.error('Error logging in as test user:', error);
-    return null;
+    throw error;
   }
 }

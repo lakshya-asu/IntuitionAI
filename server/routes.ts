@@ -2,7 +2,15 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
-import type { ChatMessage } from "../shared/schema";
+import type { ChatMessage, InsertCalendarEvent } from "../shared/schema";
+import { insertCalendarEventSchema } from "../shared/schema";
+import { 
+  getAuthUrl,
+  handleOAuthCallback,
+  addEventToCalendar,
+  updateEventInCalendar,
+  deleteEventFromCalendar
+} from "./google-calendar-service";
 
 // Define session interface for TypeScript
 declare module 'express-session' {
