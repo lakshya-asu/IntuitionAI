@@ -50,9 +50,11 @@ export default function Assessment() {
       
       setLoading(true);
       try {
+        console.log("Fetching assessment with ID:", params.id);
         const data = await apiRequest(`/api/assessments/${params.id}`, {
           method: 'GET'
         });
+        console.log("Assessment data received:", data);
         setAssessmentData(data);
       } catch (error) {
         console.error("Failed to fetch assessment:", error);
