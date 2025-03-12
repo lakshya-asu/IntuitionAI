@@ -177,6 +177,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Debug endpoint for generating and testing a user persona without needing chat history
+  app.post("/api/debug/generate-test-persona", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      
+      // Sample chat history for generating a test persona
+      const sampleMessages = [
+        {
+          role: "user",
+          content: "I prefer watching video explanations for complex topics. Reading long texts makes me lose focus.",
+          timestamp: new Date(Date.now() - 7 * 86400000)
+        },
+        {
+          role: "assistant",
+          content: "I understand you prefer visual learning. I'll focus on recommending video content for complex topics.",
+          timestamp: new Date(Date.now() - 7 * 86400000 + 60000)
+        },
+        {
+          role: "user",
+          content: "I struggle with understanding causality concepts especially in statistics.",
+          timestamp: new Date(Date.now() - 5 * 86400000)
+        },
+        {
+          role: "assistant",
+          content: "Many people find causality challenging. Let's break it down with some visual examples.",
+          timestamp: new Date(Date.now() - 5 * 86400000 + 60000)
+        },
+        {
+          role: "user",
+          content: "I usually study in the evenings. And I like taking frequent short breaks.",
+          timestamp: new Date(Date.now() - 3 * 86400000)
+        },
+        {
+          role: "user",
+          content: "The quantum physics videos are fascinating, but I need more interactive examples.",
+          timestamp: new Date(Date.now() - 2 * 86400000)
+        },
+        {
+          role: "assistant",
+          content: "Interactive examples are great for understanding quantum concepts. I'll look for some simulations you can try.",
+          timestamp: new Date(Date.now() - 2 * 86400000 + 60000)
+        }
+      ];
+      
+      console.log("Generating test persona for user:", userId);
+      
+      // Analyze simulated chat history with OpenAI
+      const analysis = await analyzeUserPersona(sampleMessages);
+      
+      // Save the analyzed persona to the database
+      const userPersona = await storage.saveUserPersona(userId, {
+        contentFormat: analysis.contentFormat || [],
+        studyHabits: analysis.studyHabits || [],
+        currentWeaknesses: analysis.currentWeaknesses || [],
+        learningStyle: analysis.learningStyle || "visual",
+        rawAnalysis: analysis
+      });
+      
+      res.json({ 
+        success: true, 
+        persona: userPersona,
+        analysis: analysis.analysis
+      });
+    } catch (error: any) {
+      console.error("Test persona generation error:", error);
+      res.status(500).json({ 
+        message: "Failed to generate test user persona",
+        error: error.message
+      });
+    }
+  });
+  
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {
