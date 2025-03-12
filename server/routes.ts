@@ -1,7 +1,36 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse } from "./openai-service";
+
+// Define session interface for TypeScript
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+  }
+}
+
+// Auth middleware for protected routes
+const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+  // Check if user ID exists in session
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+  
+  // Set the current user in storage based on session
+  const user = await storage.getUser(req.session.userId);
+  if (!user) {
+    // Clear invalid session
+    req.session.destroy(err => {
+      if (err) console.error("Session destroy error:", err);
+    });
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+  
+  // Set current user in storage
+  await storage.setCurrentUser(user);
+  next();
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication endpoints
@@ -42,8 +71,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid username or password" });
       }
       
-      // Set as current user (simplified session management)
-      // In a real app, you'd use a proper session management system
+      // Set user ID in session
+      req.session.userId = user.id;
+      
+      // Set as current user in storage
       await storage.setCurrentUser(user);
       
       // Return the user without password
@@ -56,12 +87,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // User endpoints
-  app.get("/api/user", async (req, res) => {
+  app.get("/api/user", requireAuth, async (req, res) => {
     try {
       const user = await storage.getCurrentUser();
-      if (!user) {
-        return res.status(401).json({ message: "User not authenticated" });
-      }
+      // User will always be available because of the requireAuth middleware
       
       // Return the user without password
       const { password: _, ...userWithoutPassword } = user;

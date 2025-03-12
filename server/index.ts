@@ -1,10 +1,29 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import pgSession from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { pool } from "./db";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Initialize session with PostgreSQL store
+const PgStore = pgSession(session);
+app.use(session({
+  store: new PgStore({
+    pool: pool, // Use the DB pool
+    tableName: "session" // Table name for sessions
+  }),
+  secret: process.env.SESSION_SECRET || "intuition_ai_dev_secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === "production", 
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  }
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();
