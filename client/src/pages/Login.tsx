@@ -168,6 +168,41 @@ export default function Login() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={async () => {
+                  setIsLoading(true);
+                  try {
+                    const response = await fetch('/api/debug/login-test-user', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      }
+                    });
+                    if (!response.ok) {
+                      const data = await response.json();
+                      throw new Error(data.message || 'Login failed');
+                    }
+                    
+                    toast({
+                      title: 'Debug login successful',
+                      description: 'Logged in as test user',
+                    });
+                    
+                    // Redirect to dashboard
+                    setLocation('/');
+                  } catch (err: any) {
+                    setError(err.message);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                disabled={isLoading}
+              >
+                Debug Login (Test User)
+              </Button>
             </form>
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
