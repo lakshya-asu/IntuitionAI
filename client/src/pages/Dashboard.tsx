@@ -11,10 +11,33 @@ import { loginAsTestUser } from "@/lib/utils";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [autoLoginAttempted, setAutoLoginAttempted] = useState(false);
+  const queryClient = useQueryClient();
 
-  const { data: userData, isLoading: userLoading } = useQuery({
+  const { data: userData, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ["/api/user"],
   });
+  
+  // Auto-login functionality for development
+  useEffect(() => {
+    // Only attempt auto-login if user data failed to load and we haven't tried already
+    const shouldAutoLogin = !userData && !userLoading && userError && !autoLoginAttempted;
+    
+    if (shouldAutoLogin) {
+      setAutoLoginAttempted(true);
+      console.log("Auto-login: Attempting to login as test user...");
+      
+      loginAsTestUser().then(user => {
+        if (user) {
+          console.log("Auto-login: Success, refreshing data...");
+          // Invalidate queries to reload data with the new session
+          queryClient.invalidateQueries();
+        } else {
+          console.error("Auto-login: Failed to login as test user");
+        }
+      });
+    }
+  }, [userData, userLoading, userError, autoLoginAttempted, queryClient]);
 
   const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/user/stats"],
@@ -88,18 +111,13 @@ export default function Dashboard() {
               <button 
                 onClick={async () => {
                   try {
-                    const response = await fetch('/api/debug/login-test-user', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      }
-                    });
-                    
-                    if (!response.ok) {
+                    const user = await loginAsTestUser();
+                    if (user) {
+                      // Invalidate queries to reload data with the new session
+                      queryClient.invalidateQueries();
+                    } else {
                       throw new Error('Debug login failed');
                     }
-                    
-                    window.location.reload();
                   } catch (err) {
                     console.error("Debug login error:", err);
                   }

@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { apiRequest } from "./queryClient"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -24,11 +23,19 @@ export async function getTestUserData() {
 
 export async function loginAsTestUser() {
   try {
-    const response = await apiRequest({
-      url: '/api/debug/login-test-user',
-      method: 'POST'
+    const response = await fetch('/api/debug/login-test-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
-    return response?.user;
+    
+    if (!response.ok) {
+      throw new Error('Debug login failed');
+    }
+    
+    const data = await response.json();
+    return data.user;
   } catch (error) {
     console.error('Error logging in as test user:', error);
     return null;
