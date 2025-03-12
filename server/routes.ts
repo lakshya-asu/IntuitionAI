@@ -495,6 +495,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/assessments/:id", requireAuth, async (req, res) => {
+    try {
+      const assessmentId = req.params.id;
+      
+      // This would normally fetch the assessment from the database
+      // For the demo, we'll return a sample machine learning assessment with mathematical content
+      const assessment = {
+        id: assessmentId,
+        title: "Machine Learning Basics Review",
+        description: "This assessment covers fundamental concepts in machine learning theory and application.",
+        questions: [
+          {
+            id: "q1",
+            type: "mcq",
+            text: "In gradient descent optimization for a neural network, which of the following expressions correctly represents the weight update rule for a single weight $w_{ij}$ using backpropagation where $\\eta$ is the learning rate, $E$ is the error function, and $\\frac{\\partial E}{\\partial w_{ij}}$ is the partial derivative of the error with respect to the weight?",
+            options: [
+              { id: "a", text: "$w_{ij}^{new} = w_{ij}^{old} - \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
+              { id: "b", text: "$w_{ij}^{new} = w_{ij}^{old} + \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
+              { id: "c", text: "$w_{ij}^{new} = w_{ij}^{old} - \\frac{\\partial E}{\\partial w_{ij}} \\cdot \\eta$" },
+              { id: "d", text: "$w_{ij}^{new} = w_{ij}^{old} \\cdot (1 - \\eta \\frac{\\partial E}{\\partial w_{ij}})$" }
+            ],
+            correctAnswer: "a"
+          },
+          {
+            id: "q2",
+            type: "mcq",
+            text: "What is the primary difference between supervised and unsupervised learning?",
+            options: [
+              { id: "a", text: "Supervised learning requires a GPU, while unsupervised learning works on CPU" },
+              { id: "b", text: "Supervised learning uses labeled training data, while unsupervised learning does not" },
+              { id: "c", text: "Supervised learning is always more accurate than unsupervised learning" },
+              { id: "d", text: "Supervised learning works with image data, while unsupervised learning works with text data" }
+            ],
+            correctAnswer: "b"
+          },
+          {
+            id: "q3",
+            type: "mcq",
+            text: "If the accuracy of a machine learning model on the training set is 95% but only 70% on the test set, this is most likely an example of:",
+            options: [
+              { id: "a", text: "Underfitting" },
+              { id: "b", text: "Overfitting" },
+              { id: "c", text: "Regularization" },
+              { id: "d", text: "Normalization" }
+            ],
+            correctAnswer: "b"
+          }
+        ]
+      };
+      
+      res.json(assessment);
+    } catch (error) {
+      console.error("Assessment fetch error:", error);
+      res.status(500).json({ message: "Failed to get assessment" });
+    }
+  });
+
   // Skills endpoints
   app.get("/api/skills", requireAuth, async (req, res) => {
     try {
