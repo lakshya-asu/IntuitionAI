@@ -6,7 +6,7 @@ import {
   chatMessages, userPersonas
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -451,7 +451,7 @@ export class MemStorage implements IStorage {
 
   async startAssessment(assessmentType: string) {
     return {
-      id: "new-assessment",
+      id: 1001, // Using a numeric ID to match the schema
       title: "Dynamic Assessment",
       description: "Adaptive assessment based on your skill level",
       type: assessmentType,
@@ -626,7 +626,7 @@ export class DatabaseStorage implements IStorage {
       .from(chatMessages)
       .where(eq(chatMessages.userId, userId))
       .where(eq(chatMessages.conversationId, conversationId))
-      .orderBy(chatMessages.timestamp);
+      .orderBy(asc(chatMessages.timestamp));
   }
   
   async saveChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
