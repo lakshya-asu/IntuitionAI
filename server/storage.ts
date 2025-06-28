@@ -3,7 +3,9 @@ import {
   type Module, type Resource, type Assessment,
   type UserModule, type UserAssessment, type Recommendation, type Skill, 
   type ChatMessage, type InsertChatMessage, type UserPersona,
-  chatMessages, userPersonas, type CalendarEvent, type InsertCalendarEvent
+  chatMessages, userPersonas, type CalendarEvent, type InsertCalendarEvent,
+  type Syllabus, type LearningSession, type KnowledgeBank, type AgentInteraction,
+  type InsertAgentInteraction
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc } from "drizzle-orm";
@@ -37,9 +39,29 @@ export interface IStorage {
     contentFormat: string[];
     studyHabits: string[];
     currentWeaknesses: string[];
-    learningStyle: string;
+    learningPreferences: string;
     rawAnalysis?: any;
   }): Promise<UserPersona>;
+
+  // Syllabus management
+  getSyllabi(userId: number): Promise<Syllabus[]>;
+  getSyllabus(id: number): Promise<Syllabus | undefined>;
+  createSyllabus(syllabus: any): Promise<Syllabus>;
+  updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus>;
+  activateSyllabus(id: number): Promise<void>;
+
+  // Learning sessions
+  getRecentLearningSessions(userId: number, limit: number): Promise<LearningSession[]>;
+  createLearningSession(session: any): Promise<LearningSession>;
+  updateLearningSession(id: number, updates: any): Promise<LearningSession>;
+
+  // Knowledge bank
+  searchKnowledgeBank(query: string, filters?: any): Promise<KnowledgeBank[]>;
+  getKnowledgeBankItem(id: number): Promise<KnowledgeBank | undefined>;
+
+  // Agent interactions
+  logAgentInteraction(interaction: InsertAgentInteraction): Promise<AgentInteraction>;
+  getAgentInteractions(userId: number, agentType?: string): Promise<AgentInteraction[]>;
 
   // Learning path and curriculum
   getLearningPath(): Promise<{
@@ -180,6 +202,9 @@ export class MemStorage implements IStorage {
   private currentUser: User | undefined;
   private chatMessages: Map<string, ChatMessage[]>;
   private userPersonas: Map<number, UserPersona>;
+  private syllabi: Map<number, Syllabus>;
+  private learningSessions: Map<number, LearningSession[]>;
+  private agentInteractions: Map<number, AgentInteraction[]>;
   
   async setCurrentUser(user: User): Promise<void> {
     this.currentUser = user;
@@ -203,6 +228,9 @@ export class MemStorage implements IStorage {
     this.currentId = 1;
     this.chatMessages = new Map();
     this.userPersonas = new Map();
+    this.syllabi = new Map();
+    this.learningSessions = new Map();
+    this.agentInteractions = new Map();
     this.mockData = {
       learningPath: [
         {
@@ -587,6 +615,108 @@ export class MemStorage implements IStorage {
     return this.currentUser;
   }
 
+  // Syllabus management
+  async getSyllabi(userId: number): Promise<Syllabus[]> {
+    return Array.from(this.syllabi.values()).filter(s => s.userId === userId);
+  }
+
+  async getSyllabus(id: number): Promise<Syllabus | undefined> {
+    return this.syllabi.get(id);
+  }
+
+  async createSyllabus(syllabus: any): Promise<Syllabus> {
+    const id = this.syllabi.size + 1;
+    const newSyllabus: Syllabus = {
+      ...syllabus,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.syllabi.set(id, newSyllabus);
+    return newSyllabus;
+  }
+
+  async updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus> {
+    const syllabus = this.syllabi.get(id);
+    if (!syllabus) throw new Error("Syllabus not found");
+    
+    const updated = { ...syllabus, ...updates, updatedAt: new Date() };
+    this.syllabi.set(id, updated);
+    return updated;
+  }
+
+  async activateSyllabus(id: number): Promise<void> {
+    const syllabus = this.syllabi.get(id);
+    if (!syllabus) throw new Error("Syllabus not found");
+    
+    // Deactivate other syllabi for this user
+    for (const [syllabusId, s] of this.syllabi.entries()) {
+      if (s.userId === syllabus.userId && s.status === 'active') {
+        this.syllabi.set(syllabusId, { ...s, status: 'draft' });
+      }
+    }
+    
+    // Activate this syllabus
+    this.syllabi.set(id, { ...syllabus, status: 'active' });
+  }
+
+  // Learning sessions
+  async getRecentLearningSessions(userId: number, limit: number): Promise<LearningSession[]> {
+    const sessions = this.learningSessions.get(userId) || [];
+    return sessions.slice(-limit);
+  }
+
+  async createLearningSession(session: any): Promise<LearningSession> {
+    const userId = session.userId;
+    const sessions = this.learningSessions.get(userId) || [];
+    const newSession: LearningSession = {
+      ...session,
+      id: sessions.length + 1,
+      createdAt: new Date()
+    };
+    sessions.push(newSession);
+    this.learningSessions.set(userId, sessions);
+    return newSession;
+  }
+
+  async updateLearningSession(id: number, updates: any): Promise<LearningSession> {
+    // Implementation would find and update the session
+    throw new Error("Not implemented in memory storage");
+  }
+
+  // Knowledge bank
+  async searchKnowledgeBank(query: string, filters?: any): Promise<KnowledgeBank[]> {
+    // Mock implementation
+    return [];
+  }
+
+  async getKnowledgeBankItem(id: number): Promise<KnowledgeBank | undefined> {
+    // Mock implementation
+    return undefined;
+  }
+
+  // Agent interactions
+  async logAgentInteraction(interaction: InsertAgentInteraction): Promise<AgentInteraction> {
+    const userId = interaction.userId;
+    const interactions = this.agentInteractions.get(userId) || [];
+    const newInteraction: AgentInteraction = {
+      ...interaction,
+      id: interactions.length + 1,
+      timestamp: new Date()
+    };
+    interactions.push(newInteraction);
+    this.agentInteractions.set(userId, interactions);
+    return newInteraction;
+  }
+
+  async getAgentInteractions(userId: number, agentType?: string): Promise<AgentInteraction[]> {
+    const interactions = this.agentInteractions.get(userId) || [];
+    if (agentType) {
+      return interactions.filter(i => i.agentType === agentType);
+    }
+    return interactions;
+  }
+
   async getLearningPath() {
     return this.mockData.learningPath;
   }
@@ -798,7 +928,7 @@ export class MemStorage implements IStorage {
     contentFormat: string[];
     studyHabits: string[];
     currentWeaknesses: string[];
-    learningStyle: string;
+    learningPreferences: string;
     rawAnalysis?: any;
   }): Promise<UserPersona> {
     const newPersona: UserPersona = {
@@ -807,7 +937,7 @@ export class MemStorage implements IStorage {
       contentFormat: persona.contentFormat,
       studyHabits: persona.studyHabits,
       currentWeaknesses: persona.currentWeaknesses,
-      learningStyle: persona.learningStyle,
+      learningPreferences: persona.learningPreferences,
       lastAnalyzed: new Date(),
       rawAnalysis: persona.rawAnalysis || {}
     };
@@ -899,12 +1029,61 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, this.currentUser.id))
       .returning();
     
+    
     this.currentUser = updatedUser;
     return updatedUser;
   }
 
   // For brevity, I'll implement the rest of the methods to throw errors when database is not available
   // In a real implementation, you'd want to implement all methods properly
+
+  async getSyllabi(userId: number): Promise<Syllabus[]> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async getSyllabus(id: number): Promise<Syllabus | undefined> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async createSyllabus(syllabus: any): Promise<Syllabus> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async activateSyllabus(id: number): Promise<void> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async getRecentLearningSessions(userId: number, limit: number): Promise<LearningSession[]> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async createLearningSession(session: any): Promise<LearningSession> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async updateLearningSession(id: number, updates: any): Promise<LearningSession> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async searchKnowledgeBank(query: string, filters?: any): Promise<KnowledgeBank[]> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async getKnowledgeBankItem(id: number): Promise<KnowledgeBank | undefined> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async logAgentInteraction(interaction: InsertAgentInteraction): Promise<AgentInteraction> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
+
+  async getAgentInteractions(userId: number, agentType?: string): Promise<AgentInteraction[]> {
+    throw new Error("Database storage not fully implemented for Bolt environment");
+  }
 
   async getCalendarEvents(userId: number): Promise<CalendarEvent[]> {
     throw new Error("Database storage not fully implemented for Bolt environment");
@@ -950,7 +1129,7 @@ export class DatabaseStorage implements IStorage {
     contentFormat: string[];
     studyHabits: string[];
     currentWeaknesses: string[];
-    learningStyle: string;
+    learningPreferences: string;
     rawAnalysis?: any;
   }): Promise<UserPersona> {
     throw new Error("Database storage not fully implemented for Bolt environment");

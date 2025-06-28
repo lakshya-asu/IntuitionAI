@@ -5,14 +5,17 @@ import Recommendations from "@/components/dashboard/Recommendations";
 import SuggestedAssessments from "@/components/dashboard/SuggestedAssessments";
 import SkillProficiency from "@/components/dashboard/SkillProficiency";
 import UserPersona from "@/components/dashboard/UserPersona";
-import Chatbot from "@/components/dashboard/Chatbot";
+import LearningAssistant from "@/components/dashboard/LearningAssistant";
+import SyllabusManager from "@/components/dashboard/SyllabusManager";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { loginAsTestUser } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [autoLoginAttempted, setAutoLoginAttempted] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   const queryClient = useQueryClient();
 
   const { data: userData, isLoading: userLoading, error: userError } = useQuery({
@@ -63,6 +66,16 @@ export default function Dashboard() {
   const isLoading = userLoading || statsLoading || pathLoading || 
                     recommendationsLoading || assessmentsLoading || skillsLoading;
 
+  const handleRecommendationSelect = (recommendation: any) => {
+    // Handle recommendation selection
+    console.log("Selected recommendation:", recommendation);
+  };
+
+  const handleActionTrigger = (action: any) => {
+    // Handle action trigger
+    console.log("Triggered action:", action);
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar />
@@ -90,7 +103,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <p className="mt-2 text-slate-500">Continue your personalized learning journey</p>
+          <p className="mt-2 text-slate-500">Continue your personalized learning journey with AI-powered assistance</p>
         </div>
 
         {userLoading ? (
@@ -136,22 +149,57 @@ export default function Dashboard() {
           </div>
         ) : (
           // Logged in and content loaded
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="md:col-span-2">
-                <ProgressSummary stats={statsData as any} />
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="learning">Learning Path</TabsTrigger>
+              <TabsTrigger value="syllabi">Syllabi</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="md:col-span-2">
+                  <ProgressSummary stats={statsData as any} />
+                </div>
+                <div className="md:col-span-1">
+                  <UserPersona onAnalysisDone={() => queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] })} />
+                </div>
               </div>
-              <div className="md:col-span-1">
-                <UserPersona onAnalysisDone={() => queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] })} />
+              <Recommendations recommendations={recommendationsData as any} />
+              <SuggestedAssessments assessments={assessmentsData as any} />
+            </TabsContent>
+            
+            <TabsContent value="learning" className="space-y-6">
+              <LearningPath learningPath={learningPathData as any} />
+              <SkillProficiency skills={skillsData as any} />
+            </TabsContent>
+            
+            <TabsContent value="syllabi" className="space-y-6">
+              <SyllabusManager />
+            </TabsContent>
+            
+            <TabsContent value="analytics" className="space-y-6">
+              <SkillProficiency skills={skillsData as any} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-semibold mb-4">Learning Analytics</h3>
+                  <p className="text-slate-600">Detailed analytics will be available here, showing your learning patterns, time spent, and progress trends.</p>
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-semibold mb-4">Performance Insights</h3>
+                  <p className="text-slate-600">AI-powered insights about your learning performance and recommendations for improvement.</p>
+                </div>
               </div>
-            </div>
-            <LearningPath learningPath={learningPathData as any} />
-            <Recommendations recommendations={recommendationsData as any} />
-            <SuggestedAssessments assessments={assessmentsData as any} />
-            <SkillProficiency skills={skillsData as any} />
-            <Chatbot />
-          </>
+            </TabsContent>
+          </Tabs>
         )}
+        
+        {/* AI Learning Assistant */}
+        <LearningAssistant 
+          onRecommendationSelect={handleRecommendationSelect}
+          onActionTrigger={handleActionTrigger}
+        />
       </main>
     </div>
   );

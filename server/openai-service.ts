@@ -348,7 +348,7 @@ export async function analyzeUserPersona(chatMessages: {
       
       3. currentWeaknesses - An array identifying specific areas the user struggles with (e.g., "struggles with algebra", "difficulty with technical terms"). Limit to 1-3 weaknesses.
       
-      4. learningStyle - The primary learning style: "visual", "auditory", "reading/writing", or "kinesthetic".
+      4. learningPreferences - The primary learning preference: "visual", "auditory", "reading/writing", or "kinesthetic".
       
       5. analysis - A brief paragraph summarizing key insights about this user's learning preferences.
       

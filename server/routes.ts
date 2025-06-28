@@ -2,6 +2,8 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
+import { orchestratorAgent } from "./agents/orchestrator-agent";
+import { syllabusGenerator } from "./syllabus-generator";
 import type { ChatMessage, InsertCalendarEvent } from "../shared/schema";
 import { insertCalendarEventSchema } from "../shared/schema";
 import { 
@@ -264,7 +266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contentFormat: analysis.contentFormat || [],
         studyHabits: analysis.studyHabits || [],
         currentWeaknesses: analysis.currentWeaknesses || [],
-        learningStyle: analysis.learningStyle || "visual",
+        learningPreferences: analysis.learningPreferences || "visual",
         rawAnalysis: analysis
       });
       
@@ -408,6 +410,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedPreferences);
     } catch (error) {
       res.status(500).json({ message: "Failed to update preferences" });
+    }
+  });
+
+  // Orchestrator endpoint - main entry point for multi-agent interactions
+  app.post("/api/orchestrator/interact", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const { userInput, context } = req.body;
+      
+      const result = await orchestratorAgent.orchestrateInteraction(
+        userId,
+        userInput,
+        context
+      );
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Orchestrator interaction error:", error);
+      res.status(500).json({ message: "Failed to process interaction" });
+    }
+  });
+
+  // Syllabus endpoints
+  app.get("/api/syllabi", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const syllabi = await storage.getSyllabi(userId);
+      const activeSyllabus = syllabi.find(s => s.status === 'active');
+      
+      res.json({
+        syllabi,
+        activeSyllabus
+      });
+    } catch (error) {
+      console.error("Syllabi fetch error:", error);
+      res.status(500).json({ message: "Failed to get syllabi" });
+    }
+  });
+
+  app.post("/api/syllabi/generate", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const syllabusRequest = {
+        ...req.body,
+        userId
+      };
+      
+      const result = await syllabusGenerator.generatePersonalizedSyllabus(syllabusRequest);
+      
+      // Save the generated syllabus
+      const savedSyllabus = await storage.createSyllabus(result.syllabus);
+      
+      res.json({
+        syllabus: savedSyllabus,
+        reasoning: result.reasoning,
+        confidence: result.confidence
+      });
+    } catch (error) {
+      console.error("Syllabus generation error:", error);
+      res.status(500).json({ message: "Failed to generate syllabus" });
+    }
+  });
+
+  app.post("/api/syllabi/:id/activate", requireAuth, async (req, res) => {
+    try {
+      const syllabusId = parseInt(req.params.id);
+      await storage.activateSyllabus(syllabusId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Syllabus activation error:", error);
+      res.status(500).json({ message: "Failed to activate syllabus" });
     }
   });
 
@@ -839,7 +912,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             contentFormat: personaAnalysis.contentFormat || [],
             studyHabits: personaAnalysis.studyHabits || [],
             currentWeaknesses: personaAnalysis.currentWeaknesses || [],
-            learningStyle: personaAnalysis.learningStyle || "visual",
+            learningPreferences: personaAnalysis.learningPreferences || "visual",
             rawAnalysis: personaAnalysis
           });
         } catch (personaError) {
@@ -1032,7 +1105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contentFormat: analysis.contentFormat || [],
         studyHabits: analysis.studyHabits || [],
         currentWeaknesses: analysis.currentWeaknesses || [],
-        learningStyle: analysis.learningStyle || "visual",
+        learningPreferences: analysis.learningPreferences || "visual",
         rawAnalysis: analysis
       });
       
