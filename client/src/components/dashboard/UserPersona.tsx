@@ -15,7 +15,7 @@ interface UserPersonaData {
   contentFormat: string[];
   studyHabits: string[];
   currentWeaknesses: string[];
-  learningStyle: string;
+  learningPreferences: string;
   rawAnalysis?: any;
   createdAt?: Date;
   updatedAt?: Date;
@@ -82,9 +82,9 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
     }
   };
 
-  // Helper function to get style classes based on learning style
-  const getLearningStyleClasses = (style: string) => {
-    switch (style) {
+  // Helper function to get preference classes based on learning preferences
+  const getLearningPreferenceClasses = (preferences: string) => {
+    switch (preferences) {
       case 'visual':
         return 'bg-blue-100 text-blue-800';
       case 'auditory':
@@ -122,7 +122,7 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium">Learning Profile</CardTitle>
           <CardDescription>
-            We need to analyze your interactions to understand your learning style
+            We need to analyze your interactions to understand your learning preferences
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
@@ -137,7 +137,7 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
             disabled={analyzing}
             className="w-full"
           >
-            {analyzing ? 'Analyzing...' : 'Analyze My Learning Style'}
+            {analyzing ? 'Analyzing...' : 'Analyze My Learning Preferences'}
           </Button>
         </CardFooter>
       </Card>
@@ -150,9 +150,9 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
         <CardTitle className="text-lg font-medium flex items-center justify-between">
           <span>Learning Profile</span>
           <Badge 
-            className={getLearningStyleClasses(persona.learningStyle.toLowerCase())}
+            className={getLearningPreferenceClasses(persona.learningPreferences.toLowerCase())}
           >
-            {persona.learningStyle} Learner
+            {persona.learningPreferences} Learner
           </Badge>
         </CardTitle>
         <CardDescription>

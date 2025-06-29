@@ -37,7 +37,7 @@ export default function Settings() {
   const mockUserPersona = {
     id: 1,
     userId: 1,
-    learningStyle: "visual",
+    learningPreferences: "visual",
     contentFormat: ["video", "interactive", "text"],
     studyHabits: [
       "Prefers evening study sessions",
@@ -312,13 +312,13 @@ export default function Settings() {
                   {userPersona ? (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-3">Learning Style</h3>
+                        <h3 className="text-lg font-medium mb-3">Learning Preferences</h3>
                         <div className="bg-primary/5 p-4 rounded-lg">
                           <div className="flex items-center mb-2">
                             <span className="material-icons text-primary mr-2">psychology</span>
-                            <span className="font-medium text-lg text-primary">{userPersona.learningStyle}</span>
+                            <span className="font-medium text-lg text-primary">{userPersona.learningPreferences}</span>
                           </div>
-                          <p className="text-slate-600">Your primary learning style indicates how you best process and retain information.</p>
+                          <p className="text-slate-600">Your primary learning preference indicates how you best process and retain information.</p>
                         </div>
                       </div>
                       

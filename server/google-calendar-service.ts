@@ -4,7 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.REPL_SLUG}.replit.dev/api/calendar/oauth-callback` // Callback URL
+  `${process.env.BASE_URL || 'http://localhost:5000'}/api/calendar/oauth-callback` // Removed Replit-specific URL
 );
 
 const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
