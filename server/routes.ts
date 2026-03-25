@@ -80,8 +80,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/health", async (_req, res) => {
     try {
       // Test DB connection
-      const [result] = await db.select({ val: sql`1` }).limit(1);
-      res.json({ status: "ok", db: result ? "connected" : "failed", timestamp: new Date().toISOString() });
+      const result = await db.execute(sql`SELECT 1`);
+      res.json({ status: "ok", db: "connected", timestamp: new Date().toISOString() });
     } catch (error: any) {
       console.error("Health check failed:", error);
       res.status(500).json({ status: "error", error: error.message, stack: error.stack });
