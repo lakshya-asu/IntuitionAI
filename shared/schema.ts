@@ -1,19 +1,19 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // User schema
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
   email: text("email").notNull(),
   level: text("level").notNull().default("Beginner"),
-  interests: text("interests", { mode: "json" }).$type<string[]>().notNull().default([]),
-  strengths: text("strengths", { mode: "json" }).$type<string[]>().notNull().default([]),
-  weaknesses: text("weaknesses", { mode: "json" }).$type<string[]>().notNull().default([]),
-  preferences: text("preferences", { mode: "json" }).$type<{
+  interests: jsonb("interests").$type<string[]>().notNull().default([]),
+  strengths: jsonb("strengths").$type<string[]>().notNull().default([]),
+  weaknesses: jsonb("weaknesses").$type<string[]>().notNull().default([]),
+  preferences: jsonb("preferences").$type<{
     learningSpeed: number;
     dailyGoal: number;
     emailNotifications: boolean;
@@ -27,42 +27,42 @@ export const users = sqliteTable("users", {
 });
 
 // Learning module schema
-export const modules = sqliteTable("modules", {
+export const modules = pgTable("modules", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   icon: text("icon").notNull(),
-  topics: text("topics", { mode: "json" }).$type<string[]>().notNull(),
+  topics: jsonb("topics").$type<string[]>().notNull(),
   difficulty: integer("difficulty").notNull(),
   estimatedTime: integer("estimatedTime").notNull(), // in minutes
-  prerequisiteIds: text("prerequisiteIds", { mode: "json" }).$type<string[]>()
+  prerequisiteIds: jsonb("prerequisiteIds").$type<string[]>()
 });
 
 // User module progress schema
-export const userModules = sqliteTable("user_modules", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const userModules = pgTable("user_modules", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   moduleId: text("module_id").notNull().references(() => modules.id),
   status: text("status").notNull().default("not-started"),
   progress: integer("progress").notNull().default(0),
-  startedAt: integer("started_at", { mode: "timestamp" }),
-  completedAt: integer("completed_at", { mode: "timestamp" }),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
   score: integer("score"),
 });
 
 // Learning resource schema
-export const resources = sqliteTable("resources", {
+export const resources = pgTable("resources", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(), 
   type: text("type").notNull(), // article, video, course, exercise
-  tags: text("tags", { mode: "json" }).$type<string[]>().notNull(),
+  tags: jsonb("tags").$type<string[]>().notNull(),
   duration: text("duration").notNull(),
   url: text("url"),
 });
 
 // Assessment schema
-export const assessments = sqliteTable("assessments", {
+export const assessments = pgTable("assessments", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -72,140 +72,140 @@ export const assessments = sqliteTable("assessments", {
 });
 
 // User assessment schema
-export const userAssessments = sqliteTable("user_assessments", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const userAssessments = pgTable("user_assessments", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   assessmentId: text("assessment_id").notNull().references(() => assessments.id),
-  startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
-  completedAt: integer("completed_at", { mode: "timestamp" }),
+  startedAt: timestamp("started_at").notNull(),
+  completedAt: timestamp("completed_at"),
   score: integer("score"),
-  adaptive: integer("adaptive", { mode: "boolean" }).notNull().default(true),
-  results: text("results", { mode: "json" }).notNull().default({}),
+  adaptive: boolean("adaptive").notNull().default(true),
+  results: jsonb("results").notNull().default({}),
 });
 
 // User recommendations schema
-export const recommendations = sqliteTable("recommendations", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const recommendations = pgTable("recommendations", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
   match: integer("match").notNull(),
   icon: text("icon").notNull(),
   iconBg: text("icon_bg").notNull(),
-  topics: text("topics", { mode: "json" }).$type<string[]>().notNull(),
+  topics: jsonb("topics").$type<string[]>().notNull(),
   estimatedTime: text("estimated_time").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 // User skills schema
-export const skills = sqliteTable("skills", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const skills = pgTable("skills", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   skillName: text("skill_name").notNull(),
   score: integer("score").notNull(),
-  lastUpdated: integer("last_updated", { mode: "timestamp" }).notNull(),
+  lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 
 // Chatbot messages schema
-export const chatMessages = sqliteTable("chat_messages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   role: text("role").notNull(), // 'user' or 'assistant'
   content: text("content").notNull(),
-  timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
   conversationId: text("conversation_id").notNull(),
 });
 
 // User Persona schema
-export const userPersonas = sqliteTable("user_personas", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const userPersonas = pgTable("user_personas", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  contentFormat: text("content_format", { mode: "json" }).$type<string[]>().notNull().default([]), // 'video', 'text', 'interactive'
-  studyHabits: text("study_habits", { mode: "json" }).$type<string[]>().notNull().default([]), // 'morning learner', 'short attention span'
-  currentWeaknesses: text("current_weaknesses", { mode: "json" }).$type<string[]>().notNull().default([]), // 'struggles with algebra'
+  contentFormat: jsonb("content_format").$type<string[]>().notNull().default([]), // 'video', 'text', 'interactive'
+  studyHabits: jsonb("study_habits").$type<string[]>().notNull().default([]), // 'morning learner', 'short attention span'
+  currentWeaknesses: jsonb("current_weaknesses").$type<string[]>().notNull().default([]), // 'struggles with algebra'
   learningPreferences: text("learning_preferences").notNull().default("visual"), // 'visual', 'auditory', 'kinesthetic'
-  lastAnalyzed: integer("last_analyzed", { mode: "timestamp" }).notNull(),
-  rawAnalysis: text("raw_analysis", { mode: "json" }).notNull().default({})
+  lastAnalyzed: timestamp("last_analyzed").notNull().defaultNow(),
+  rawAnalysis: jsonb("raw_analysis").notNull().default({})
 });
 
 // Personalized Syllabus schema
-export const syllabi = sqliteTable("syllabi", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const syllabi = pgTable("syllabi", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
   subject: text("subject").notNull(),
   difficulty: text("difficulty").notNull(),
   estimatedDuration: integer("estimated_duration").notNull(), // in weeks
-  modules: text("modules", { mode: "json" }).$type<any[]>().notNull().default([]), // array of module objects
-  prerequisites: text("prerequisites", { mode: "json" }).$type<string[]>().notNull().default([]),
-  learningObjectives: text("learning_objectives", { mode: "json" }).$type<string[]>().notNull().default([]),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  modules: jsonb("modules").$type<any[]>().notNull().default([]), // array of module objects
+  prerequisites: jsonb("prerequisites").$type<string[]>().notNull().default([]),
+  learningObjectives: jsonb("learning_objectives").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   status: text("status").notNull().default("draft") // draft, active, completed
 });
 
 // Learning Sessions schema
-export const learningSessions = sqliteTable("learning_sessions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const learningSessions = pgTable("learning_sessions", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   syllabusId: integer("syllabus_id").references(() => syllabi.id),
   moduleId: text("module_id").notNull(),
   resourceId: text("resource_id"),
   sessionType: text("session_type").notNull(), // 'study', 'practice', 'assessment', 'review'
-  startTime: integer("start_time", { mode: "timestamp" }).notNull(),
-  endTime: integer("end_time", { mode: "timestamp" }),
+  startTime: timestamp("start_time").notNull().defaultNow(),
+  endTime: timestamp("end_time"),
   duration: integer("duration"), // in minutes
   progress: integer("progress").notNull().default(0), // percentage
   notes: text("notes"),
-  performance: text("performance", { mode: "json" }).notNull().default({}), // scores, completion rates, etc.
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull()
+  performance: jsonb("performance").notNull().default({}), // scores, completion rates, etc.
+  createdAt: timestamp("created_at").notNull().defaultNow()
 });
 
 // Knowledge Bank schema
-export const knowledgeBank = sqliteTable("knowledge_bank", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const knowledgeBank = pgTable("knowledge_bank", {
+  id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   content: text("content").notNull(),
   contentType: text("content_type").notNull(), // 'text', 'video', 'interactive', 'audio'
   subject: text("subject").notNull(),
-  topics: text("topics", { mode: "json" }).$type<string[]>().notNull(),
+  topics: jsonb("topics").$type<string[]>().notNull(),
   difficulty: text("difficulty").notNull(),
-  prerequisites: text("prerequisites", { mode: "json" }).$type<string[]>().notNull().default([]),
+  prerequisites: jsonb("prerequisites").$type<string[]>().notNull().default([]),
   estimatedTime: integer("estimated_time").notNull(), // in minutes
-  tags: text("tags", { mode: "json" }).$type<string[]>().notNull().default([]),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
   sourceUrl: text("source_url"),
-  metadata: text("metadata", { mode: "json" }).notNull().default({}),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull()
+  metadata: jsonb("metadata").notNull().default({}),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow()
 });
 
 // Calendar Events schema
-export const calendarEvents = sqliteTable("calendar_events", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const calendarEvents = pgTable("calendar_events", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   moduleId: text("module_id").notNull(),
   title: text("title").notNull(),
   description: text("description"),
-  startTime: integer("start_time", { mode: "timestamp" }).notNull(),
-  endTime: integer("end_time", { mode: "timestamp" }).notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
   googleEventId: text("google_event_id"),
-  createdAt: integer("created_at", { mode: "timestamp" }),
-  updatedAt: integer("updated_at", { mode: "timestamp" }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Agent Interactions schema
-export const agentInteractions = sqliteTable("agent_interactions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const agentInteractions = pgTable("agent_interactions", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   agentType: text("agent_type").notNull(), // 'student_interaction', 'recommendation', 'evaluator', 'orchestrator'
   interactionType: text("interaction_type").notNull(), // 'query', 'recommendation', 'evaluation', 'orchestration'
-  input: text("input", { mode: "json" }).notNull(),
-  output: text("output", { mode: "json" }).notNull(),
+  input: jsonb("input").notNull(),
+  output: jsonb("output").notNull(),
   confidence: integer("confidence"), // 0-100
   processingTime: integer("processing_time"), // in milliseconds
-  timestamp: integer("timestamp", { mode: "timestamp" }).notNull()
+  timestamp: timestamp("timestamp").notNull().defaultNow()
 });
 
 // Create insert schemas

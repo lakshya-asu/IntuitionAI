@@ -145,7 +145,7 @@ export default function LearningPath({ learningPath }: LearningPathProps) {
                                 </div>
                                 <div className="w-full bg-slate-900 rounded-full h-2.5 shadow-inner">
                                   <motion.div 
-                                    initial={{ width: 0 }} animate={{ width: \`\${item.progress}%\` }} transition={{ duration: 1 }}
+                                    initial={{ width: 0 }} animate={{ width: `${item.progress}%` }} transition={{ duration: 1 }}
                                     className="bg-gradient-to-r from-blue-400 to-emerald-400 h-2.5 rounded-full" 
                                   />
                                 </div>
