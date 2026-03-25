@@ -10,7 +10,9 @@ import SyllabusManager from "@/components/dashboard/SyllabusManager";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { loginAsTestUser } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button.js";
+import { Card } from "@/components/ui/card.js";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.js";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,57 +79,63 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row bg-transparent text-slate-100">
       <Sidebar />
       
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-slate-50">
+      <main className="flex-1 p-4 md:p-8 overflow-auto">
         {/* Dashboard Header */}
-        <div className="mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <h1 className="text-2xl font-bold text-slate-800">Your Learning Dashboard</h1>
-            <div className="mt-3 md:mt-0">
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Search..." 
-                    className="px-4 py-2 rounded-lg border border-slate-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-full"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <span className="material-icons absolute right-3 top-2 text-slate-400">search</span>
-                </div>
-                <button className="p-2 rounded-full bg-white border border-slate-300 text-slate-500 hover:bg-slate-50">
-                  <span className="material-icons">notifications</span>
-                </button>
+        <div className="mb-8 relative">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">
+                Your Learning Dashboard
+              </h1>
+              <p className="text-slate-400 text-lg max-w-2xl">
+                Continue your personalized learning journey with AI-powered assistance
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className="relative group">
+                <input 
+                  type="text" 
+                  placeholder="Search resources..." 
+                  className="px-5 py-2.5 rounded-2xl bg-slate-900/40 glassmorphism/5 border border-white/10 text-white placeholder:text-slate-500 shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all w-64"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <span className="material-icons absolute right-4 top-3 text-slate-500 group-hover:text-blue-400 transition-colors">search</span>
               </div>
+              <button className="p-2.5 rounded-2xl bg-slate-900/40 glassmorphism/5 border border-white/10 text-slate-400 hover:text-white hover:bg-slate-900/40 glassmorphism/10 transition-all shadow-xl">
+                <span className="material-icons">notifications</span>
+              </button>
             </div>
           </div>
-          <p className="mt-2 text-slate-500">Continue your personalized learning journey with AI-powered assistance</p>
         </div>
 
         {userLoading ? (
-          // Initial loading state
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : !userData ? (
-          // Not logged in
-          <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg shadow p-8">
-            <h2 className="text-xl font-semibold mb-4">Session Expired</h2>
-            <p className="text-slate-600 mb-6 text-center">Your session has expired or you are not logged in. Please log in to continue your learning journey.</p>
+          <div className="flex flex-col items-center justify-center h-80 glassmorphism-dark rounded-3xl p-12 text-center">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+              <span className="material-icons text-red-500 text-4xl">security</span>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-3">Session Expired</h2>
+            <p className="text-slate-400 mb-8 max-w-sm">Your session has expired or you are not logged in. Please log in to continue your learning journey.</p>
             <div className="flex flex-col gap-3 w-full max-w-xs">
               <a href="/login" className="w-full">
-                <button className="w-full py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+                <Button className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
                   Log In
-                </button>
+                </Button>
               </a>
-              <button 
+              <Button 
+                variant="outline"
                 onClick={async () => {
                   try {
                     const user = await loginAsTestUser();
                     if (user) {
-                      // Invalidate queries to reload data with the new session
                       queryClient.invalidateQueries();
                     } else {
                       throw new Error('Debug login failed');
@@ -136,33 +144,32 @@ export default function Dashboard() {
                     console.error("Debug login error:", err);
                   }
                 }}
-                className="w-full py-2 px-4 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 transition-colors"
+                className="w-full h-12 bg-slate-900/40 glassmorphism/5 border-white/10 text-white hover:bg-slate-900/40 glassmorphism/10 rounded-xl"
               >
-                Debug Login (Test User)
-              </button>
+                Access as Test User
+              </Button>
             </div>
           </div>
         ) : isLoading ? (
-          // Content loading after login
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
           </div>
         ) : (
           // Logged in and content loaded
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="learning">Learning Path</TabsTrigger>
-              <TabsTrigger value="syllabi">Syllabi</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsList className="flex items-center justify-start gap-2 bg-slate-900/40 glassmorphism/5 p-1 rounded-2xl mb-8 border border-white/5 w-fit">
+              <TabsTrigger value="overview" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Overview</TabsTrigger>
+              <TabsTrigger value="learning" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Learning Path</TabsTrigger>
+              <TabsTrigger value="syllabi" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Syllabi</TabsTrigger>
+              <TabsTrigger value="analytics" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Analytics</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="md:col-span-2">
+            <TabsContent value="overview" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
                   <ProgressSummary stats={statsData as any} />
                 </div>
-                <div className="md:col-span-1">
+                <div className="lg:col-span-1">
                   <UserPersona onAnalysisDone={() => queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] })} />
                 </div>
               </div>
@@ -170,26 +177,26 @@ export default function Dashboard() {
               <SuggestedAssessments assessments={assessmentsData as any} />
             </TabsContent>
             
-            <TabsContent value="learning" className="space-y-6">
+            <TabsContent value="learning" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <LearningPath learningPath={learningPathData as any} />
               <SkillProficiency skills={skillsData as any} />
             </TabsContent>
             
-            <TabsContent value="syllabi" className="space-y-6">
+            <TabsContent value="syllabi" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <SyllabusManager />
             </TabsContent>
             
-            <TabsContent value="analytics" className="space-y-6">
+            <TabsContent value="analytics" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <SkillProficiency skills={skillsData as any} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <h3 className="text-lg font-semibold mb-4">Learning Analytics</h3>
-                  <p className="text-slate-600">Detailed analytics will be available here, showing your learning patterns, time spent, and progress trends.</p>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <h3 className="text-lg font-semibold mb-4">Performance Insights</h3>
-                  <p className="text-slate-600">AI-powered insights about your learning performance and recommendations for improvement.</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Card className="glassmorphism p-8 rounded-3xl border-white/5">
+                  <h3 className="text-xl font-bold mb-4 text-white">Learning Analytics</h3>
+                  <p className="text-slate-400 leading-relaxed">Detailed analytics will be available here, showing your learning patterns, time spent, and progress trends.</p>
+                </Card>
+                <Card className="glassmorphism p-8 rounded-3xl border-white/5">
+                  <h3 className="text-xl font-bold mb-4 text-white">Performance Insights</h3>
+                  <p className="text-slate-400 leading-relaxed">AI-powered insights about your learning performance and recommendations for improvement.</p>
+                </Card>
               </div>
             </TabsContent>
           </Tabs>

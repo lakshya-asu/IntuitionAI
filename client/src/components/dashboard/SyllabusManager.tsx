@@ -195,7 +195,7 @@ export default function SyllabusManager() {
             <div className="space-y-3">
               <h4 className="font-medium">Modules</h4>
               {activeSyllabus.modules.slice(0, 3).map((module) => (
-                <div key={module.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                <div key={module.id} className="flex items-center justify-between p-3 bg-slate-900/40 glassmorphism rounded-lg border">
                   <div className="flex-1">
                     <h5 className="font-medium">{module.title}</h5>
                     <p className="text-sm text-gray-600">{module.description}</p>

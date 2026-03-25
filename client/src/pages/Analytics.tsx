@@ -32,18 +32,18 @@ export default function Analytics() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar />
       
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-slate-50">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-transparent">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">My Analytics</h1>
+          <h1 className="text-2xl font-bold text-white">My Analytics</h1>
           <p className="mt-2 text-slate-500">Track your learning progress and performance</p>
         </div>
 
         <div className="mb-6">
-          <div className="bg-white p-4 rounded-lg border border-slate-200 flex justify-between items-center">
+          <div className="bg-slate-900/40 glassmorphism p-4 rounded-lg border border-white/10 flex justify-between items-center">
             <h2 className="text-lg font-semibold">Analytics Dashboard</h2>
             <div>
               <select 
-                className="px-3 py-2 rounded-lg border border-slate-300 text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="px-3 py-2 rounded-lg border border-white/20 text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
               >
@@ -178,29 +178,29 @@ export default function Analytics() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-slate-700">Completion Rate</h4>
+                      <h4 className="font-medium text-slate-200">Completion Rate</h4>
                       <span className="material-icons text-primary">trending_up</span>
                     </div>
                     <div className="text-3xl font-bold text-primary">{(analyticsData as any)?.efficiency?.completionRate}%</div>
-                    <p className="text-sm text-slate-600 mt-1">of assigned modules</p>
+                    <p className="text-sm text-slate-400 mt-1">of assigned modules</p>
                   </div>
                   
                   <div className="bg-purple-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-slate-700">Avg. Learning Time</h4>
+                      <h4 className="font-medium text-slate-200">Avg. Learning Time</h4>
                       <span className="material-icons text-secondary">schedule</span>
                     </div>
                     <div className="text-3xl font-bold text-secondary">{(analyticsData as any)?.efficiency?.avgLearningTime}</div>
-                    <p className="text-sm text-slate-600 mt-1">minutes per day</p>
+                    <p className="text-sm text-slate-400 mt-1">minutes per day</p>
                   </div>
                   
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-slate-700">Knowledge Retention</h4>
+                      <h4 className="font-medium text-slate-200">Knowledge Retention</h4>
                       <span className="material-icons text-accent">psychology</span>
                     </div>
                     <div className="text-3xl font-bold text-accent">{(analyticsData as any)?.efficiency?.knowledgeRetention}%</div>
-                    <p className="text-sm text-slate-600 mt-1">based on reassessments</p>
+                    <p className="text-sm text-slate-400 mt-1">based on reassessments</p>
                   </div>
                 </div>
                 
@@ -209,7 +209,7 @@ export default function Analytics() {
                     <span className="material-icons mr-2">tips_and_updates</span>
                     Personalized Insights
                   </h4>
-                  <p className="text-slate-700">
+                  <p className="text-slate-200">
                     Based on your learning patterns, you retain information better 
                     when studying in the evening. Consider scheduling more complex 
                     topics during that time for optimal results.

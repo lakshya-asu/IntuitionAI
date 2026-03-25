@@ -125,9 +125,9 @@ export default function CalendarPage() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar />
       
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-slate-50">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-transparent">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Learning Schedule</h1>
+          <h1 className="text-2xl font-bold text-white">Learning Schedule</h1>
           <p className="mt-2 text-slate-500">Plan your learning sessions and add them to your calendar</p>
         </div>
 
@@ -214,25 +214,25 @@ export default function CalendarPage() {
               {selectedModule && modules ? (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-medium text-sm text-slate-700 mb-2">Selected Module</h3>
-                    <p className="text-slate-800">
+                    <h3 className="font-medium text-sm text-slate-200 mb-2">Selected Module</h3>
+                    <p className="text-white">
                       {modules.find(m => m.id === selectedModule)?.title || 'Unknown module'}
                     </p>
                   </div>
                   
                   <div>
-                    <h3 className="font-medium text-sm text-slate-700 mb-2">Start Date & Time</h3>
-                    <p className="text-slate-800">
+                    <h3 className="font-medium text-sm text-slate-200 mb-2">Start Date & Time</h3>
+                    <p className="text-white">
                       {selectedDate ? format(selectedDate, 'PPP') : 'No date selected'} at {selectedTime}
                     </p>
                   </div>
                   
                   <div>
-                    <h3 className="font-medium text-sm text-slate-700 mb-2">Sessions</h3>
+                    <h3 className="font-medium text-sm text-slate-200 mb-2">Sessions</h3>
                     {selectedEvents.length > 0 ? (
                       <ul className="space-y-2">
                         {selectedEvents.map((event, index) => (
-                          <li key={event.id} className="p-2 rounded-md bg-slate-100">
+                          <li key={event.id} className="p-2 rounded-md bg-white/5">
                             <div className="flex justify-between">
                               <span className="font-medium">{event.title}</span>
                               <span className="text-sm text-slate-500">{event.duration} min</span>

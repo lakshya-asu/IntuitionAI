@@ -133,9 +133,9 @@ export default function Settings() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar />
       
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-slate-50">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-transparent">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Settings</h1>
+          <h1 className="text-2xl font-bold text-white">Settings</h1>
           <p className="mt-2 text-slate-500">Manage your account and learning preferences</p>
         </div>
 
@@ -318,7 +318,7 @@ export default function Settings() {
                             <span className="material-icons text-primary mr-2">psychology</span>
                             <span className="font-medium text-lg text-primary">{userPersona.learningPreferences}</span>
                           </div>
-                          <p className="text-slate-600">Your primary learning preference indicates how you best process and retain information.</p>
+                          <p className="text-slate-400">Your primary learning preference indicates how you best process and retain information.</p>
                         </div>
                       </div>
                       
@@ -343,7 +343,7 @@ export default function Settings() {
                           {userPersona.studyHabits.map((habit, index) => (
                             <li key={index} className="flex items-start">
                               <span className="material-icons text-primary mr-2 text-xs mt-1">check_circle</span>
-                              <span className="text-slate-700">{habit}</span>
+                              <span className="text-slate-200">{habit}</span>
                             </li>
                           ))}
                         </ul>
@@ -363,7 +363,7 @@ export default function Settings() {
                         </ul>
                       </div>
                       
-                      <div className="pt-2 border-t border-slate-100">
+                      <div className="pt-2 border-t border-white/5">
                         <Button 
                           variant="outline"
                           onClick={() => {
@@ -382,7 +382,7 @@ export default function Settings() {
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <div className="mx-auto mb-4 bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center">
+                      <div className="mx-auto mb-4 bg-white/5 w-16 h-16 rounded-full flex items-center justify-center">
                         <span className="material-icons text-slate-400 text-2xl">psychology_alt</span>
                       </div>
                       <h3 className="text-lg font-medium mb-2">No Learning Profile Yet</h3>
@@ -460,13 +460,13 @@ export default function Settings() {
                     <Button variant="outline">Change Password</Button>
                   </div>
                   
-                  <div className="pt-4 border-t border-slate-200">
+                  <div className="pt-4 border-t border-white/10">
                     <h3 className="text-lg font-medium mb-2">Data Export</h3>
                     <p className="text-slate-500 mb-4">Download all your learning data</p>
                     <Button variant="outline">Export Data</Button>
                   </div>
                   
-                  <div className="pt-4 border-t border-slate-200">
+                  <div className="pt-4 border-t border-white/10">
                     <h3 className="text-lg font-medium text-red-600 mb-2">Danger Zone</h3>
                     <p className="text-slate-500 mb-4">Permanently delete your account and all data</p>
                     <Button variant="destructive">Delete Account</Button>

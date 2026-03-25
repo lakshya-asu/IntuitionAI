@@ -12,9 +12,9 @@ export default function Curriculum() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar />
       
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-slate-50">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-transparent">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">My Curriculum</h1>
+          <h1 className="text-2xl font-bold text-white">My Curriculum</h1>
           <p className="mt-2 text-slate-500">Track your personalized learning curriculum</p>
         </div>
 
@@ -33,13 +33,13 @@ export default function Curriculum() {
                         <span className="material-icons text-primary mr-2">{module.icon}</span>
                         <h2 className="text-xl font-semibold">{module.title}</h2>
                       </div>
-                      <p className="text-slate-600 mb-4">{module.description}</p>
+                      <p className="text-slate-400 mb-4">{module.description}</p>
                     </div>
                     <div className="mt-4 md:mt-0">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         module.status === "completed" ? "bg-green-100 text-success" : 
                         module.status === "in-progress" ? "bg-blue-100 text-primary" : 
-                        "bg-slate-100 text-slate-600"
+                        "bg-white/5 text-slate-400"
                       }`}>
                         {module.status === "completed" ? "Completed" : 
                          module.status === "in-progress" ? "In Progress" : 
@@ -58,14 +58,14 @@ export default function Curriculum() {
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     {module.topics.map((topic: string, idx: number) => (
-                      <span key={idx} className="px-3 py-1 text-xs rounded-full bg-slate-100 text-slate-600">
+                      <span key={idx} className="px-3 py-1 text-xs rounded-full bg-white/5 text-slate-400">
                         {topic}
                       </span>
                     ))}
                   </div>
 
                   {module.status !== "completed" && (
-                    <button className="mt-4 px-4 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 flex items-center">
+                    <button className="mt-4 px-4 py-2 bg-primary text-white rounded-lg shadow-2xl hover:bg-primary/90 flex items-center">
                       <span className="material-icons mr-2">play_circle</span>
                       {module.status === "in-progress" ? "Continue Learning" : "Start Module"}
                     </button>

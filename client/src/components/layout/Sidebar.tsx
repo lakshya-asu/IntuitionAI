@@ -43,8 +43,8 @@ export default function Sidebar() {
   const userInitials = user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U';
 
   return (
-    <aside className="w-full md:w-64 bg-white border-r border-slate-200 shadow-sm md:min-h-screen flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b border-slate-200">
+    <aside className="w-full md:w-64 bg-slate-900/40 glassmorphism border-r border-white/10 shadow-2xl md:min-h-screen flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center">
           <span className="material-icons text-primary text-3xl">psychology</span>
           <h1 className="ml-2 text-xl font-semibold text-primary">IntuitionAI</h1>
@@ -59,13 +59,13 @@ export default function Sidebar() {
       
       {isOpen && (
         <>
-          <div className="p-4 border-b border-slate-200">
+          <div className="p-4 border-b border-white/10">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
                 <span>{userInitials}</span>
               </div>
               <div>
-                <h3 className="font-medium text-slate-800">{user?.name || 'Guest User'}</h3>
+                <h3 className="font-medium text-white">{user?.name || 'Guest User'}</h3>
                 <p className="text-sm text-slate-500">{user?.level || 'Beginner'}</p>
               </div>
             </div>
@@ -79,7 +79,7 @@ export default function Sidebar() {
                     <div className={`flex items-center p-3 rounded-lg ${
                       location === item.href 
                         ? 'text-primary bg-blue-50 font-medium' 
-                        : 'text-slate-600 hover:bg-slate-100'
+                        : 'text-slate-400 hover:bg-white/5'
                     }`}>
                       <span className="material-icons mr-3">{item.icon}</span>
                       {item.label}
@@ -90,8 +90,8 @@ export default function Sidebar() {
             </ul>
           </nav>
           
-          <div className="p-4 border-t border-slate-200">
-            <a href="#help" className="flex items-center text-slate-600 hover:text-primary">
+          <div className="p-4 border-t border-white/10">
+            <a href="#help" className="flex items-center text-slate-400 hover:text-primary">
               <span className="material-icons mr-3">help_outline</span>
               Help & Support
             </a>

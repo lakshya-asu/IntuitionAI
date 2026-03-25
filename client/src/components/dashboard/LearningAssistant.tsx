@@ -154,8 +154,8 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-20 right-6 w-[480px] h-[600px] bg-white border border-slate-200 rounded-lg shadow-xl flex flex-col z-50">
-          <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-primary/5 to-secondary/5">
+        <div className="fixed bottom-20 right-6 w-[480px] h-[600px] bg-slate-900/40 glassmorphism border border-white/10 rounded-lg shadow-xl flex flex-col z-50">
+          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-primary/5 to-secondary/5">
             <div className="flex items-center">
               <Brain className="h-5 w-5 text-primary mr-2" />
               <div>
@@ -165,14 +165,14 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             </div>
             <button 
               onClick={() => setIsOpen(false)}
-              className="text-slate-500 hover:text-slate-700"
+              className="text-slate-500 hover:text-slate-200"
             >
               <span className="material-icons">close</span>
             </button>
           </div>
           
           {/* Quick Actions */}
-          <div className="p-3 border-b border-slate-100 bg-slate-50">
+          <div className="p-3 border-b border-white/5 bg-transparent">
             <div className="flex gap-2 flex-wrap">
               <Button
                 size="sm"
@@ -223,7 +223,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                   className={`max-w-[85%] rounded-lg p-3 ${
                     message.role === 'user'
                       ? 'bg-primary text-white rounded-tr-none'
-                      : 'bg-slate-100 text-slate-800 rounded-tl-none'
+                      : 'bg-white/5 text-white rounded-tl-none'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -247,13 +247,13 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                   {/* Show recommendations */}
                   {message.recommendations && message.recommendations.length > 0 && (
                     <div className="mt-3 space-y-2">
-                      <p className="text-xs font-medium text-slate-600">Recommendations:</p>
+                      <p className="text-xs font-medium text-slate-400">Recommendations:</p>
                       {message.recommendations.slice(0, 2).map((rec, index) => (
-                        <Card key={index} className="p-2 bg-white/50">
+                        <Card key={index} className="p-2 bg-slate-900/40 glassmorphism/50">
                           <div className="flex justify-between items-start">
                             <div>
                               <p className="text-xs font-medium">{rec.title}</p>
-                              <p className="text-xs text-slate-600">{rec.description}</p>
+                              <p className="text-xs text-slate-400">{rec.description}</p>
                             </div>
                             <Button
                               size="sm"
@@ -272,7 +272,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                   {/* Show next steps */}
                   {message.nextSteps && message.nextSteps.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Next Steps:</p>
+                      <p className="text-xs font-medium text-slate-400 mb-1">Next Steps:</p>
                       <ul className="text-xs space-y-1">
                         {message.nextSteps.slice(0, 3).map((step, index) => (
                           <li key={index} className="flex items-start">
@@ -292,7 +292,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-lg p-3 bg-slate-100 text-slate-800 rounded-tl-none">
+                <div className="max-w-[85%] rounded-lg p-3 bg-white/5 text-white rounded-tl-none">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></div>
@@ -304,7 +304,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             <div ref={messagesEndRef} />
           </div>
           
-          <div className="p-3 border-t border-slate-200">
+          <div className="p-3 border-t border-white/10">
             <div className="flex space-x-2">
               <Textarea
                 placeholder="Ask about your learning, request recommendations, or get help..."

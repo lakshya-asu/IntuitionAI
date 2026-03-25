@@ -97,15 +97,15 @@ export default function Chatbot() {
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-20 right-6 w-96 h-[500px] bg-white border border-slate-200 rounded-lg shadow-lg flex flex-col z-50">
-          <div className="flex items-center justify-between p-3 border-b border-slate-200 bg-primary/5">
+        <div className="fixed bottom-20 right-6 w-96 h-[500px] bg-slate-900/40 glassmorphism border border-white/10 rounded-lg shadow-lg flex flex-col z-50">
+          <div className="flex items-center justify-between p-3 border-b border-white/10 bg-primary/5">
             <div className="flex items-center">
               <span className="material-icons text-primary mr-2">smart_toy</span>
               <h3 className="font-medium">Learning Assistant</h3>
             </div>
             <button 
               onClick={() => setIsOpen(false)}
-              className="text-slate-500 hover:text-slate-700"
+              className="text-slate-500 hover:text-slate-200"
             >
               <span className="material-icons">close</span>
             </button>
@@ -121,7 +121,7 @@ export default function Chatbot() {
                   className={`max-w-[80%] rounded-lg p-3 ${
                     message.role === 'user'
                       ? 'bg-primary text-white rounded-tr-none'
-                      : 'bg-slate-100 text-slate-800 rounded-tl-none'
+                      : 'bg-white/5 text-white rounded-tl-none'
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
@@ -133,7 +133,7 @@ export default function Chatbot() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg p-3 bg-slate-100 text-slate-800 rounded-tl-none">
+                <div className="max-w-[80%] rounded-lg p-3 bg-white/5 text-white rounded-tl-none">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></div>
@@ -145,7 +145,7 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </div>
           
-          <div className="p-3 border-t border-slate-200">
+          <div className="p-3 border-t border-white/10">
             <div className="flex space-x-2">
               <Textarea
                 placeholder="Type your message..."

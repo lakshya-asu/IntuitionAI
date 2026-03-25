@@ -24,9 +24,9 @@ export default function Library() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Sidebar />
       
-      <main className="flex-1 p-4 md:p-6 overflow-auto bg-slate-50">
+      <main className="flex-1 p-4 md:p-6 overflow-auto bg-transparent">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">Learning Library</h1>
+          <h1 className="text-2xl font-bold text-white">Learning Library</h1>
           <p className="mt-2 text-slate-500">Explore all learning resources</p>
         </div>
 
@@ -75,7 +75,7 @@ export default function Library() {
                     </div>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
-                        <h3 className="font-medium text-slate-800">{resource.title}</h3>
+                        <h3 className="font-medium text-white">{resource.title}</h3>
                         <span className={`bg-${
                           resource.type === 'article' ? 'blue' :
                           resource.type === 'video' ? 'purple' :
@@ -93,7 +93,7 @@ export default function Library() {
                       <p className="text-sm text-slate-500 mt-2">{resource.description}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {resource.tags.map((tag: string, idx: number) => (
-                          <span key={idx} className="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-600">
+                          <span key={idx} className="px-2 py-1 text-xs rounded-full bg-white/5 text-slate-400">
                             {tag}
                           </span>
                         ))}

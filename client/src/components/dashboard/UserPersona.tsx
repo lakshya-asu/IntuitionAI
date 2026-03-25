@@ -89,7 +89,7 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
       case 'kinesthetic':
         return 'bg-amber-100 text-amber-800';
       default:
-        return 'bg-slate-100 text-slate-800';
+        return 'bg-white/5 text-white';
     }
   };
 
@@ -121,7 +121,7 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
-          <p className="text-sm text-slate-600 mb-4">
+          <p className="text-sm text-slate-400 mb-4">
             Chat with your learning assistant to help us identify your learning preferences and 
             study patterns. The more you interact, the more personalized your experience will become.
           </p>
@@ -194,7 +194,7 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
           {persona.rawAnalysis?.analysis && (
             <div>
               <h4 className="text-sm font-medium mb-2">Analysis Summary</h4>
-              <p className="text-sm text-slate-600">{persona.rawAnalysis.analysis}</p>
+              <p className="text-sm text-slate-400">{persona.rawAnalysis.analysis}</p>
             </div>
           )}
         </div>

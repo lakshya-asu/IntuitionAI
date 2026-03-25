@@ -19,17 +19,17 @@ export default function AdaptiveAssessment({ assessments }: AdaptiveAssessmentPr
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-800">Adaptive Assessment</h2>
+        <h2 className="text-xl font-bold text-white">Adaptive Assessment</h2>
         <a href="#assessments" className="text-primary flex items-center hover:underline">
           View history
           <span className="material-icons text-sm ml-1">chevron_right</span>
         </a>
       </div>
       
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <div className="bg-slate-900/40 glassmorphism p-6 rounded-xl shadow-2xl border border-white/10">
         <div className="flex flex-col md:flex-row md:items-center gap-6">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">Ready to test your knowledge?</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">Ready to test your knowledge?</h3>
             <p className="text-slate-500 mb-4">
               Our adaptive testing system will adjust questions based on your performance to accurately measure your mastery level.
             </p>
@@ -50,21 +50,21 @@ export default function AdaptiveAssessment({ assessments }: AdaptiveAssessmentPr
             </div>
             
             <div className="flex space-x-3">
-              <button className="px-4 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 flex items-center">
+              <button className="px-4 py-2 bg-primary text-white rounded-lg shadow-2xl hover:bg-primary/90 flex items-center">
                 <span className="material-icons mr-2">quiz</span>
                 Start New Assessment
               </button>
-              <button className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50">
+              <button className="px-4 py-2 border border-white/20 text-slate-200 rounded-lg shadow-2xl hover:bg-transparent">
                 Practice Mode
               </button>
             </div>
           </div>
           
-          <div className="flex-shrink-0 w-full md:w-72 bg-slate-100 rounded-lg p-4">
-            <h4 className="font-medium text-slate-700 mb-3">Suggested Assessments</h4>
+          <div className="flex-shrink-0 w-full md:w-72 bg-white/5 rounded-lg p-4">
+            <h4 className="font-medium text-slate-200 mb-3">Suggested Assessments</h4>
             <ul className="space-y-3">
               {assessments.suggested.map((test) => (
-                <li key={test.id} className="bg-white p-3 rounded-lg border border-slate-200 hover:shadow-sm transition cursor-pointer">
+                <li key={test.id} className="bg-slate-900/40 glassmorphism p-3 rounded-lg border border-white/10 hover:shadow-2xl transition cursor-pointer">
                   <div className="flex justify-between items-start">
                     <h5 className="font-medium">{test.title}</h5>
                     <span className={`text-xs ${
@@ -77,7 +77,7 @@ export default function AdaptiveAssessment({ assessments }: AdaptiveAssessmentPr
                   </div>
                   <p className="text-xs text-slate-500 mt-1">{test.description}</p>
                   <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs text-slate-600">Est. {test.duration}</span>
+                    <span className="text-xs text-slate-400">Est. {test.duration}</span>
                     <button className="text-primary text-sm hover:underline">Take test</button>
                   </div>
                 </li>

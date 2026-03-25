@@ -89,7 +89,7 @@ export default function LearningPath({ learningPath }: LearningPathProps) {
                     layout
                     onClick={() => setExpandedNode(expandedNode === item.id ? null : item.id)}
                     className={`cursor-pointer border border-white/5 rounded-xl p-5 transition-all duration-300
-                      ${expandedNode === item.id ? 'bg-white/10 shadow-lg border-white/20' : 'bg-white/5 hover:bg-white/10'}
+                      ${expandedNode === item.id ? 'bg-slate-900/40 glassmorphism/10 shadow-lg border-white/20' : 'bg-slate-900/40 glassmorphism/5 hover:bg-slate-900/40 glassmorphism/10'}
                       ${isInProgress ? 'ring-1 ring-blue-500/50' : ''}
                     `}
                   >
@@ -102,7 +102,7 @@ export default function LearningPath({ learningPath }: LearningPathProps) {
                           </span>
                         )}
                       </div>
-                      <span className={`px-3 py-1 text-xs font-semibold rounded-full tracking-wide shadow-sm mt-2 md:mt-0 w-max
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full tracking-wide shadow-2xl mt-2 md:mt-0 w-max
                         ${isCompleted ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 
                           isInProgress ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 
                           'bg-slate-800 text-slate-400 border border-slate-700'}

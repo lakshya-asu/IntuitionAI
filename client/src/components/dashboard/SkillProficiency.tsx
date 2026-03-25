@@ -105,21 +105,21 @@ export default function SkillProficiency({ skills }: SkillProficiencyProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-800">Your Skill Proficiency</h2>
+        <h2 className="text-xl font-bold text-white">Your Skill Proficiency</h2>
         <button className="text-primary flex items-center hover:underline">
           <span className="material-icons mr-1">refresh</span>
           Update Assessment
         </button>
       </div>
       
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <div className="bg-slate-900/40 glassmorphism p-6 rounded-xl shadow-2xl border border-white/10">
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 min-w-0">
             <canvas ref={skillRadarChartRef} height={250}></canvas>
           </div>
           
-          <div className="w-full md:w-64 bg-slate-50 rounded-lg p-4">
-            <h4 className="font-medium text-slate-700 mb-3">Skill Breakdown</h4>
+          <div className="w-full md:w-64 bg-transparent rounded-lg p-4">
+            <h4 className="font-medium text-slate-200 mb-3">Skill Breakdown</h4>
             <ul className="space-y-3">
               {skills.breakdown.map((skill, index) => (
                 <li key={index}>
@@ -138,9 +138,9 @@ export default function SkillProficiency({ skills }: SkillProficiencyProps) {
             </ul>
             
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <p className="text-sm text-slate-700">
+              <p className="text-sm text-slate-200">
                 <span className="font-medium">AI Recommendation:</span> 
-                <span className="text-slate-600">{skills.recommendation}</span>
+                <span className="text-slate-400">{skills.recommendation}</span>
               </p>
             </div>
           </div>
