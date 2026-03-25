@@ -1,10 +1,8 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Brain, Zap, BarChart } from "lucide-react";
+import { Clock, Brain, Zap, BarChart, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Assessment {
   id: string;
@@ -33,27 +31,19 @@ export default function SuggestedAssessments({ assessments }: SuggestedAssessmen
     suggested: [
       {
         id: "assessment-001",
-        title: "Machine Learning Basics Review",
+        title: "Machine Learning Basics",
         type: "review",
         typeLabel: "Knowledge Review",
-        description: "Test your understanding of fundamental machine learning concepts",
+        description: "Test your understanding of fundamental machine learning concepts before moving forward.",
         duration: "10 min"
       },
       {
         id: "assessment-002",
-        title: "Probabilistic Reasoning Challenge",
+        title: "Probabilistic Reasoning",
         type: "challenge",
         typeLabel: "Advanced Challenge",
-        description: "Challenge yourself with complex probabilistic reasoning problems",
+        description: "Challenge yourself with complex reasoning problems.",
         duration: "15 min"
-      },
-      {
-        id: "assessment-003",
-        title: "Philosophy of Mind Quiz",
-        type: "recommended",
-        typeLabel: "Recommended",
-        description: "Review key concepts from your recent Philosophy of Mind module",
-        duration: "8 min"
       }
     ] 
   };
@@ -61,26 +51,26 @@ export default function SuggestedAssessments({ assessments }: SuggestedAssessmen
   const getIcon = (type: string) => {
     switch (type) {
       case 'recommended':
-        return <Zap className="h-5 w-5 text-amber-500" />;
+        return <Zap className="h-6 w-6 text-amber-400" />;
       case 'review':
-        return <Brain className="h-5 w-5 text-indigo-500" />;
+        return <Brain className="h-6 w-6 text-indigo-400" />;
       case 'challenge':
-        return <BarChart className="h-5 w-5 text-emerald-500" />;
+        return <BarChart className="h-6 w-6 text-emerald-400" />;
       default:
-        return <Brain className="h-5 w-5 text-indigo-500" />;
+        return <Brain className="h-6 w-6 text-indigo-400" />;
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeStyle = (type: string) => {
     switch (type) {
       case 'recommended':
-        return 'bg-amber-100 text-amber-800 hover:bg-amber-200';
+        return 'from-amber-500/10 to-orange-500/10 border-amber-500/20 text-amber-300';
       case 'review':
-        return 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200';
+        return 'from-indigo-500/10 to-blue-500/10 border-indigo-500/20 text-indigo-300';
       case 'challenge':
-        return 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200';
+        return 'from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-300';
       default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+        return 'from-gray-500/10 to-slate-500/10 border-gray-500/20 text-gray-300';
     }
   };
 
@@ -88,56 +78,85 @@ export default function SuggestedAssessments({ assessments }: SuggestedAssessmen
     setLocation(`/assessment/${id}`);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300 } }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          <span>Suggested Assessments</span>
-        </CardTitle>
-        <CardDescription>Test your knowledge and get personalized recommendations</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {isLoading ? (
-            Array(3).fill(0).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-20 bg-gray-200 rounded-lg"></div>
-              </div>
-            ))
-          ) : (
-            displayData.suggested.map((assessment) => (
-              <div
+    <div className="mb-10 relative z-10">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 flex items-center">
+            <Zap className="mr-2 h-6 w-6 text-amber-400" />
+            Continuous Evaluation
+          </h2>
+          <p className="text-sm text-slate-400 mt-1">Seamless checks curated by the Evaluator Agent</p>
+        </div>
+      </div>
+      
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        {isLoading ? (
+          Array(3).fill(0).map((_, i) => (
+            <div key={i} className="animate-pulse h-40 glassmorphism-dark rounded-2xl"></div>
+          ))
+        ) : (
+          displayData.suggested.map((assessment: Assessment) => {
+            const style = getTypeStyle(assessment.type);
+            
+            return (
+              <motion.div
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.02 }}
                 key={assessment.id}
-                className="p-4 rounded-lg border hover:bg-gray-50 transition-all flex flex-col md:flex-row md:items-center gap-4 justify-between"
+                onClick={() => startAssessment(assessment.id)}
+                className={`cursor-pointer overflow-hidden relative p-6 rounded-2xl glassmorphism-dark border ${style} flex flex-col group glow-border`}
               >
-                <div className="flex gap-3 items-start">
-                  <div className="mt-1">{getIcon(assessment.type)}</div>
-                  <div>
-                    <h3 className="font-medium">{assessment.title}</h3>
-                    <div className="flex flex-wrap gap-2 mt-1 mb-2">
-                      <Badge variant="outline" className={`text-xs ${getTypeColor(assessment.type)}`}>
-                        {assessment.typeLabel}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {assessment.duration}
-                      </Badge>
+                <div className={`absolute inset-0 bg-gradient-to-br ${style} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`p-2 rounded-xl bg-slate-900 border ${style} shadow-inner`}>
+                      {getIcon(assessment.type)}
                     </div>
-                    <p className="text-sm text-muted-foreground">{assessment.description}</p>
+                    <span className={`px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded-md bg-slate-900 border ${style}`}>
+                      {assessment.typeLabel}
+                    </span>
+                  </div>
+                  
+                  <h3 className="font-bold text-lg text-white mb-2 leading-tight">{assessment.title}</h3>
+                  <p className="text-sm text-slate-400 mb-6 flex-1">{assessment.description}</p>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
+                    <div className="flex items-center text-xs font-medium text-slate-400">
+                      <Clock className="w-4 h-4 mr-1.5 opacity-70" />
+                      {assessment.duration}
+                    </div>
+                    
+                    <div className={`flex items-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0 ${style.split(' ')[2]}`}>
+                      Begin
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </div>
                   </div>
                 </div>
-                <Button 
-                  className="whitespace-nowrap self-start md:self-center"
-                  onClick={() => startAssessment(assessment.id)}
-                >
-                  Start Assessment
-                </Button>
-              </div>
-            ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
+              </motion.div>
+            );
+          })
+        )}
+      </motion.div>
+    </div>
   );
 }

@@ -8,6 +8,41 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-slate-950 text-slate-100;
+    /* Soft dark background with a very subtle radial gradient */
+    background-image: radial-gradient(circle at 50% 0%, #0f172a 0%, #020617 100%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .glassmorphism {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+  
+  .glassmorphism-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400;
+  }
+  
+  .sleek-card {
+    @apply rounded-2xl glassmorphism transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-white/20;
+  }
+  
+  .glow-border {
+    position: relative;
+  }
+  
+  .glow-border::before {
+    content: "";
+    @apply absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-2xl blur opacity-30 transition duration-500;
+    z-index: -1;
+  }
+  
+  .glow-border:hover::before {
+    @apply opacity-60;
   }
 }
