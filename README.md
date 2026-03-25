@@ -2,6 +2,14 @@
   <img src="./generated-icon.png" alt="IntuitionAI Logo" width="150"/>
   <h1>IntuitionAI</h1>
   <p><strong>Revolutionizing Education with Adaptive Learning Companions</strong></p>
+  
+  <br/>
+  
+  <a href="https://www.youtube.com/watch?v=Jxtuq2Zyqb4" target="_blank">
+    <img src="https://img.youtube.com/vi/Jxtuq2Zyqb4/maxresdefault.jpg" alt="Watch the IntuitionAI Pitch Video" width="600" style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);"/>
+  </a>
+  
+  <p><em>Click the image above to watch the pitch video on YouTube</em></p>
 </div>
 
 ---
