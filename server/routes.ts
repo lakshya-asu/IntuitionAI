@@ -39,11 +39,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
           username: "testuser",
           password: "testpass123",
           name: "Test User",
-          email: "test@example.com",
-          level: "intermediate",
-          interests: ["Machine Learning", "Philosophy", "Cognitive Science"],
-          strengths: ["Pattern Recognition", "Critical Thinking"],
-          weaknesses: ["Mathematical Proofs", "Quantum Physics"]
+          email: "test@example.com"
         });
         console.log("Created test user:", user.id);
       }
@@ -98,7 +94,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.get("/api/debug/users", async (req, res) => {
-    const users = Array.from((storage as any).users?.values() || []);
+    const testUser = await storage.getUserByUsername("testuser");
+    const users = testUser ? [testUser] : [];
     console.log("Debug users data:", users.length, "users found");
     res.json({ 
       userCount: users.length,
@@ -561,43 +558,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Assessment endpoints
   app.get("/api/assessments/suggested", requireAuth, async (req, res) => {
     try {
-      // For demo purposes, we'll always return sample data
-      // In a real app, we would use OpenAI to generate personalized assessments
-      const sampleAssessments = {
-        suggested: [
-          {
-            id: "assessment-001",
-            title: "Machine Learning Basics Review",
-            type: "review",
-            typeLabel: "Knowledge Review",
-            description: "Test your understanding of fundamental machine learning concepts",
-            duration: "10 min"
-          },
-          {
-            id: "assessment-002",
-            title: "Probabilistic Reasoning Challenge",
-            type: "challenge",
-            typeLabel: "Advanced Challenge",
-            description: "Challenge yourself with complex probabilistic reasoning problems",
-            duration: "15 min"
-          },
-          {
-            id: "prob-reasoning",
-            title: "Philosophy of Mind Quiz",
-            type: "recommended",
-            typeLabel: "Recommended",
-            description: "Review key concepts from your recent Philosophy of Mind module",
-            duration: "8 min"
-          }
-        ]
-      };
-      
-      // Store the sample assessments
-      await storage.saveSuggestedAssessments(sampleAssessments.suggested);
-      
-      return res.json(sampleAssessments);
-      
-      /* Original code below is kept for reference but not used
       // Check if we have cached suggested assessments
       const cachedAssessments = await storage.getSuggestedAssessments();
       
@@ -632,7 +592,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json({ suggested: cachedAssessments });
-      */
     } catch (error) {
       console.error("Assessment error:", error);
       res.status(500).json({ message: "Failed to get suggested assessments" });
@@ -1079,7 +1038,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Create temporary messages for analysis
         allMessages = sampleMessages.map(msg => ({
-          id: Math.floor(Math.random() * 1000).toString(),
+          id: Math.floor(Math.random() * 1000),
           userId,
           role: msg.role as 'user' | 'assistant',
           content: msg.content,
@@ -1173,16 +1132,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If we have Google Calendar integration, sync the event
       try {
-        const googleEventId = await addEventToCalendar({
-          title: event.title,
+        const googleEvent = await addEventToCalendar({
+          summary: event.title,
           description: event.description || '',
           startTime: event.startTime,
-          endTime: event.endTime,
-          location: event.location
+          endTime: event.endTime
         });
 
         // Store the Google Calendar event ID
-        await storage.updateGoogleEventId(event.id, googleEventId);
+        if (googleEvent.id) {
+          await storage.updateGoogleEventId(event.id, googleEvent.id);
+        }
       } catch (syncError) {
         console.warn("Failed to sync with Google Calendar:", syncError);
         // Continue without Google Calendar sync
@@ -1213,11 +1173,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingEvent.googleEventId) {
         try {
           await updateEventInCalendar(existingEvent.googleEventId, {
-            title: updatedEvent.title,
+            summary: updatedEvent.title,
             description: updatedEvent.description || '',
             startTime: updatedEvent.startTime,
-            endTime: updatedEvent.endTime,
-            location: updatedEvent.location
+            endTime: updatedEvent.endTime
           });
         } catch (syncError) {
           console.warn("Failed to sync update with Google Calendar:", syncError);

@@ -1,14 +1,14 @@
 import { 
   users, type User, type InsertUser, 
-  type Module, type Resource, type Assessment,
-  type UserModule, type UserAssessment, type Recommendation, type Skill, 
-  type ChatMessage, type InsertChatMessage, type UserPersona,
-  chatMessages, userPersonas, type CalendarEvent, type InsertCalendarEvent,
-  type Syllabus, type LearningSession, type KnowledgeBank, type AgentInteraction,
+  modules, type Module, resources, type Resource, assessments, type Assessment,
+  userModules, type UserModule, userAssessments, type UserAssessment, recommendations, type Recommendation, skills, type Skill, 
+  chatMessages, type ChatMessage, type InsertChatMessage, userPersonas, type UserPersona,
+  calendarEvents, type CalendarEvent, type InsertCalendarEvent,
+  syllabi, type Syllabus, learningSessions, type LearningSession, knowledgeBank, type KnowledgeBank, agentInteractions, type AgentInteraction,
   type InsertAgentInteraction
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, and, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Calendar management
@@ -26,22 +26,11 @@ export interface IStorage {
   getCurrentUser(): Promise<User | undefined>;
   setCurrentUser(user: User): Promise<void>;
   updateUserProfile(profile: { name: string; email: string }): Promise<User>;
-  updateUserPreferences(preferences: {
-    learningSpeed: number;
-    dailyGoal: number;
-    emailNotifications: boolean;
-    pushNotifications: boolean;
-  }): Promise<User>;
+  updateUserPreferences(preferences: any): Promise<User>;
   
   // User persona management
   getUserPersona(userId: number): Promise<UserPersona | undefined>;
-  saveUserPersona(userId: number, persona: {
-    contentFormat: string[];
-    studyHabits: string[];
-    currentWeaknesses: string[];
-    learningPreferences: string;
-    rawAnalysis?: any;
-  }): Promise<UserPersona>;
+  saveUserPersona(userId: number, persona: any): Promise<UserPersona>;
 
   // Syllabus management
   getSyllabi(userId: number): Promise<Syllabus[]>;
@@ -64,131 +53,37 @@ export interface IStorage {
   getAgentInteractions(userId: number, agentType?: string): Promise<AgentInteraction[]>;
 
   // Learning path and curriculum
-  getLearningPath(): Promise<{
-    id: string;
-    title: string;
-    description: string;
-    status: 'completed' | 'in-progress' | 'upcoming';
-    progress?: number;
-    completedOn?: string;
-    topics: string[];
-  }[]>;
-  
-  getCurriculum(): Promise<{
-    modules: Module[];
-  }>;
-  
-  getLearningLibrary(): Promise<{
-    resources: Resource[];
-  }>;
+  getLearningPath(): Promise<any[]>;
+  getCurriculum(): Promise<{ modules: Module[] }>;
+  getLearningLibrary(): Promise<{ resources: Resource[] }>;
 
   // User progress
-  getUserStats(): Promise<{
-    masteryScore: number;
-    masteryGrowth: string;
-    streak: number;
-    streakDays: { date: string; completed: boolean }[];
-    completedModules: number;
-    totalModules: number;
-    focusAreas: { name: string; percentage: number; color: string }[];
-  }>;
-
-  getUserSettings(): Promise<{
-    name: string;
-    email: string;
-    preferences: {
-      learningSpeed: number;
-      dailyGoal: number;
-      emailNotifications: boolean;
-      pushNotifications: boolean;
-    };
-  }>;
-
-  getLearningHistory(): Promise<{
-    completedModules: {
-      id: string;
-      title: string;
-      topics: string[];
-      completedAt: string;
-      score: number;
-    }[];
-    inProgressModules: {
-      id: string;
-      title: string;
-      topics: string[];
-      progress: number;
-    }[];
-    assessmentResults: {
-      id: string;
-      type: string;
-      score: number;
-      completedAt: string;
-      strengths: string[];
-      weaknesses: string[];
-    }[];
-  }>;
+  getUserStats(): Promise<any>;
+  getUserSettings(): Promise<any>;
+  getLearningHistory(): Promise<any>;
 
   // Recommendations
   getRecommendations(): Promise<Recommendation[]>;
-  saveRecommendations(recommendations: Recommendation[]): Promise<void>;
+  saveRecommendations(recs: any[]): Promise<void>;
 
   // Assessments
   getSuggestedAssessments(): Promise<Assessment[]>;
   saveSuggestedAssessments(assessments: Assessment[]): Promise<void>;
-  getAssessmentResults(): Promise<{
-    id: string;
-    title: string;
-    score: number;
-    date: string;
-    topics: { name: string; score: number }[];
-  }[]>;
+  getAssessmentResults(): Promise<any[]>;
   startAssessment(assessmentType: string): Promise<Assessment>;
-  submitAnswer(assessmentId: string, questionId: string, answer: string): Promise<{
-    correct: boolean;
-    feedback: string;
-  }>;
-  completeAssessment(assessmentId: string): Promise<{
-    score: number;
-    feedback: string;
-  }>;
+  submitAnswer(assessmentId: string, questionId: string, answer: string): Promise<any>;
+  completeAssessment(assessmentId: string): Promise<any>;
 
   // Skills
-  getUserSkills(): Promise<{
-    radar: {
-      labels: string[];
-      current: number[];
-      average: number[];
-    };
-    breakdown: {
-      skill: string;
-      score: number;
-    }[];
-    recommendation: string;
-  }>;
+  getUserSkills(): Promise<any>;
   saveUserSkills(skills: any): Promise<void>;
 
   // Analytics
-  getUserAnalytics(timeRange: string): Promise<{
-    activityData: any[];
-    competencyData: any[];
-    assessmentData: any[];
-    skillData: any[];
-    efficiency: {
-      completionRate: number;
-      avgLearningTime: number;
-      knowledgeRetention: number;
-    };
-  }>;
+  getUserAnalytics(timeRange: string): Promise<any>;
 
   // Module interaction
-  startModule(moduleId: string): Promise<{
-    success: boolean;
-    message: string;
-  }>;
-  completeModule(moduleId: string): Promise<{
-    success: boolean;
-    message: string;
-  }>;
+  startModule(moduleId: string): Promise<any>;
+  completeModule(moduleId: string): Promise<any>;
 
   // Chat messages
   getChatMessages(userId: number, conversationId: string): Promise<ChatMessage[]>;
@@ -196,387 +91,30 @@ export interface IStorage {
   getConversations(userId: number): Promise<{id: string, lastMessage: string, timestamp: Date}[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private currentId: number;
+export class DatabaseStorage implements IStorage {
   private currentUser: User | undefined;
-  private chatMessages: Map<string, ChatMessage[]>;
-  private userPersonas: Map<number, UserPersona>;
-  private syllabi: Map<number, Syllabus>;
-  private learningSessions: Map<number, LearningSession[]>;
-  private agentInteractions: Map<number, AgentInteraction[]>;
-  
-  async setCurrentUser(user: User): Promise<void> {
-    this.currentUser = user;
-  }
-  
-  private mockData: {
-    learningPath: any[];
-    curriculum: { modules: any[] };
-    library: { resources: any[] };
-    recommendations: any[];
-    assessments: any[];
-    userStats: any;
-    userSkills: any;
-    learningHistory: any;
-    analytics: any;
-    calendarEvents: CalendarEvent[];
-  };
-
-  constructor() {
-    this.users = new Map();
-    this.currentId = 1;
-    this.chatMessages = new Map();
-    this.userPersonas = new Map();
-    this.syllabi = new Map();
-    this.learningSessions = new Map();
-    this.agentInteractions = new Map();
-    this.mockData = {
-      learningPath: [
-        {
-          id: "path1",
-          title: "Machine Learning Foundations",
-          description: "Core concepts of machine learning and neural networks",
-          status: "completed",
-          completedOn: "2025-03-01",
-          topics: ["Neural Networks", "Supervised Learning", "Model Evaluation"],
-        },
-        {
-          id: "path2",
-          title: "Philosophy of Mind",
-          description: "Philosophical explorations of consciousness and cognition",
-          status: "in-progress",
-          progress: 65,
-          topics: ["Consciousness", "Dualism", "Embodied Cognition"],
-        },
-        {
-          id: "path3",
-          title: "Probabilistic Reasoning",
-          description: "Statistical approaches to causality and inference",
-          status: "in-progress",
-          progress: 30,
-          topics: ["Bayesian Networks", "Causal Inference", "Probability Theory"],
-        },
-        {
-          id: "path4",
-          title: "Perception Systems",
-          description: "How humans and machines perceive the world",
-          status: "upcoming",
-          progress: 0,
-          topics: ["Visual Processing", "Auditory Systems", "Sensory Integration"],
-        },
-        {
-          id: "path5",
-          title: "Cognitive Systems Architecture",
-          description: "Integrated frameworks for cognitive processing",
-          status: "upcoming",
-          progress: 0,
-          topics: ["Memory Systems", "Attention Mechanisms", "Decision Making"],
-        },
-        {
-          id: "path6",
-          title: "Quantum Physics Fundamentals",
-          description: "Core principles of quantum mechanics",
-          status: "upcoming",
-          progress: 0,
-          topics: ["Quantum Entanglement", "Wave-Particle Duality", "Uncertainty Principle"],
-        },
-      ],
-      curriculum: {
-        modules: [
-          {
-            id: "mod1",
-            title: "Introduction to Machine Learning",
-            description: "Fundamental concepts of ML algorithms and applications",
-            icon: "smart_toy",
-            status: "completed",
-            progress: 100,
-            topics: ["Supervised Learning", "Neural Networks", "Model Evaluation"],
-          },
-          {
-            id: "mod2",
-            title: "Philosophy of Mind",
-            description: "Explorations of consciousness and cognitive theories",
-            icon: "psychology",
-            status: "in-progress",
-            progress: 65,
-            topics: ["Consciousness", "Dualism", "Embodied Cognition"],
-          },
-          {
-            id: "mod3",
-            title: "Probabilistic Reasoning",
-            description: "Statistical approaches to causality and inference",
-            icon: "functions",
-            status: "in-progress",
-            progress: 30,
-            topics: ["Bayesian Networks", "Causal Inference", "Probability Theory"],
-          },
-          {
-            id: "mod4",
-            title: "Perception Systems",
-            description: "How humans and machines perceive and interpret the world",
-            icon: "visibility",
-            status: "upcoming",
-            progress: 0,
-            topics: ["Visual Processing", "Auditory Systems", "Sensory Integration"],
-          },
-          {
-            id: "mod5",
-            title: "Cognitive Systems Architecture",
-            description: "Understanding integrated cognitive frameworks",
-            icon: "psychology_alt",
-            status: "upcoming",
-            progress: 0,
-            topics: ["Memory Systems", "Attention Mechanisms", "Decision Making"],
-          },
-          {
-            id: "mod6",
-            title: "Quantum Physics Fundamentals",
-            description: "Core principles of quantum mechanics and their implications",
-            icon: "scatter_plot",
-            status: "upcoming",
-            progress: 0,
-            topics: ["Quantum Entanglement", "Wave-Particle Duality", "Uncertainty Principle"],
-          },
-        ],
-      },
-      library: {
-        resources: [
-          // Articles
-          {
-            id: "res1",
-            title: "Deep Learning Architecture Explained",
-            description: "Comprehensive guide to neural network architectures",
-            type: "article",
-            tags: ["Machine Learning", "Deep Learning", "Neural Networks"],
-            duration: "20 mins",
-          },
-          {
-            id: "res2",
-            title: "Philosophical Implications of Consciousness",
-            description: "Modern perspectives on the hard problem of consciousness",
-            type: "article",
-            tags: ["Philosophy", "Consciousness", "Mind"],
-            duration: "25 mins",
-          },
-          {
-            id: "res3",
-            title: "Causal Inference in Machine Learning",
-            description: "How causality affects model interpretability",
-            type: "article",
-            tags: ["Probabilistic Reasoning", "Causality", "Machine Learning"],
-            duration: "18 mins",
-          },
-          
-          // Videos
-          {
-            id: "res4",
-            title: "Visual System Architecture",
-            description: "From retina to visual cortex: How vision works",
-            type: "video",
-            tags: ["Perception", "Neuroscience", "Vision"],
-            duration: "32 mins",
-          },
-          {
-            id: "res5",
-            title: "Quantum Computing Explained",
-            description: "Fundamentals of quantum computing for beginners",
-            type: "video",
-            tags: ["Quantum Physics", "Computing", "Qubits"],
-            duration: "45 mins",
-          },
-          
-          // Interactive
-          {
-            id: "res6",
-            title: "Probabilistic Models Simulator",
-            description: "Interactive tool to explore Bayesian networks",
-            type: "interactive",
-            tags: ["Probabilistic Reasoning", "Bayesian Networks", "Statistics"],
-            duration: "Self-paced",
-          },
-          
-          // Podcasts/Audiobooks
-          {
-            id: "res7",
-            title: "The Nature of Consciousness",
-            description: "In-depth discussions with leading philosophers of mind",
-            type: "podcast",
-            tags: ["Philosophy", "Consciousness", "Mind"],
-            duration: "5 episodes",
-          },
-          {
-            id: "res8",
-            title: "Quantum Reality",
-            description: "Audiobook exploring quantum mechanics interpretations",
-            type: "audiobook",
-            tags: ["Quantum Physics", "Physics", "Reality"],
-            duration: "8.5 hrs",
-          },
-          
-          // Books
-          {
-            id: "res9",
-            title: "Pattern Recognition and Machine Learning",
-            description: "Comprehensive textbook on machine learning methods",
-            type: "book",
-            tags: ["Machine Learning", "Statistics", "Pattern Recognition"],
-            duration: "738 pages",
-          },
-          {
-            id: "res10",
-            title: "The Mind's I: Fantasies and Reflections on Self & Soul",
-            description: "Explorations of the nature of the self",
-            type: "book",
-            tags: ["Philosophy", "Consciousness", "Cognitive Science"],
-            duration: "512 pages",
-          },
-        ],
-      },
-      recommendations: [],
-      assessments: [],
-      userStats: {
-        masteryScore: 75,
-        masteryGrowth: "+5% this week",
-        streak: 7,
-        streakDays: Array(7).fill(null).map((_, i) => ({
-          date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-          completed: true
-        })),
-        completedModules: 8,
-        totalModules: 12,
-        focusAreas: [
-          { name: "Machine Learning", percentage: 45, color: "#3B82F6" },
-          { name: "Philosophy", percentage: 30, color: "#8B5CF6" },
-          { name: "Probabilistic Reasoning", percentage: 25, color: "#10B981" },
-        ],
-      },
-      userSkills: {
-        radar: {
-          labels: ["Machine Learning", "Philosophy", "Probabilistic Reasoning", "Perception", "Cognitive Systems"],
-          current: [80, 65, 45, 70, 60],
-          average: [65, 60, 55, 65, 55],
-        },
-        breakdown: [
-          { skill: "Machine Learning", score: 80 },
-          { skill: "Philosophy", score: 65 },
-          { skill: "Probabilistic Reasoning", score: 45 },
-          { skill: "Perception", score: 70 },
-          { skill: "Cognitive Systems", score: 60 },
-        ],
-        recommendation: "Focus on improving your understanding of probabilistic reasoning to better understand causal inference techniques.",
-      },
-      learningHistory: {
-        completedModules: [
-          {
-            id: "cm1",
-            title: "Machine Learning Foundations",
-            topics: ["Neural Networks", "Supervised Learning", "Model Evaluation"],
-            completedAt: "2025-02-28",
-            score: 95,
-          },
-          {
-            id: "cm2",
-            title: "Philosophy of Mind: Introduction",
-            topics: ["Consciousness", "Dualism", "Mind-Body Problem"],
-            completedAt: "2025-03-05",
-            score: 88,
-          },
-        ],
-        inProgressModules: [
-          {
-            id: "im1",
-            title: "Probabilistic Reasoning and Causal Inference",
-            topics: ["Bayesian Networks", "Causal Inference", "Probability Theory"],
-            progress: 65,
-          },
-          {
-            id: "im2",
-            title: "Philosophy of Mind: Advanced Topics",
-            topics: ["Embodied Cognition", "Extended Mind", "Enactivism"],
-            progress: 30,
-          },
-        ],
-        assessmentResults: [
-          {
-            id: "ar1",
-            type: "Machine Learning Assessment",
-            score: 92,
-            completedAt: "2025-02-28",
-            strengths: ["Model Architecture", "Data Preprocessing"],
-            weaknesses: ["Hyperparameter Tuning"],
-          },
-          {
-            id: "ar2",
-            type: "Philosophy of Mind Quiz",
-            score: 85,
-            completedAt: "2025-03-05",
-            strengths: ["Dualism Concepts", "Historical Context"],
-            weaknesses: ["Modern Interpretations"],
-          },
-          {
-            id: "ar3",
-            type: "Perception Systems Pretest",
-            score: 72,
-            completedAt: "2025-03-10",
-            strengths: ["Visual Processing Understanding"],
-            weaknesses: ["Cross-Modal Integration", "Signal Processing Fundamentals"],
-          },
-        ],
-      },
-      calendarEvents: [],
-      analytics: {
-        activityData: Array(30).fill(null).map((_, i) => ({
-          date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-          minutes: Math.floor(Math.random() * 60 + 30),
-        })),
-        competencyData: Array(30).fill(null).map((_, i) => ({
-          date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-          score: Math.min(100, 65 + Math.floor(Math.random() * 20)),
-        })),
-        assessmentData: [
-          { name: "Machine Learning Foundations", score: 92, average: 78 },
-          { name: "Philosophy of Mind", score: 85, average: 72 },
-          { name: "Probabilistic Reasoning", score: 76, average: 68 },
-          { name: "Perception Systems", score: 72, average: 70 },
-          { name: "Cognitive Systems", score: 65, average: 62 },
-        ],
-        skillData: [
-          { subject: "Machine Learning", score: 80, previousScore: 70 },
-          { subject: "Philosophy", score: 65, previousScore: 55 },
-          { subject: "Probabilistic Reasoning", score: 45, previousScore: 35 },
-          { subject: "Perception", score: 70, previousScore: 60 },
-          { subject: "Cognitive Systems", score: 60, previousScore: 50 },
-          { subject: "Quantum Physics", score: 30, previousScore: 20 },
-        ],
-        efficiency: {
-          completionRate: 85,
-          avgLearningTime: 45,
-          knowledgeRetention: 88,
-        },
-      },
-    };
-  }
 
   async getCurrentUser(): Promise<User | undefined> {
     return this.currentUser;
   }
+  
+  async setCurrentUser(user: User): Promise<void> {
+    this.currentUser = user;
+  }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { 
+    const [user] = await db.insert(users).values({
       ...insertUser,
-      id,
       level: "Beginner",
       interests: [],
       strengths: [],
@@ -587,575 +125,299 @@ export class MemStorage implements IStorage {
         emailNotifications: true,
         pushNotifications: true,
       }
-    };
-    this.users.set(id, user);
+    }).returning();
     this.currentUser = user;
     return user;
   }
 
   async updateUserProfile(profile: { name: string; email: string }): Promise<User> {
     if (!this.currentUser) throw new Error("No user logged in");
-    this.currentUser = { ...this.currentUser, ...profile };
-    this.users.set(this.currentUser.id, this.currentUser);
-    return this.currentUser;
+    const [updatedUser] = await db.update(users).set(profile).where(eq(users.id, this.currentUser.id)).returning();
+    this.currentUser = updatedUser;
+    return updatedUser;
   }
 
-  async updateUserPreferences(preferences: {
-    learningSpeed: number;
-    dailyGoal: number;
-    emailNotifications: boolean;
-    pushNotifications: boolean;
-  }): Promise<User> {
+  async updateUserPreferences(preferences: any): Promise<User> {
     if (!this.currentUser) throw new Error("No user logged in");
-    this.currentUser = { 
-      ...this.currentUser, 
-      preferences: { ...this.currentUser.preferences, ...preferences }
-    };
-    this.users.set(this.currentUser.id, this.currentUser);
-    return this.currentUser;
+    const [updatedUser] = await db.update(users).set({
+      preferences: { ...this.currentUser.preferences as any, ...preferences }
+    }).where(eq(users.id, this.currentUser.id)).returning();
+    this.currentUser = updatedUser;
+    return updatedUser;
   }
 
-  // Syllabus management
-  async getSyllabi(userId: number): Promise<Syllabus[]> {
-    return Array.from(this.syllabi.values()).filter(s => s.userId === userId);
-  }
-
-  async getSyllabus(id: number): Promise<Syllabus | undefined> {
-    return this.syllabi.get(id);
-  }
-
-  async createSyllabus(syllabus: any): Promise<Syllabus> {
-    const id = this.syllabi.size + 1;
-    const newSyllabus: Syllabus = {
-      ...syllabus,
-      id,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.syllabi.set(id, newSyllabus);
-    return newSyllabus;
-  }
-
-  async updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus> {
-    const syllabus = this.syllabi.get(id);
-    if (!syllabus) throw new Error("Syllabus not found");
+  async getLearningPath(): Promise<any[]> {
+    if (!this.currentUser) return [];
     
-    const updated = { ...syllabus, ...updates, updatedAt: new Date() };
-    this.syllabi.set(id, updated);
-    return updated;
-  }
-
-  async activateSyllabus(id: number): Promise<void> {
-    const syllabus = this.syllabi.get(id);
-    if (!syllabus) throw new Error("Syllabus not found");
+    // Fetch all modules and user progress
+    const allModules = await db.select().from(modules);
+    const userProgress = await db.select().from(userModules).where(eq(userModules.userId, this.currentUser.id));
     
-    // Deactivate other syllabi for this user
-    for (const [syllabusId, s] of this.syllabi.entries()) {
-      if (s.userId === syllabus.userId && s.status === 'active') {
-        this.syllabi.set(syllabusId, { ...s, status: 'draft' });
-      }
-    }
+    return allModules.map(m => {
+      const prog = userProgress.find(p => p.moduleId === m.id);
+      return {
+        id: m.id,
+        title: m.title,
+        description: m.description,
+        status: prog ? prog.status : "upcoming",
+        progress: prog ? prog.progress : 0,
+        completedOn: prog && prog.completedAt ? new Date(prog.completedAt).toISOString().split('T')[0] : undefined,
+        topics: m.topics,
+      };
+    });
+  }
+
+  async getCurriculum(): Promise<{ modules: Module[] }> {
+    const allModules = await db.select().from(modules);
+    return { modules: allModules as Module[] };
+  }
+
+  async getLearningLibrary(): Promise<{ resources: Resource[] }> {
+    const allResources = await db.select().from(resources);
+    return { resources: allResources as Resource[] };
+  }
+
+  async getUserStats(): Promise<any> {
+    if (!this.currentUser) throw new Error("No user logged in");
+    const uMods = await db.select().from(userModules).where(eq(userModules.userId, this.currentUser.id));
+    const allMods = await db.select().from(modules);
+    const uSkills = await db.select().from(skills).where(eq(skills.userId, this.currentUser.id));
     
-    // Activate this syllabus
-    this.syllabi.set(id, { ...syllabus, status: 'active' });
-  }
-
-  // Learning sessions
-  async getRecentLearningSessions(userId: number, limit: number): Promise<LearningSession[]> {
-    const sessions = this.learningSessions.get(userId) || [];
-    return sessions.slice(-limit);
-  }
-
-  async createLearningSession(session: any): Promise<LearningSession> {
-    const userId = session.userId;
-    const sessions = this.learningSessions.get(userId) || [];
-    const newSession: LearningSession = {
-      ...session,
-      id: sessions.length + 1,
-      createdAt: new Date()
+    const completed = uMods.filter(m => m.status === 'completed').length;
+    let mastery = uSkills.length > 0 ? (uSkills.reduce((a, b) => a + b.score, 0) / uSkills.length) : 0;
+    
+    return {
+      masteryScore: Math.round(mastery),
+      masteryGrowth: "+2% this week",
+      streak: 1, // simplified
+      streakDays: [],
+      completedModules: completed,
+      totalModules: allMods.length || 1,
+      focusAreas: uSkills.map(s => ({ name: s.skillName, percentage: s.score, color: "#3B82F6" })).slice(0,3),
     };
-    sessions.push(newSession);
-    this.learningSessions.set(userId, sessions);
-    return newSession;
   }
 
-  async updateLearningSession(id: number, updates: any): Promise<LearningSession> {
-    // Implementation would find and update the session
-    throw new Error("Not implemented in memory storage");
-  }
-
-  // Knowledge bank
-  async searchKnowledgeBank(query: string, filters?: any): Promise<KnowledgeBank[]> {
-    // Mock implementation
-    return [];
-  }
-
-  async getKnowledgeBankItem(id: number): Promise<KnowledgeBank | undefined> {
-    // Mock implementation
-    return undefined;
-  }
-
-  // Agent interactions
-  async logAgentInteraction(interaction: InsertAgentInteraction): Promise<AgentInteraction> {
-    const userId = interaction.userId;
-    const interactions = this.agentInteractions.get(userId) || [];
-    const newInteraction: AgentInteraction = {
-      ...interaction,
-      id: interactions.length + 1,
-      timestamp: new Date()
-    };
-    interactions.push(newInteraction);
-    this.agentInteractions.set(userId, interactions);
-    return newInteraction;
-  }
-
-  async getAgentInteractions(userId: number, agentType?: string): Promise<AgentInteraction[]> {
-    const interactions = this.agentInteractions.get(userId) || [];
-    if (agentType) {
-      return interactions.filter(i => i.agentType === agentType);
-    }
-    return interactions;
-  }
-
-  async getLearningPath() {
-    return this.mockData.learningPath;
-  }
-
-  async getCurriculum() {
-    return this.mockData.curriculum;
-  }
-
-  async getLearningLibrary() {
-    return this.mockData.library;
-  }
-
-  async getUserStats() {
-    return this.mockData.userStats;
-  }
-
-  async getUserSettings() {
+  async getUserSettings(): Promise<any> {
     if (!this.currentUser) throw new Error("No user logged in");
     return {
       name: this.currentUser.name,
       email: this.currentUser.email,
-      preferences: this.currentUser.preferences as {
-        learningSpeed: number;
-        dailyGoal: number;
-        emailNotifications: boolean;
-        pushNotifications: boolean;
-      },
+      preferences: this.currentUser.preferences,
     };
   }
 
-  async getLearningHistory() {
-    return this.mockData.learningHistory;
-  }
-
-  async getRecommendations() {
-    return this.mockData.recommendations;
-  }
-
-  async saveRecommendations(recommendations: any[]) {
-    this.mockData.recommendations = recommendations;
-  }
-
-  async getSuggestedAssessments() {
-    return this.mockData.assessments;
-  }
-
-  async saveSuggestedAssessments(assessments: any[]) {
-    this.mockData.assessments = assessments;
-  }
-
-  async getAssessmentResults() {
-    return this.mockData.learningHistory.assessmentResults;
-  }
-
-  async getUserSkills() {
-    return this.mockData.userSkills;
-  }
-
-  async saveUserSkills(skills: any) {
-    this.mockData.userSkills = skills;
-  }
-
-  async getUserAnalytics(timeRange: string) {
-    return this.mockData.analytics;
-  }
-
-  async startAssessment(assessmentType: string) {
-    return {
-      id: 1001, // Using a numeric ID to match the schema
-      title: "Dynamic Assessment",
-      description: "Adaptive assessment based on your skill level",
-      type: assessmentType,
-      difficulty: "medium",
-      estimatedTime: "30 minutes",
-    };
-  }
-
-  async submitAnswer(assessmentId: string, questionId: string, answer: string) {
-    return {
-      correct: Math.random() > 0.5,
-      feedback: "Keep going! You're doing great.",
-    };
-  }
-
-  async completeAssessment(assessmentId: string) {
-    return {
-      score: Math.floor(Math.random() * 40 + 60),
-      feedback: "Great job! You've shown strong understanding in several areas.",
-    };
-  }
-
-  async startModule(moduleId: string) {
-    return {
-      success: true,
-      message: "Module started successfully",
-    };
-  }
-
-  async completeModule(moduleId: string) {
-    return {
-      success: true,
-      message: "Module completed successfully",
-    };
-  }
-  
-  // Calendar event methods
-  async getCalendarEvents(userId: number): Promise<CalendarEvent[]> {
-    return this.mockData.calendarEvents.filter(event => event.userId === userId);
-  }
-
-  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {
-    return this.mockData.calendarEvents.find(event => event.id === id);
-  }
-
-  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> {
-    const newEvent: CalendarEvent = {
-      ...event,
-      id: this.mockData.calendarEvents.length + 1,
-      googleEventId: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.mockData.calendarEvents.push(newEvent);
-    return newEvent;
-  }
-
-  async updateCalendarEvent(id: number, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
-    const index = this.mockData.calendarEvents.findIndex(e => e.id === id);
-    if (index === -1) throw new Error("Calendar event not found");
+  async getLearningHistory(): Promise<any> {
+    if (!this.currentUser) return { completedModules: [], inProgressModules: [], assessmentResults: [] };
+    const uMods = await db.select().from(userModules).where(eq(userModules.userId, this.currentUser.id));
+    const allMods = await db.select().from(modules);
     
-    const updatedEvent = {
-      ...this.mockData.calendarEvents[index],
-      ...event,
-      updatedAt: new Date()
+    const completed = uMods.filter(m => m.status === 'completed').map(m => {
+      const mod = allMods.find(x => x.id === m.moduleId);
+      return {
+        id: m.moduleId,
+        title: mod ? mod.title : m.moduleId,
+        topics: mod ? mod.topics : [],
+        completedAt: m.completedAt ? new Date(m.completedAt).toISOString() : "",
+        score: m.score || 100,
+      };
+    });
+    
+    const uAssess = await db.select().from(userAssessments).where(eq(userAssessments.userId, this.currentUser.id));
+    const allAssess = await db.select().from(assessments);
+    
+    const results = uAssess.map(a => {
+      const asmt = allAssess.find(x => x.id === a.assessmentId);
+      return {
+        id: a.assessmentId,
+        type: asmt ? asmt.title : a.assessmentId,
+        score: a.score || 0,
+        completedAt: a.completedAt ? new Date(a.completedAt).toISOString() : "",
+        strengths: ["Learned topics"],
+        weaknesses: ["Areas to improve"]
+      };
+    });
+    
+    return {
+      completedModules: completed,
+      inProgressModules: [],
+      assessmentResults: results
     };
-    this.mockData.calendarEvents[index] = updatedEvent;
-    return updatedEvent;
   }
 
-  async deleteCalendarEvent(id: number): Promise<void> {
-    const index = this.mockData.calendarEvents.findIndex(e => e.id === id);
-    if (index !== -1) {
-      this.mockData.calendarEvents.splice(index, 1);
+  async getRecommendations(): Promise<Recommendation[]> {
+    if (!this.currentUser) return [];
+    return db.select().from(recommendations).where(eq(recommendations.userId, this.currentUser.id));
+  }
+
+  async saveRecommendations(recs: any[]): Promise<void> {
+    if (!this.currentUser) return;
+    await db.delete(recommendations).where(eq(recommendations.userId, this.currentUser.id));
+    if (recs.length > 0) {
+      await db.insert(recommendations).values(recs.map(r => ({
+        userId: this.currentUser!.id,
+        title: r.title,
+        description: r.description,
+        match: r.match,
+        icon: r.icon,
+        iconBg: r.iconBg,
+        topics: r.topics,
+        estimatedTime: r.estimatedTime,
+        createdAt: new Date(),
+      })));
     }
   }
 
-  async updateGoogleEventId(id: number, googleEventId: string): Promise<void> {
-    const index = this.mockData.calendarEvents.findIndex(e => e.id === id);
-    if (index === -1) throw new Error("Calendar event not found");
+  async getSuggestedAssessments(): Promise<Assessment[]> {
+    return db.select().from(assessments).limit(3);
+  }
+
+  async saveSuggestedAssessments(assess: Assessment[]): Promise<void> {
+    // Already hardcoded, we won't mutate the fixed assessments list for suggested
+  }
+
+  async getAssessmentResults(): Promise<any[]> {
+    if (!this.currentUser) return [];
+    const hist = await this.getLearningHistory();
+    return hist.assessmentResults;
+  }
+
+  async getUserSkills(): Promise<any> {
+    if (!this.currentUser) return null;
+    const uSkills = await db.select().from(skills).where(eq(skills.userId, this.currentUser.id));
+    if (uSkills.length === 0) return null;
     
-    this.mockData.calendarEvents[index] = {
-      ...this.mockData.calendarEvents[index],
-      googleEventId,
-      updatedAt: new Date()
+    return {
+      radar: {
+        labels: uSkills.map(s => s.skillName),
+        current: uSkills.map(s => s.score),
+        average: uSkills.map(s => Math.max(0, s.score - 10))
+      },
+      breakdown: uSkills.map(s => ({ skill: s.skillName, score: s.score })),
+      recommendation: "Keep improving your skills."
     };
   }
 
-  // Chat message methods
-  async getChatMessages(userId: number, conversationId: string): Promise<ChatMessage[]> {
-    const key = `${userId}-${conversationId}`;
-    return this.chatMessages.get(key) || [];
-  }
-  
-  async saveChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
-    const key = `${message.userId}-${message.conversationId}`;
-    const messages = this.chatMessages.get(key) || [];
+  async saveUserSkills(skillData: any): Promise<void> {
+    if (!this.currentUser || !skillData?.breakdown) return;
     
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      userId: message.userId,
-      role: message.role,
-      content: message.content,
-      timestamp: new Date(),
-      conversationId: message.conversationId
-    };
-    
-    messages.push(newMessage);
-    this.chatMessages.set(key, messages);
-    
-    return newMessage;
-  }
-  
-  async getConversations(userId: number): Promise<{id: string, lastMessage: string, timestamp: Date}[]> {
-    const conversations: {id: string, lastMessage: string, timestamp: Date}[] = [];
-    
-    for (const [key, messages] of this.chatMessages.entries()) {
-      if (key.startsWith(`${userId}-`)) {
-        const conversationId = key.split('-').slice(1).join('-');
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage) {
-          conversations.push({
-            id: conversationId,
-            lastMessage: lastMessage.content,
-            timestamp: lastMessage.timestamp
-          });
-        }
+    for (const b of skillData.breakdown) {
+      const existing = await db.select().from(skills).where(and(eq(skills.userId, this.currentUser.id), eq(skills.skillName, b.skill)));
+      if (existing.length > 0) {
+        await db.update(skills).set({ score: b.score, lastUpdated: new Date() }).where(eq(skills.id, existing[0].id));
+      } else {
+        await db.insert(skills).values({
+          userId: this.currentUser.id,
+          skillName: b.skill,
+          score: b.score,
+          lastUpdated: new Date()
+        });
       }
     }
-    
-    return conversations;
   }
-  
-  // User persona methods
-  async getUserPersona(userId: number): Promise<UserPersona | undefined> {
-    return this.userPersonas.get(userId);
-  }
-  
-  async saveUserPersona(userId: number, persona: {
-    contentFormat: string[];
-    studyHabits: string[];
-    currentWeaknesses: string[];
-    learningPreferences: string;
-    rawAnalysis?: any;
-  }): Promise<UserPersona> {
-    const newPersona: UserPersona = {
-      id: this.userPersonas.size + 1,
-      userId,
-      contentFormat: persona.contentFormat,
-      studyHabits: persona.studyHabits,
-      currentWeaknesses: persona.currentWeaknesses,
-      learningPreferences: persona.learningPreferences,
-      lastAnalyzed: new Date(),
-      rawAnalysis: persona.rawAnalysis || {}
+
+  async getUserAnalytics(timeRange: string): Promise<any> {
+    return {
+      activityData: [],
+      competencyData: [],
+      assessmentData: [],
+      skillData: [],
+      efficiency: { completionRate: 0, avgLearningTime: 0, knowledgeRetention: 0 }
     };
-    
-    this.userPersonas.set(userId, newPersona);
-    return newPersona;
   }
-}
 
-// Database implementation (only used if DATABASE_URL is available)
-export class DatabaseStorage implements IStorage {
-  private currentUser: User | undefined;
-
-  // User management
-  async getCurrentUser(): Promise<User | undefined> {
-    return this.currentUser;
+  async startAssessment(assessmentType: string): Promise<Assessment> {
+    const records = await db.select().from(assessments).where(eq(assessments.type, assessmentType)).limit(1);
+    if (records.length > 0) return records[0] as Assessment;
+    return { id: "a1", type: assessmentType, title: "Dynamic Assessment", description: "Test", difficulty: "medium", estimatedTime: "10 mins" } as Assessment;
   }
+
+  async submitAnswer(assessmentId: string, questionId: string, answer: string): Promise<any> {
+    return { correct: true, feedback: "Good." };
+  }
+
+  async completeAssessment(assessmentId: string): Promise<any> {
+    if (!this.currentUser) return { score: 100, feedback: "Great!" };
+    await db.insert(userAssessments).values({
+      userId: this.currentUser.id,
+      assessmentId,
+      startedAt: new Date(Date.now() - 600000),
+      completedAt: new Date(),
+      score: 85,
+      adaptive: true,
+      results: {}
+    });
+    return { score: 85, feedback: "Great!" };
+  }
+
+  async startModule(moduleId: string): Promise<any> {
+    if (!this.currentUser) return { success: false, message: "No user" };
+    await db.insert(userModules).values({
+      userId: this.currentUser.id,
+      moduleId,
+      status: "in-progress",
+      startedAt: new Date(),
+    });
+    return { success: true, message: "Started" };
+  }
+
+  async completeModule(moduleId: string): Promise<any> {
+    if (!this.currentUser) return { success: false, message: "No user" };
+    // update status
+    await db.update(userModules)
+      .set({ status: "completed", completedAt: new Date(), score: 100, progress: 100 })
+      .where(and(eq(userModules.userId, this.currentUser.id), eq(userModules.moduleId, moduleId)));
+    return { success: true, message: "Completed" };
+  }
+
+  // Syllabi
+  async getSyllabi(userId: number): Promise<Syllabus[]> { return db.select().from(syllabi).where(eq(syllabi.userId, userId)); }
+  async getSyllabus(id: number): Promise<Syllabus | undefined> { const s = await db.select().from(syllabi).where(eq(syllabi.id, id)); return s[0]; }
+  async createSyllabus(syl: any): Promise<Syllabus> { const [s] = await db.insert(syllabi).values({...syl, createdAt: new Date(), updatedAt: new Date()}).returning(); return s; }
+  async updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus> { const [s] = await db.update(syllabi).set({...updates, updatedAt: new Date()}).where(eq(syllabi.id, id)).returning(); return s; }
+  async activateSyllabus(id: number): Promise<void> { await db.update(syllabi).set({status: 'active'}).where(eq(syllabi.id, id)); }
   
-  async setCurrentUser(user: User): Promise<void> {
-    this.currentUser = user;
-  }
+  // Calendars
+  async getCalendarEvents(userId: number): Promise<CalendarEvent[]> { return db.select().from(calendarEvents).where(eq(calendarEvents.userId, userId)); }
+  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> { const c = await db.select().from(calendarEvents).where(eq(calendarEvents.id, id)); return c[0]; }
+  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> { const [c] = await db.insert(calendarEvents).values({...event, createdAt: new Date(), updatedAt: new Date()}).returning(); return c; }
+  async updateCalendarEvent(id: number, event: Partial<CalendarEvent>): Promise<CalendarEvent> { const [c] = await db.update(calendarEvents).set({...event, updatedAt: new Date()}).where(eq(calendarEvents.id, id)).returning(); return c; }
+  async deleteCalendarEvent(id: number): Promise<void> { await db.delete(calendarEvents).where(eq(calendarEvents.id, id)); }
+  async updateGoogleEventId(id: number, gid: string): Promise<void> { await db.update(calendarEvents).set({ googleEventId: gid }).where(eq(calendarEvents.id, id)); }
 
-  async getUser(id: number): Promise<User | undefined> {
-    if (!db) throw new Error("Database not available");
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    if (!db) throw new Error("Database not available");
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    if (!db) throw new Error("Database not available");
-    const [user] = await db
-      .insert(users)
-      .values({
-        ...insertUser,
-        level: "Beginner",
-        interests: [],
-        strengths: [],
-        weaknesses: [],
-        preferences: {
-          learningSpeed: 3,
-          dailyGoal: 30,
-          emailNotifications: true,
-          pushNotifications: true,
-        }
-      })
-      .returning();
-    
-    this.currentUser = user;
-    return user;
-  }
-
-  async updateUserProfile(profile: { name: string; email: string }): Promise<User> {
-    if (!db) throw new Error("Database not available");
-    if (!this.currentUser) throw new Error("No user logged in");
-    
-    const [updatedUser] = await db
-      .update(users)
-      .set(profile)
-      .where(eq(users.id, this.currentUser.id))
-      .returning();
-    
-    this.currentUser = updatedUser;
-    return updatedUser;
-  }
-
-  async updateUserPreferences(preferences: {
-    learningSpeed: number;
-    dailyGoal: number;
-    emailNotifications: boolean;
-    pushNotifications: boolean;
-  }): Promise<User> {
-    if (!db) throw new Error("Database not available");
-    if (!this.currentUser) throw new Error("No user logged in");
-    
-    const [updatedUser] = await db
-      .update(users)
-      .set({
-        preferences: { 
-          ...this.currentUser.preferences as any, 
-          ...preferences 
-        }
-      })
-      .where(eq(users.id, this.currentUser.id))
-      .returning();
-    
-    
-    this.currentUser = updatedUser;
-    return updatedUser;
-  }
-
-  // For brevity, I'll implement the rest of the methods to throw errors when database is not available
-  // In a real implementation, you'd want to implement all methods properly
-
-  async getSyllabi(userId: number): Promise<Syllabus[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getSyllabus(id: number): Promise<Syllabus | undefined> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async createSyllabus(syllabus: any): Promise<Syllabus> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async activateSyllabus(id: number): Promise<void> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getRecentLearningSessions(userId: number, limit: number): Promise<LearningSession[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async createLearningSession(session: any): Promise<LearningSession> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async updateLearningSession(id: number, updates: any): Promise<LearningSession> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async searchKnowledgeBank(query: string, filters?: any): Promise<KnowledgeBank[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getKnowledgeBankItem(id: number): Promise<KnowledgeBank | undefined> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async logAgentInteraction(interaction: InsertAgentInteraction): Promise<AgentInteraction> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getAgentInteractions(userId: number, agentType?: string): Promise<AgentInteraction[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getCalendarEvents(userId: number): Promise<CalendarEvent[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async updateCalendarEvent(id: number, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async deleteCalendarEvent(id: number): Promise<void> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async updateGoogleEventId(id: number, googleEventId: string): Promise<void> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
+  // Chat
   async getChatMessages(userId: number, conversationId: string): Promise<ChatMessage[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
+    return db.select().from(chatMessages).where(and(eq(chatMessages.userId, userId), eq(chatMessages.conversationId, conversationId))).orderBy(asc(chatMessages.timestamp));
   }
-  
   async saveChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
+    const [c] = await db.insert(chatMessages).values({...message, timestamp: new Date()}).returning(); return c as ChatMessage;
   }
-  
-  async getConversations(userId: number): Promise<{id: string, lastMessage: string, timestamp: Date}[]> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-
-  async getUserPersona(userId: number): Promise<UserPersona | undefined> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
-  }
-  
-  async saveUserPersona(userId: number, persona: {
-    contentFormat: string[];
-    studyHabits: string[];
-    currentWeaknesses: string[];
-    learningPreferences: string;
-    rawAnalysis?: any;
-  }): Promise<UserPersona> {
-    throw new Error("Database storage not fully implemented for Bolt environment");
+  async getConversations(userId: number): Promise<any[]> {
+    return []; // simplified
   }
 
-  // Implement other required methods with similar error throwing
-  async getLearningPath() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getCurriculum() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getLearningLibrary() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getUserStats() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getUserSettings() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getLearningHistory() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getRecommendations() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async saveRecommendations(recommendations: any[]) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getSuggestedAssessments() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async saveSuggestedAssessments(assessments: any[]) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getAssessmentResults() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getUserSkills() { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async saveUserSkills(skills: any) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async getUserAnalytics(timeRange: string) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async startAssessment(assessmentType: string) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async submitAnswer(assessmentId: string, questionId: string, answer: string) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async completeAssessment(assessmentId: string) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async startModule(moduleId: string) { throw new Error("Database storage not fully implemented for Bolt environment"); }
-  async completeModule(moduleId: string) { throw new Error("Database storage not fully implemented for Bolt environment"); }
+  // Persona
+  async getUserPersona(userId: number): Promise<UserPersona | undefined> { const p = await db.select().from(userPersonas).where(eq(userPersonas.userId, userId)); return p[0]; }
+  async saveUserPersona(userId: number, p: any): Promise<UserPersona> { 
+    await db.delete(userPersonas).where(eq(userPersonas.userId, userId));
+    const [ret] = await db.insert(userPersonas).values({...p, userId, lastAnalyzed: new Date()}).returning();
+    return ret;
+  }
+
+  // LearningSessions
+  async getRecentLearningSessions(userId: number, limit: number): Promise<LearningSession[]> { return db.select().from(learningSessions).where(eq(learningSessions.userId, userId)).limit(limit); }
+  async createLearningSession(session: any): Promise<LearningSession> { const [s] = await db.insert(learningSessions).values({...session, createdAt: new Date()}).returning(); return s; }
+  async updateLearningSession(id: number, updates: any): Promise<LearningSession> { const [s] = await db.update(learningSessions).set(updates).where(eq(learningSessions.id, id)).returning(); return s; }
+
+  // KnowledgeBank
+  async searchKnowledgeBank(q: string, filters?: any): Promise<KnowledgeBank[]> { return db.select().from(knowledgeBank).limit(10); } // Simplified
+  async getKnowledgeBankItem(id: number): Promise<KnowledgeBank | undefined> { const k = await db.select().from(knowledgeBank).where(eq(knowledgeBank.id, id)); return k[0]; }
+
+  // AgentInteractions
+  async logAgentInteraction(i: InsertAgentInteraction): Promise<AgentInteraction> { const [ret] = await db.insert(agentInteractions).values({...i, timestamp: new Date()}).returning(); return ret; }
+  async getAgentInteractions(userId: number, t?: string): Promise<AgentInteraction[]> { 
+    if (t) return db.select().from(agentInteractions).where(and(eq(agentInteractions.userId, userId), eq(agentInteractions.agentType, t)));
+    return db.select().from(agentInteractions).where(eq(agentInteractions.userId, userId));
+  }
 }
 
-// Use MemStorage for Bolt environment, DatabaseStorage only if DATABASE_URL is available
-export const storage = db ? new DatabaseStorage() : new MemStorage();
+export const storage = new DatabaseStorage();

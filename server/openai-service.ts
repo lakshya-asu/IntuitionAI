@@ -1,7 +1,10 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "sk-dummy-key" });
+const anthropic = new Anthropic({
+  apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key",
+});
+
+const MODEL = "claude-3-haiku-20240307";
 
 interface UserData {
   id: number;
@@ -52,6 +55,11 @@ interface AssessmentResult {
   topics: { name: string; score: number }[];
 }
 
+function extractJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  return match ? JSON.parse(match[0]) : {};
+}
+
 // Generate personalized learning recommendations
 export async function generateRecommendations({ 
   userData, 
@@ -72,13 +80,13 @@ export async function generateRecommendations({
       - Strengths: ${userData?.strengths?.join(', ') || 'Not specified'}
       - Weaknesses: ${userData?.weaknesses?.join(', ') || 'Not specified'}
       - Current mastery score: ${userStats?.masteryScore || 0}/100
-      - Completed modules: ${userStats.completedModules} out of ${userStats.totalModules}
-      - Focus areas: ${userStats.focusAreas.map(area => `${area.name} (${area.percentage}%)`).join(', ')}
+      - Completed modules: ${userStats?.completedModules || 0} out of ${userStats?.totalModules || 1}
+      - Focus areas: ${userStats?.focusAreas?.map(area => `${area.name} (${area.percentage}%)`).join(', ') || 'None'}
       
       Recent learning history:
-      - Completed modules: ${learningHistory.completedModules.map(m => m.title).join(', ')}
-      - In-progress modules: ${learningHistory.inProgressModules.map(m => m.title).join(', ')}
-      - Recent assessment results: ${learningHistory.assessmentResults.map(a => `${a.type} (${a.score}%)`).join(', ')}
+      - Completed modules: ${learningHistory?.completedModules?.map(m => m.title).join(', ') || 'None'}
+      - In-progress modules: ${learningHistory?.inProgressModules?.map(m => m.title).join(', ') || 'None'}
+      - Recent assessment results: ${learningHistory?.assessmentResults?.map(a => `${a.type} (${a.score}%)`).join(', ') || 'None'}
       
       For each recommendation, provide:
       1. title - A concise title for the recommended learning resource
@@ -89,25 +97,21 @@ export async function generateRecommendations({
       6. topics - 2-3 relevant topic tags
       7. estimatedTime - Estimated time to complete (e.g., "8 hours", "10 hours")
       
-      Provide the response as a JSON array with these fields. Keep recommendations realistic and educational.
+      Respond ONLY with a valid JSON object containing a "recommendations" array. No conversational text.
     `;
 
-    // Call OpenAI API for recommendations
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "You are an educational AI that provides personalized learning recommendations." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system: "You are an educational AI that provides personalized learning recommendations. You must output ONLY valid JSON.",
+      messages: [{ role: "user", content: prompt }]
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+    const result = extractJson(content);
     return result.recommendations || [];
   } catch (error) {
     console.error("Error generating recommendations:", error);
-    
-    // Fallback recommendations if OpenAI API call fails
     return [
       {
         id: "rec1",
@@ -176,25 +180,21 @@ export async function generateAdaptiveTesting({
       5. description - Reason for this assessment recommendation
       6. duration - Estimated duration (e.g., "20 minutes")
       
-      Provide the response as a JSON array with these fields.
+      Respond ONLY with a valid JSON object containing an "assessments" array. No conversational text.
     `;
 
-    // Call OpenAI API for adaptive testing suggestions
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "You are an educational AI that provides adaptive assessment recommendations." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system: "You are an educational AI that provides adaptive assessment recommendations. You must output ONLY valid JSON.",
+      messages: [{ role: "user", content: prompt }]
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+    const result = extractJson(content);
     return result.assessments || [];
   } catch (error) {
     console.error("Error generating adaptive testing recommendations:", error);
-    
-    // Fallback assessment suggestions if OpenAI API call fails
     return [
       {
         id: "assessment1",
@@ -216,32 +216,35 @@ export async function generateAdaptiveTesting({
   }
 }
 
-// Generate skill assessment and recommendations
-// Chatbot service using GPT-4o
+// Chatbot service using Claude
 export async function generateChatbotResponse(
   messages: { role: 'user' | 'assistant' | 'system'; content: string }[]
 ): Promise<string> {
   try {
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: `You are an AI learning assistant for IntuitionAI, an adaptive learning platform. 
+    const systemPrompt = messages.find(m => m.role === 'system')?.content || `You are an AI learning assistant for IntuitionAI, an adaptive learning platform. 
           Your purpose is to help users navigate their personalized learning journey, suggest resources, 
           answer questions about educational content, and provide guidance on their learning path.
           Keep responses helpful, encouraging, and focused on the user's educational goals.
           When appropriate, suggest assessments, learning modules, or resources that might benefit them.
-          Always maintain a supportive, patient tone. Your goal is to empower the user in their learning journey.`
-        },
-        ...messages
-      ],
-      temperature: 0.7,
+          Always maintain a supportive, patient tone. Your goal is to empower the user in their learning journey.`;
+
+    const validMessages = messages
+      .filter(m => m.role !== 'system')
+      .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
+    if (validMessages.length === 0) {
+      validMessages.push({ role: 'user', content: "Hello!" });
+    }
+
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      system: systemPrompt,
+      messages: validMessages,
       max_tokens: 500,
+      temperature: 0.7,
     });
 
-    return response.choices[0].message.content || "I'm sorry, I couldn't generate a response.";
+    return response.content[0].type === "text" ? response.content[0].text : "I'm sorry, I couldn't generate a response.";
   } catch (error) {
     console.error("Error generating chatbot response:", error);
     throw error;
@@ -283,25 +286,20 @@ export async function generateSkillAssessment({
       
       3. recommendation - A personalized recommendation for improving skills
       
-      Format the response as JSON with these fields.
+      Respond ONLY with a valid JSON object matching this schema. No conversational text.
     `;
 
-    // Call OpenAI API for skill assessment
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: "You are an educational AI that provides detailed skill assessments." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system: "You are an educational AI that provides detailed skill assessments. You must output ONLY valid JSON.",
+      messages: [{ role: "user", content: prompt }]
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    return result;
+    const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+    return extractJson(content);
   } catch (error) {
     console.error("Error generating skill assessment:", error);
-    
-    // Fallback skill assessment if OpenAI API call fails
     return {
       radar: {
         labels: ["Algorithms", "Data Structures", "Machine Learning", "System Design", "Database Systems"],
@@ -320,14 +318,13 @@ export async function generateSkillAssessment({
   }
 }
 
-// User Persona Retrieval - Analyze chat history to understand user preferences
+// User Persona Retrieval
 export async function analyzeUserPersona(chatMessages: {
   role: string;
   content: string;
   timestamp: Date;
 }[]) {
   try {
-    // Format the chat messages for analysis
     const conversationHistory = chatMessages
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
       .map(msg => `${msg.role}: ${msg.content}`)
@@ -343,33 +340,23 @@ export async function analyzeUserPersona(chatMessages: {
       Based on this conversation, provide:
       
       1. contentFormat - An array of the user's preferred content formats (options: "video", "text", "interactive", "audio"). Limit to 1-3 formats.
-      
-      2. studyHabits - An array describing study habits (e.g., "morning learner", "short attention span", "prefers spaced repetition", "needs frequent breaks"). Limit to 2-4 habits.
-      
-      3. currentWeaknesses - An array identifying specific areas the user struggles with (e.g., "struggles with algebra", "difficulty with technical terms"). Limit to 1-3 weaknesses.
-      
+      2. studyHabits - An array describing study habits. Limit to 2-4 habits.
+      3. currentWeaknesses - An array identifying specific areas the user struggles with. Limit to 1-3 weaknesses.
       4. learningPreferences - The primary learning preference: "visual", "auditory", "reading/writing", or "kinesthetic".
-      
       5. analysis - A brief paragraph summarizing key insights about this user's learning preferences.
       
-      Format the response as JSON with these fields.
+      Respond ONLY with a valid JSON object matching this schema. No conversational text.
     `;
 
-    // Call OpenAI API for user persona analysis
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { 
-          role: "system", 
-          content: "You are an educational AI that specializes in analyzing conversation data to extract learning preferences and patterns." 
-        },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" }
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system: "You are an educational AI that specializes in analyzing conversation data to extract learning preferences. You must output ONLY valid JSON.",
+      messages: [{ role: "user", content: prompt }]
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    return result;
+    const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+    return extractJson(content);
   } catch (error) {
     console.error("Error analyzing user persona:", error);
     throw error;
