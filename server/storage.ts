@@ -7,7 +7,7 @@ import {
   syllabi, type Syllabus, learningSessions, type LearningSession, knowledgeBank, type KnowledgeBank, agentInteractions, type AgentInteraction,
   type InsertAgentInteraction
 } from "@shared/schema";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq, desc, asc, and, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {

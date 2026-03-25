@@ -1,8 +1,8 @@
-import { studentInteractionAgent } from "./student-interaction-agent";
-import { recommendationAgent } from "./recommendation-agent";
-import { evaluatorAgent } from "./evaluator-agent";
-import { storage } from "../storage";
-import type { ChatMessage } from "../../shared/schema";
+import { studentInteractionAgent } from "./student-interaction-agent.js";
+import { recommendationAgent } from "./recommendation-agent.js";
+import { evaluatorAgent } from "./evaluator-agent.js";
+import { storage } from "../storage.js";
+import type { ChatMessage } from "../../shared/schema.js";
 
 export interface OrchestrationContext {
   userId: number;

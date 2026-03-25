@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { storage } from "../storage";
-import type { ChatMessage, InsertAgentInteraction } from "../../shared/schema";
+import { storage } from "../storage.js";
+import type { ChatMessage, InsertAgentInteraction } from "../../shared/schema.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
 

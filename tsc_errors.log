@@ -1,0 +1,70 @@
+client/src/components/dashboard/Recommendations.tsx(141,14): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+client/src/components/dashboard/SuggestedAssessments.tsx(117,23): error TS2339: Property 'suggested' does not exist on type '{}'.
+client/src/components/dashboard/UserPersona.tsx(37,37): error TS2558: Expected 0 type arguments, but got 1.
+client/src/components/dashboard/UserPersona.tsx(40,18): error TS2345: Argument of type 'Response' is not assignable to parameter of type 'SetStateAction<UserPersonaData | null>'.
+client/src/components/dashboard/UserPersona.tsx(51,39): error TS2558: Expected 0 type arguments, but got 1.
+client/src/components/dashboard/UserPersona.tsx(58,25): error TS2339: Property 'persona' does not exist on type 'Response'.
+client/src/pages/Analytics.tsx(71,53): error TS2339: Property 'activityData' does not exist on type '{}'.
+client/src/pages/Analytics.tsx(95,53): error TS2339: Property 'competencyData' does not exist on type '{}'.
+client/src/pages/Analytics.tsx(119,52): error TS2339: Property 'assessmentData' does not exist on type '{}'.
+client/src/pages/Analytics.tsx(149,71): error TS2339: Property 'skillData' does not exist on type '{}'.
+client/src/pages/Analytics.tsx(184,86): error TS2339: Property 'efficiency' does not exist on type '{}'.
+client/src/pages/Analytics.tsx(193,88): error TS2339: Property 'efficiency' does not exist on type '{}'.
+client/src/pages/Analytics.tsx(202,85): error TS2339: Property 'efficiency' does not exist on type '{}'.
+client/src/pages/Assessment.tsx(54,72): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/Assessment.tsx(58,27): error TS2345: Argument of type 'Response' is not assignable to parameter of type 'SetStateAction<AssessmentData | null>'.
+client/src/pages/Assessment.tsx(74,91): error TS2345: Argument of type '{ method: string; body: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/Assessment.tsx(99,93): error TS2345: Argument of type '{ method: string; }' is not assignable to parameter of type 'string'.
+client/src/pages/Assessment.tsx(132,21): error TS2339: Property 'score' does not exist on type 'Response | { score: number; feedback: string; }'.
+  Property 'score' does not exist on type 'Response'.
+client/src/pages/Assessment.tsx(133,24): error TS2339: Property 'feedback' does not exist on type 'Response | { score: number; feedback: string; }'.
+  Property 'feedback' does not exist on type 'Response'.
+client/src/pages/Assessment.tsx(342,73): error TS2339: Property 'correct' does not exist on type 'Response | { correct: boolean; feedback: string; }'.
+  Property 'correct' does not exist on type 'Response'.
+client/src/pages/Assessment.tsx(345,45): error TS2339: Property 'correct' does not exist on type 'Response | { correct: boolean; feedback: string; }'.
+  Property 'correct' does not exist on type 'Response'.
+client/src/pages/Assessment.tsx(348,45): error TS2339: Property 'feedback' does not exist on type 'Response | { correct: boolean; feedback: string; }'.
+  Property 'feedback' does not exist on type 'Response'.
+client/src/pages/Curriculum.tsx(27,30): error TS2339: Property 'modules' does not exist on type '{}'.
+client/src/pages/Library.tsx(16,42): error TS2339: Property 'resources' does not exist on type '{}'.
+client/src/pages/Settings.tsx(85,26): error TS2339: Property 'name' does not exist on type '{}'.
+client/src/pages/Settings.tsx(86,27): error TS2339: Property 'email' does not exist on type '{}'.
+client/src/pages/Settings.tsx(90,35): error TS2339: Property 'preferences' does not exist on type '{}'.
+client/src/pages/Settings.tsx(91,31): error TS2339: Property 'preferences' does not exist on type '{}'.
+client/src/pages/Settings.tsx(92,40): error TS2339: Property 'preferences' does not exist on type '{}'.
+client/src/pages/Settings.tsx(93,39): error TS2339: Property 'preferences' does not exist on type '{}'.
+server/agents/orchestrator-agent.ts(283,22): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+server/routes.ts(18,16): error TS2664: Invalid module name in augmentation, module 'express-session' cannot be found.
+server/routes.ts(30,8): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(48,7): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(63,43): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(66,38): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(70,68): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(72,5): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(72,25): error TS7006: Parameter 'err' implicitly has an 'any' type.
+server/routes.ts(90,22): error TS2551: Property 'sessionID' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'. Did you mean 'session'?
+server/routes.ts(91,20): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(92,15): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(167,7): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(168,53): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(171,7): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(171,25): error TS7006: Parameter 'err' implicitly has an 'any' type.
+server/routes.ts(215,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(335,7): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(340,48): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(416,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(435,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(451,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(835,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(896,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(918,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(984,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(1006,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(1113,22): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/routes.ts(1127,17): error TS18049: 'req.session' is possibly 'null' or 'undefined'.
+server/syllabus-generator.ts(268,42): error TS2339: Property 'choices' does not exist on type 'Message & { _request_id?: string | null | undefined; }'.
+server/syllabus-generator.ts(338,42): error TS2339: Property 'choices' does not exist on type 'Message & { _request_id?: string | null | undefined; }'.
+server/vite.ts(42,5): error TS2322: Type '{ middlewareMode: boolean; hmr: { server: Server<typeof IncomingMessage, typeof ServerResponse>; }; allowedHosts: boolean; }' is not assignable to type 'ServerOptions'.
+  Types of property 'allowedHosts' are incompatible.
+    Type 'boolean' is not assignable to type 'true | string[] | undefined'.

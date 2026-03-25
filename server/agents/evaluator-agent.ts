@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { storage } from "../storage";
-import type { LearningSession, UserAssessment } from "../../shared/schema";
+import { storage } from "../storage.js";
+import type { LearningSession, UserAssessment } from "../../shared/schema.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
 

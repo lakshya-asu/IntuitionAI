@@ -1,5 +1,5 @@
-import { db } from "./db";
-import { modules, resources, assessments } from "../shared/schema";
+import { db } from "./db.js";
+import { modules, resources, assessments } from "../shared/schema.js";
 
 async function seed() {
   console.log("Seeding database...");

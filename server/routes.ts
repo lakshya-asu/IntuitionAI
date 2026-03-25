@@ -1,19 +1,20 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { db, sql } from "./db";
-import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
-import { orchestratorAgent } from "./agents/orchestrator-agent";
-import { syllabusGenerator } from "./syllabus-generator";
-import type { ChatMessage, InsertCalendarEvent } from "../shared/schema";
-import { insertCalendarEventSchema } from "../shared/schema";
+import { storage } from "./storage.js";
+import { db } from "./db.js";
+import { sql } from "drizzle-orm";
+import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service.js";
+import { orchestratorAgent } from "./agents/orchestrator-agent.js";
+import { syllabusGenerator } from "./syllabus-generator.js";
+import type { ChatMessage, InsertCalendarEvent } from "../shared/schema.js";
+import { insertCalendarEventSchema } from "../shared/schema.js";
 import { 
   getAuthUrl,
   handleOAuthCallback,
   addEventToCalendar,
   updateEventInCalendar,
   deleteEventFromCalendar
-} from "./google-calendar-service";
+} from "./google-calendar-service.js";
 
 // Define session interface for TypeScript
 
