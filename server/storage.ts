@@ -6,7 +6,7 @@ import {
   calendarEvents, type CalendarEvent, type InsertCalendarEvent,
   syllabi, type Syllabus, learningSessions, type LearningSession, knowledgeBank, type KnowledgeBank, agentInteractions, type AgentInteraction,
   type InsertAgentInteraction
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, desc, asc, and, ilike, sql } from "drizzle-orm";
 
