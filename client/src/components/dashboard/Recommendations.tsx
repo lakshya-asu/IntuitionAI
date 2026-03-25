@@ -138,7 +138,7 @@ export default function Recommendations({ recommendations }: RecommendationProps
         ))}
       </div>
       
-      <style jsx>{`
+      <style>{`
         .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;

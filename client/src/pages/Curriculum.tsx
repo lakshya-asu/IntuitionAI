@@ -24,7 +24,7 @@ export default function Curriculum() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {curriculumData?.modules?.map((module: any) => (
+            {(curriculumData as any)?.modules?.map((module: any) => (
               <Card key={module.id} className="overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">

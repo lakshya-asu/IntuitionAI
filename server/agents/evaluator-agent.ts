@@ -1,8 +1,13 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { storage } from "../storage";
 import type { LearningSession, UserAssessment } from "../../shared/schema";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "sk-dummy-key" });
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
+
+function extractJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  return match ? JSON.parse(match[0]) : {};
+}
 
 export interface EvaluationContext {
   userId: number;
@@ -104,16 +109,15 @@ export class EvaluatorAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert learning performance analyst." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert learning performance analyst." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Performance analysis error:", error);
       return {
@@ -151,16 +155,15 @@ export class EvaluatorAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert at analyzing learning progress patterns." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert at analyzing learning progress patterns." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Progress analysis error:", error);
       return {
@@ -207,16 +210,15 @@ export class EvaluatorAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert learning evaluator providing comprehensive assessments." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert learning evaluator providing comprehensive assessments." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Evaluation generation error:", error);
       return {
@@ -261,16 +263,15 @@ export class EvaluatorAgent {
         Return as JSON.
       `;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an adaptive assessment evaluator." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an adaptive assessment evaluator." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Adaptive assessment evaluation error:", error);
       return {

@@ -280,7 +280,7 @@ export class OrchestratorAgent {
       response,
       actions,
       recommendations,
-      nextSteps: [...new Set(nextSteps)], // Remove duplicates
+      nextSteps: Array.from(new Set(nextSteps) as any), // Remove duplicates
       agentsInvolved,
       confidence
     };

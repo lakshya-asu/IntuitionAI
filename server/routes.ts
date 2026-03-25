@@ -15,11 +15,6 @@ import {
 } from "./google-calendar-service";
 
 // Define session interface for TypeScript
-declare module 'express-session' {
-  interface SessionData {
-    userId?: number;
-  }
-}
 
 // Auth middleware for protected routes
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -27,7 +22,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   
   // For development purposes, auto-create and login a test user if no user is logged in
   // In production, this would be replaced with proper authentication
-  if (!req.session.userId) {
+  if (!(req.session as any)?.userId) {
     console.log("No userId in session - auto-logging in test user for development");
     
     try {
@@ -45,7 +40,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
       }
       
       // Set user ID in session
-      req.session.userId = user.id;
+      if (req.session) { (req.session as any).userId = user.id; }
       
       // Set as current user in storage
       await storage.setCurrentUser(user);
@@ -60,18 +55,16 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
     }
   }
   
-  console.log("Found userId in session:", req.session.userId);
+  console.log("Found userId in session:", (req.session as any)?.userId);
   
   // Set the current user in storage based on session
-  const user = await storage.getUser(req.session.userId);
+  const user = await storage.getUser((req.session as any)?.userId);
   console.log("User lookup result:", user ? "User found in storage" : "User not found in storage");
   
   if (!user) {
-    console.log("Auth failed: User not found in storage with id:", req.session.userId);
+    console.log("Auth failed: User not found in storage with id:", (req.session as any)?.userId);
     // Clear invalid session
-    req.session.destroy(err => {
-      if (err) console.error("Session destroy error:", err);
-    });
+    req.session = null;
     return res.status(401).json({ message: "User not authenticated" });
   }
   
@@ -87,9 +80,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("Debug session data:", req.session);
     res.json({ 
       session: req.session,
-      sessionID: req.sessionID,
-      hasUserId: !!req.session.userId,
-      userId: req.session.userId
+      sessionID: 'cookie-session',
+      hasUserId: !!(req.session as any)?.userId,
+      userId: (req.session as any)?.userId
     });
   });
   
@@ -164,20 +157,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Debug login as test user:", user.id);
       
       // Set user ID in session
-      req.session.userId = user.id;
-      console.log("Debug login: Session ID set to", req.session.userId);
+      if (req.session) { (req.session as any).userId = user.id; }
+      console.log("Debug login: Session ID set to", (req.session as any)?.userId);
       
       // Explicitly save the session to ensure it persists
-      req.session.save((err) => {
-        if (err) {
-          console.error("Debug login: Error saving session", err);
-          return res.status(500).json({ 
-            success: false, 
-            message: "Failed to save session" 
-          });
-        }
-        
-        console.log("Debug login: Session saved successfully");
         
         // Set as current user in storage
         storage.setCurrentUser(user)
@@ -198,7 +181,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               message: "Failed to set current user in storage" 
             });
           });
-      });
     } catch (error) {
       console.error("Debug login error:", error);
       res.status(500).json({ 
@@ -212,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Debug endpoint for generating and testing a user persona without needing chat history
   app.post("/api/debug/generate-test-persona", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       
       // Sample chat history for generating a test persona
       const sampleMessages = [
@@ -332,12 +314,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Login successful, setting session for user:", user.id);
       
       // Set user ID in session
-      req.session.userId = user.id;
+      if (req.session) { (req.session as any).userId = user.id; }
       
       // Set as current user in storage
       await storage.setCurrentUser(user);
       
-      console.log("User session established:", req.session.userId);
+      console.log("User session established:", (req.session as any)?.userId);
       
       // Return the user without password
       const { password: _, ...userWithoutPassword } = user;
@@ -413,7 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Orchestrator endpoint - main entry point for multi-agent interactions
   app.post("/api/orchestrator/interact", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const { userInput, context } = req.body;
       
       const result = await orchestratorAgent.orchestrateInteraction(
@@ -432,7 +414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Syllabus endpoints
   app.get("/api/syllabi", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const syllabi = await storage.getSyllabi(userId);
       const activeSyllabus = syllabi.find(s => s.status === 'active');
       
@@ -448,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/syllabi/generate", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const syllabusRequest = {
         ...req.body,
         userId
@@ -832,7 +814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/chatbot", requireAuth, async (req, res) => {
     try {
       const { messages } = req.body;
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       
       if (!messages || !Array.isArray(messages)) {
         return res.status(400).json({ 
@@ -893,7 +875,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user persona
   app.get("/api/user/persona", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const persona = await storage.getUserPersona(userId);
       
       if (!persona) {
@@ -915,7 +897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Helper endpoint for demo purposes - creates sample chat messages
   app.post("/api/demo/create-chat-messages", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const conversationId = "default-conversation";
       
       // Sample messages that reveal learning preferences
@@ -981,7 +963,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Fetch user persona data
   app.get("/api/user/persona", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const userPersona = await storage.getUserPersona(userId);
       
       if (!userPersona) {
@@ -1003,7 +985,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Persona Retrieval - Analyze user chat history for persona creation
   app.post("/api/user/analyze-persona", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       
       // Retrieve all chat messages for this user
       const conversations = await storage.getConversations(userId);
@@ -1110,7 +1092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/calendar/events", requireAuth, async (req, res) => {
     try {
-      const userId = req.session.userId!;
+      const userId = (req.session as any)?.userId!;
       const events = await storage.getCalendarEvents(userId);
       res.json(events);
     } catch (error) {
@@ -1124,7 +1106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate request body
       const eventData = insertCalendarEventSchema.parse({
         ...req.body,
-        userId: req.session.userId
+        userId: (req.session as any)?.userId
       });
 
       // Create event in our database

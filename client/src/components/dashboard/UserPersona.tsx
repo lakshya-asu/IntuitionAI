@@ -34,9 +34,8 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
   const fetchPersona = async () => {
     setLoading(true);
     try {
-      const data = await apiRequest<UserPersonaData>('/api/user/persona', {
-        method: 'GET',
-      });
+      const res = await apiRequest('GET', '/api/user/persona');
+      const data = await res.json();
       setPersona(data);
     } catch (error) {
       console.log('No persona found, user may need to analyze first');
@@ -48,12 +47,8 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
   const analyzePersona = async () => {
     setAnalyzing(true);
     try {
-      const result = await apiRequest<{ success: boolean; persona: UserPersonaData; analysis: string }>(
-        '/api/user/analyze-persona',
-        {
-          method: 'POST',
-        }
-      );
+      const res = await apiRequest('POST', '/api/user/analyze-persona');
+      const result = await res.json();
       
       setPersona(result.persona);
       

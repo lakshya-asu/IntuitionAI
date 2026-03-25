@@ -1,19 +1,17 @@
 import express from 'express';
-import session from 'express-session';
-import memoryStore from 'memorystore';
+import cookieSession from 'cookie-session';
 import { registerRoutes } from '../server/routes';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-const MemoryStore = memoryStore(session);
-app.use(session({
-  store: new MemoryStore({ checkPeriod: 86400000 }),
-  secret: process.env.SESSION_SECRET || "intuition_ai_dev_secret",
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === "production" }
+// Initialize cookie-based session for stateless Vercel environments
+app.use(cookieSession({
+  name: 'session',
+  keys: [process.env.SESSION_SECRET || "intuition_ai_dev_secret"],
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  secure: process.env.NODE_ENV === "production"
 }));
 
 // Ensure routes are registered before handling any requests

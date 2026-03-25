@@ -1,8 +1,13 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { storage } from "./storage";
 import type { UserPersona, Syllabus } from "../shared/schema";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "sk-dummy-key" });
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
+
+function extractJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  return match ? JSON.parse(match[0]) : {};
+}
 
 export interface SyllabusGenerationRequest {
   userId: number;
@@ -112,16 +117,15 @@ export class SyllabusGenerator {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert educational assessor." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert educational assessor." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Knowledge assessment error:", error);
       return {
@@ -167,16 +171,15 @@ export class SyllabusGenerator {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert curriculum designer." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert curriculum designer." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Curriculum structure generation error:", error);
       return {
@@ -215,16 +218,15 @@ export class SyllabusGenerator {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert syllabus designer creating detailed learning plans." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert syllabus designer creating detailed learning plans." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Detailed syllabus creation error:", error);
       return this.createFallbackSyllabus(request);
@@ -256,16 +258,15 @@ export class SyllabusGenerator {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert learning schedule optimizer." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert learning schedule optimizer." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      const result = JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      const result = extractJson(content);
       return result.schedule || [];
     } catch (error) {
       console.error("Schedule generation error:", error);
@@ -328,16 +329,15 @@ export class SyllabusGenerator {
         Return updated syllabus and list of changes as JSON.
       `;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert at adapting learning plans based on student performance." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert at adapting learning plans based on student performance." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      const result = JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      const result = extractJson(content);
       
       return {
         updatedSyllabus: result.syllabus || currentSyllabus,

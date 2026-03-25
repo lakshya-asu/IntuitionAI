@@ -13,7 +13,7 @@ export default function Library() {
     queryKey: ["/api/learning-library"],
   });
 
-  const filteredResources = libraryData?.resources?.filter((resource: any) => {
+  const filteredResources = (libraryData as any)?.resources?.filter((resource: any) => {
     const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          resource.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesTab = activeTab === "all" || resource.type === activeTab;

@@ -68,7 +68,7 @@ export default function Analytics() {
                 <h3 className="text-lg font-semibold mb-4">Learning Activity</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={analyticsData?.activityData}>
+                    <LineChart data={(analyticsData as any)?.activityData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="date" stroke="#94a3b8" />
                       <YAxis stroke="#94a3b8" />
@@ -92,7 +92,7 @@ export default function Analytics() {
                 <h3 className="text-lg font-semibold mb-4">Competency Growth</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={analyticsData?.competencyData}>
+                    <LineChart data={(analyticsData as any)?.competencyData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="date" stroke="#94a3b8" />
                       <YAxis stroke="#94a3b8" />
@@ -116,7 +116,7 @@ export default function Analytics() {
                 <h3 className="text-lg font-semibold mb-4">Assessment Performance</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analyticsData?.assessmentData}>
+                    <BarChart data={(analyticsData as any)?.assessmentData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="name" stroke="#94a3b8" />
                       <YAxis stroke="#94a3b8" />
@@ -146,7 +146,7 @@ export default function Analytics() {
                 <h3 className="text-lg font-semibold mb-4">Skill Radar</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart outerRadius={90} data={analyticsData?.skillData}>
+                    <RadarChart outerRadius={90} data={(analyticsData as any)?.skillData}>
                       <PolarGrid stroke="#e2e8f0" />
                       <PolarAngleAxis dataKey="subject" stroke="#64748b" />
                       <PolarRadiusAxis stroke="#94a3b8" />
@@ -181,7 +181,7 @@ export default function Analytics() {
                       <h4 className="font-medium text-slate-700">Completion Rate</h4>
                       <span className="material-icons text-primary">trending_up</span>
                     </div>
-                    <div className="text-3xl font-bold text-primary">{analyticsData?.efficiency?.completionRate}%</div>
+                    <div className="text-3xl font-bold text-primary">{(analyticsData as any)?.efficiency?.completionRate}%</div>
                     <p className="text-sm text-slate-600 mt-1">of assigned modules</p>
                   </div>
                   
@@ -190,7 +190,7 @@ export default function Analytics() {
                       <h4 className="font-medium text-slate-700">Avg. Learning Time</h4>
                       <span className="material-icons text-secondary">schedule</span>
                     </div>
-                    <div className="text-3xl font-bold text-secondary">{analyticsData?.efficiency?.avgLearningTime}</div>
+                    <div className="text-3xl font-bold text-secondary">{(analyticsData as any)?.efficiency?.avgLearningTime}</div>
                     <p className="text-sm text-slate-600 mt-1">minutes per day</p>
                   </div>
                   
@@ -199,7 +199,7 @@ export default function Analytics() {
                       <h4 className="font-medium text-slate-700">Knowledge Retention</h4>
                       <span className="material-icons text-accent">psychology</span>
                     </div>
-                    <div className="text-3xl font-bold text-accent">{analyticsData?.efficiency?.knowledgeRetention}%</div>
+                    <div className="text-3xl font-bold text-accent">{(analyticsData as any)?.efficiency?.knowledgeRetention}%</div>
                     <p className="text-sm text-slate-600 mt-1">based on reassessments</p>
                   </div>
                 </div>

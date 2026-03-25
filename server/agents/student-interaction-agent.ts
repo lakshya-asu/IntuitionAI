@@ -1,8 +1,13 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { storage } from "../storage";
 import type { ChatMessage, InsertAgentInteraction } from "../../shared/schema";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "sk-dummy-key" });
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
+
+function extractJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  return match ? JSON.parse(match[0]) : {};
+}
 
 export interface StudentInteractionContext {
   userId: number;
@@ -104,16 +109,15 @@ export class StudentInteractionAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert at analyzing student learning interactions." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert at analyzing student learning interactions." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Message analysis error:", error);
       return {
@@ -152,17 +156,15 @@ export class StudentInteractionAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are a supportive, intelligent learning assistant focused on helping students achieve their learning goals." },
-          { role: "user", content: prompt }
-        ],
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
         temperature: 0.7,
-        max_tokens: 500
+        max_tokens: 500,
+        system: "You are a supportive, intelligent learning assistant focused on helping students achieve their learning goals.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return response.choices[0].message.content || "I'm here to help with your learning. Could you tell me more about what you'd like to explore?";
+      return response.content[0].type === "text" ? response.content[0].text : "I'm here to help with your learning. Could you tell me more about what you'd like to explore?";
     } catch (error) {
       console.error("Response generation error:", error);
       return "I'm here to help with your learning. Could you tell me more about what you'd like to explore?";
@@ -187,16 +189,15 @@ export class StudentInteractionAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "Extract learning preferences from student messages." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "Extract learning preferences from student messages." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Preference extraction error:", error);
       return {};

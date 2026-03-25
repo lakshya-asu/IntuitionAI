@@ -82,15 +82,15 @@ export default function Settings() {
   // Update form when data is loaded
   if (userSettings && !isLoading && profileForm.getValues().name === "") {
     profileForm.reset({
-      name: userSettings.name,
-      email: userSettings.email,
+      name: (userSettings as any).name,
+      email: (userSettings as any).email,
     });
     
     preferencesForm.reset({
-      learningSpeed: userSettings.preferences.learningSpeed,
-      dailyGoal: userSettings.preferences.dailyGoal,
-      emailNotifications: userSettings.preferences.emailNotifications,
-      pushNotifications: userSettings.preferences.pushNotifications,
+      learningSpeed: (userSettings as any).preferences.learningSpeed,
+      dailyGoal: (userSettings as any).preferences.dailyGoal,
+      emailNotifications: (userSettings as any).preferences.emailNotifications,
+      pushNotifications: (userSettings as any).preferences.pushNotifications,
     });
   }
 

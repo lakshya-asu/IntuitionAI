@@ -114,7 +114,7 @@ export default function SuggestedAssessments({ assessments }: SuggestedAssessmen
             <div key={i} className="animate-pulse h-40 glassmorphism-dark rounded-2xl"></div>
           ))
         ) : (
-          displayData.suggested.map((assessment: Assessment) => {
+          (displayData as any).suggested.map((assessment: Assessment) => {
             const style = getTypeStyle(assessment.type);
             
             return (

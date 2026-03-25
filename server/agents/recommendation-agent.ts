@@ -1,8 +1,13 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { storage } from "../storage";
 import type { UserPersona, LearningSession } from "../../shared/schema";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "sk-dummy-key" });
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
+
+function extractJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  return match ? JSON.parse(match[0]) : {};
+}
 
 export interface RecommendationContext {
   userId: number;
@@ -103,16 +108,15 @@ export class RecommendationAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert learning analyst." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert learning analyst." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Learning state analysis error:", error);
       return {
@@ -162,16 +166,15 @@ export class RecommendationAgent {
     `;
 
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are an expert learning recommendation engine." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are an expert learning recommendation engine." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Recommendation generation error:", error);
       return {
@@ -211,16 +214,15 @@ export class RecommendationAgent {
         - estimatedTime: Minutes needed
       `;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: "You are a learning optimization expert." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 2000,
+        system: "You are a learning optimization expert." + " You must output ONLY valid JSON.",
+        messages: [{ role: "user", content: prompt }]
       });
 
-      return JSON.parse(response.choices[0].message.content || "{}");
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
     } catch (error) {
       console.error("Next action recommendation error:", error);
       return {

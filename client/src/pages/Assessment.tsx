@@ -51,11 +51,9 @@ export default function Assessment() {
       setLoading(true);
       try {
         console.log("Fetching assessment with ID:", params.id);
-        const data = await apiRequest(`/api/assessments/${params.id}`, {
-          method: 'GET'
-        });
-        console.log("Assessment data received:", data);
-        setAssessmentData(data);
+        const res = await apiRequest('GET', `/api/assessments/${params.id}`);
+        console.log("Assessment data received");
+        setAssessmentData(await res.json());
       } catch (error) {
         console.error("Failed to fetch assessment:", error);
       } finally {
@@ -71,12 +69,9 @@ export default function Assessment() {
       try {
         if (!assessmentData) throw new Error("Assessment data not found");
         
-        const response = await apiRequest(`/api/assessments/${assessmentData.id}/answer`, {
-          method: 'POST',
-          body: JSON.stringify({ questionId, answer })
-        });
+        const response = await apiRequest('POST', `/api/assessments/${assessmentData.id}/answer`, {questionId, answer});
         
-        return response;
+        return response.json();
       } catch (error) {
         console.error("Error submitting answer:", error);
         // Fallback to client-side validation if API fails
@@ -96,11 +91,9 @@ export default function Assessment() {
       try {
         if (!assessmentData) throw new Error("Assessment data not found");
         
-        const response = await apiRequest(`/api/assessments/${assessmentData.id}/complete`, {
-          method: 'POST'
-        });
+        const response = await apiRequest('POST', `/api/assessments/${assessmentData.id}/complete`);
         
-        return response;
+        return response.json();
       } catch (error) {
         console.error("Error completing assessment:", error);
         // Fallback to client-side calculation if API fails
