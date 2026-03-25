@@ -75,6 +75,18 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Diagnostic health check
+  app.get("/api/health", async (_req, res) => {
+    try {
+      // Test DB connection
+      const [result] = await db.select({ val: sql`1` }).limit(1);
+      res.json({ status: "ok", db: result ? "connected" : "failed", timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      console.error("Health check failed:", error);
+      res.status(500).json({ status: "error", error: error.message, stack: error.stack });
+    }
+  });
+
   // Debug endpoints (remove in production)
   app.get("/api/debug/session", (req, res) => {
     console.log("Debug session data:", req.session);
