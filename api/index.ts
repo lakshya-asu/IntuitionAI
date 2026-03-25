@@ -28,8 +28,17 @@ let initPromise = registerRoutes(app).then(() => {
 });
 
 export default async function handler(req: express.Request, res: express.Response) {
-  if (!routesReady) {
-    await initPromise;
+  try {
+    if (!routesReady) {
+      await initPromise;
+    }
+    return app(req, res);
+  } catch (error: any) {
+    console.error("Vercel Runtime Exception:", error);
+    res.status(500).json({ 
+      error: "Vercel Runtime Exception", 
+      message: error.message, 
+      stack: error.stack 
+    });
   }
-  return app(req, res);
 }
