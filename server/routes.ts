@@ -1,6 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db, sql } from "./db";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service";
 import { orchestratorAgent } from "./agents/orchestrator-agent";
 import { syllabusGenerator } from "./syllabus-generator";
