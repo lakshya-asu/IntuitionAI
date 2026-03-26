@@ -36,21 +36,21 @@ export default function SkillProficiency({ skills }: SkillProficiencyProps) {
             datasets: [{
               label: 'Current Proficiency',
               data: skills.radar.current,
-              backgroundColor: 'rgba(37, 99, 235, 0.2)',
-              borderColor: '#2563eb',
-              pointBackgroundColor: '#2563eb',
-              pointBorderColor: '#fff',
-              pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: '#2563eb'
+              backgroundColor: 'rgba(254, 255, 245, 0.1)',
+              borderColor: '#FEFFF5',
+              pointBackgroundColor: '#FEFFF5',
+              pointBorderColor: '#0A0A0A',
+              pointHoverBackgroundColor: '#0A0A0A',
+              pointHoverBorderColor: '#FEFFF5'
             }, {
               label: 'Average Learner',
               data: skills.radar.average,
-              backgroundColor: 'rgba(148, 163, 184, 0.2)',
-              borderColor: '#94a3b8',
-              pointBackgroundColor: '#94a3b8',
-              pointBorderColor: '#fff',
-              pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: '#94a3b8'
+              backgroundColor: 'rgba(149, 156, 149, 0.1)',
+              borderColor: '#959C95',
+              pointBackgroundColor: '#959C95',
+              pointBorderColor: '#0A0A0A',
+              pointHoverBackgroundColor: '#0D0D0D',
+              pointHoverBorderColor: '#959C95'
             }]
           },
           options: {
@@ -65,17 +65,18 @@ export default function SkillProficiency({ skills }: SkillProficiencyProps) {
               r: {
                 angleLines: {
                   display: true,
-                  color: 'rgba(226, 232, 240, 0.6)'
+                  color: 'rgba(255, 255, 255, 0.05)'
                 },
                 grid: {
-                  color: 'rgba(226, 232, 240, 0.6)'
+                  color: 'rgba(255, 255, 255, 0.05)'
                 },
                 pointLabels: {
                   font: {
                     family: 'Inter',
-                    size: 12
+                    size: 10,
+                    weight: 'bold'
                   },
-                  color: '#334155'
+                  color: '#959C95'
                 },
                 ticks: {
                   display: false,
@@ -104,32 +105,32 @@ export default function SkillProficiency({ skills }: SkillProficiencyProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-white">Your Skill Proficiency</h2>
-        <button className="text-primary flex items-center hover:underline">
-          <span className="material-icons mr-1">refresh</span>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-extrabold tracking-tighter text-[#FEFFF5]">Your Skill Proficiency</h2>
+        <button className="px-4 py-2 rounded-full border border-white/10 bg-[#141414] text-[#959C95] text-sm font-bold flex items-center hover:bg-[#1A1A1A] hover:text-[#FEFFF5] transition-colors">
+          <span className="material-icons text-sm mr-1 leading-none">refresh</span>
           Update Assessment
         </button>
       </div>
       
-      <div className="bg-slate-900/40 glassmorphism p-6 rounded-xl shadow-2xl border border-white/10">
+      <div className="bg-[#141414] p-8 rounded-[24px] border border-white/5">
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 min-w-0">
             <canvas ref={skillRadarChartRef} height={250}></canvas>
           </div>
           
-          <div className="w-full md:w-64 bg-transparent rounded-lg p-4">
-            <h4 className="font-medium text-slate-200 mb-3">Skill Breakdown</h4>
-            <ul className="space-y-3">
+          <div className="w-full md:w-80 bg-[#0A0A0A] border border-white/5 rounded-2xl p-6">
+            <h4 className="font-bold tracking-tight text-[#FEFFF5] mb-5">Skill Breakdown</h4>
+            <ul className="space-y-4">
               {skills.breakdown.map((skill, index) => (
                 <li key={index}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium text-sm">{skill.skill}</span>
-                    <span className="text-xs font-medium text-primary">{skill.score}%</span>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-sm text-[#959C95]">{skill.skill}</span>
+                    <span className="text-xs font-bold text-[#FEFFF5]">{skill.score}%</span>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div className="w-full bg-[#141414] border border-white/5 rounded-full h-1.5 overflow-hidden">
                     <div 
-                      className="bg-primary h-2 rounded-full" 
+                      className="bg-[#FEFFF5] h-1.5 rounded-full" 
                       style={{ width: `${skill.score}%` }}
                     ></div>
                   </div>
@@ -137,10 +138,10 @@ export default function SkillProficiency({ skills }: SkillProficiencyProps) {
               ))}
             </ul>
             
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <p className="text-sm text-slate-200">
-                <span className="font-medium">AI Recommendation:</span> 
-                <span className="text-slate-400">{skills.recommendation}</span>
+            <div className="mt-8 p-4 bg-[#141414] border border-white/5 rounded-[16px]">
+              <p className="text-sm text-[#959C95] leading-relaxed">
+                <span className="font-bold text-[#FEFFF5] block mb-1 tracking-tight">AI Recommendation</span> 
+                <span>{skills.recommendation}</span>
               </p>
             </div>
           </div>

@@ -44,29 +44,29 @@ export default function Recommendations({ recommendations }: RecommendationProps
     <div className="mb-10 relative z-10">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+          <h2 className="text-3xl font-extrabold tracking-tighter text-[#FEFFF5]">
             Recommended For You
           </h2>
-          <p className="text-sm text-slate-400 mt-1">Curated by your Recommendation Agent</p>
+          <p className="text-[#959C95] text-sm mt-1">Curated by your Recommendation Agent</p>
         </div>
         <div className="flex space-x-3 items-center">
-          <button className="px-4 py-1.5 text-sm font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-colors">
+          <button className="px-5 py-2 text-sm font-bold rounded-full bg-[#141414] text-[#FEFFF5] border border-white/10 hover:bg-[#1A1A1A] transition-colors">
             Explore All
           </button>
-          <div className="flex space-x-1">
+          <div className="flex space-x-2">
             <button 
-              className={`p-1.5 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all ${!canScrollLeft ? 'opacity-30 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded-full border border-white/10 bg-[#141414] text-[#959C95] hover:text-[#FEFFF5] hover:bg-[#1A1A1A] transition-all ${!canScrollLeft ? 'opacity-30 cursor-not-allowed' : ''}`}
               onClick={() => scroll('left')}
               disabled={!canScrollLeft}
             >
-              <span className="material-icons text-sm">chevron_left</span>
+              <span className="material-icons text-sm leading-none">chevron_left</span>
             </button>
             <button 
-              className={`p-1.5 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all ${!canScrollRight ? 'opacity-30 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded-full border border-white/10 bg-[#141414] text-[#959C95] hover:text-[#FEFFF5] hover:bg-[#1A1A1A] transition-all ${!canScrollRight ? 'opacity-30 cursor-not-allowed' : ''}`}
               onClick={() => scroll('right')}
               disabled={!canScrollRight}
             >
-              <span className="material-icons text-sm">chevron_right</span>
+              <span className="material-icons text-sm leading-none">chevron_right</span>
             </button>
           </div>
         </div>
@@ -84,48 +84,47 @@ export default function Recommendations({ recommendations }: RecommendationProps
             transition={{ delay: index * 0.1, duration: 0.4 }}
             whileHover={{ y: -8, scale: 1.02 }}
             key={rec.id} 
-            className="flex-shrink-0 w-[340px] snap-center rounded-2xl glassmorphism-dark border border-white/10 overflow-hidden group flex flex-col relative"
+            className="flex-shrink-0 w-[340px] snap-center rounded-[24px] bg-[#141414] border border-white/5 overflow-hidden group flex flex-col relative transition-all duration-300 hover:bg-[#1A1A1A]"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
             <div className="p-6 flex flex-col h-full relative z-10">
-              <div className="flex items-start justify-between mb-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center shadow-inner">
-                  <span className="material-icons text-2xl text-purple-400">
+              <div className="flex items-start justify-between mb-6">
+                <div className="h-12 w-12 rounded-full bg-[#0D0D0D] border border-white/10 flex items-center justify-center">
+                  <span className="material-icons text-[#FEFFF5]">
                     {rec.icon.startsWith('text-') ? 'code' : rec.icon}
                   </span>
                 </div>
-                <div className={`px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold rounded-full flex items-center shadow-lg`}>
+                <div className={`px-3 py-1 bg-[#FEFFF5] text-[#0D0D0D] text-xs font-bold rounded-full flex items-center`}>
                   <span className="material-icons text-[10px] mr-1">auto_awesome</span>
                   {rec.match}% Match
                 </div>
               </div>
               
-              <h3 className="font-bold text-lg text-white mb-2 line-clamp-2">{rec.title}</h3>
-              <p className="text-sm text-slate-400 flex-1 line-clamp-3 mb-4">{rec.description}</p>
+              <h3 className="font-bold text-xl tracking-tight text-[#FEFFF5] mb-2 line-clamp-2">{rec.title}</h3>
+              <p className="text-[#959C95] text-sm leading-relaxed flex-1 line-clamp-3 mb-6">{rec.description}</p>
               
               <div className="flex flex-wrap gap-2 mb-6">
                 {rec.topics.slice(0, 3).map((topic, idx) => (
-                  <span key={idx} className="px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded-md bg-black/40 text-slate-300 border border-white/5">
+                  <span key={idx} className="px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full bg-[#0A0A0A] text-[#959C95] border border-white/5">
                     {topic}
                   </span>
                 ))}
             {rec.topics.length > 3 && (
-              <span className="px-2.5 py-1 text-[10px] font-bold rounded-md bg-black/40 text-slate-500 border border-white/5">
+              <span className="px-3 py-1 text-[10px] font-bold rounded-full bg-[#0A0A0A] text-[#959C95] border border-white/5">
                 +{rec.topics.length - 3}
               </span>
             )}
               </div>
               
-              <div className="flex justify-between items-center pt-4 border-t border-white/10 mt-auto">
-                <div className="flex items-center text-xs text-slate-400 font-medium">
-                  <span className="material-icons text-sm mr-1 opacity-70">schedule</span>
+              <div className="flex justify-between items-center pt-5 border-t border-white/5 mt-auto">
+                <div className="flex items-center text-xs text-[#959C95] font-bold tracking-wide">
+                  <span className="material-icons text-sm mr-1">schedule</span>
                   {rec.estimatedTime}
                 </div>
-                <button className="flex items-center text-sm font-bold text-purple-400 group-hover:text-pink-400 transition-colors">
-                  <span>Start Module</span>
+                <button className="flex items-center text-sm font-bold text-[#FEFFF5] group-hover:text-[#959C95] transition-colors">
+                  <span>Start</span>
                   <motion.span 
-                    className="material-icons text-sm ml-1"
+                    className="material-icons text-sm ml-1 leading-none"
                     initial={{ x: 0 }}
                     whileHover={{ x: 4 }}
                   >

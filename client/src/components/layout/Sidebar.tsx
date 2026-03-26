@@ -43,7 +43,7 @@ export default function Sidebar() {
   const userInitials = user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U';
 
   return (
-    <aside className="w-full md:w-64 bg-slate-900/40 glassmorphism border-r border-white/10 shadow-2xl md:min-h-screen flex flex-col">
+    <aside className="w-full md:w-64 bg-[#0A0A0A] border-r border-white/5 md:min-h-screen flex flex-col">
       <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center">
           <span className="material-icons text-primary text-3xl">psychology</span>
@@ -61,7 +61,7 @@ export default function Sidebar() {
         <>
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+              <div className="w-10 h-10 rounded-full bg-[#FEFFF5] flex items-center justify-center text-[#0D0D0D] font-bold">
                 <span>{userInitials}</span>
               </div>
               <div>
@@ -76,10 +76,10 @@ export default function Sidebar() {
               {navItems.map((item) => (
                 <li key={item.href} className="mb-1">
                   <Link href={item.href}>
-                    <div className={`flex items-center p-3 rounded-lg ${
+                    <div className={`flex items-center p-3 rounded-full transition-all duration-300 ${
                       location === item.href 
-                        ? 'text-primary bg-blue-50 font-medium' 
-                        : 'text-slate-400 hover:bg-white/5'
+                        ? 'text-[#0D0D0D] bg-[#FEFFF5] font-bold' 
+                        : 'text-[#959C95] hover:bg-[#141414] hover:text-[#FEFFF5]'
                     }`}>
                       <span className="material-icons mr-3">{item.icon}</span>
                       {item.label}

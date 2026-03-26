@@ -100,13 +100,13 @@ export default function Dashboard() {
                 <input 
                   type="text" 
                   placeholder="Search resources..." 
-                  className="px-5 py-2.5 rounded-2xl bg-slate-900/40 glassmorphism/5 border border-white/10 text-white placeholder:text-slate-500 shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all w-64"
+                  className="px-6 py-3 rounded-full bg-[#141414] border border-white/10 text-white placeholder:text-[#959C95] focus:outline-none focus:ring-0 focus:border-white/30 transition-all w-64"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <span className="material-icons absolute right-4 top-3 text-slate-500 group-hover:text-blue-400 transition-colors">search</span>
+                <span className="material-icons absolute right-5 top-3.5 text-[#959C95] group-hover:text-white transition-colors">search</span>
               </div>
-              <button className="p-2.5 rounded-2xl bg-slate-900/40 glassmorphism/5 border border-white/10 text-slate-400 hover:text-white hover:bg-slate-900/40 glassmorphism/10 transition-all shadow-xl">
+              <button className="p-3 rounded-full bg-[#141414] border border-white/10 text-[#959C95] hover:text-white hover:bg-[#1A1A1A] transition-all flex items-center justify-center">
                 <span className="material-icons">notifications</span>
               </button>
             </div>
@@ -126,7 +126,7 @@ export default function Dashboard() {
             <p className="text-slate-400 mb-8 max-w-sm">Your session has expired or you are not logged in. Please log in to continue your learning journey.</p>
             <div className="flex flex-col gap-3 w-full max-w-xs">
               <a href="/login" className="w-full">
-                <Button className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
+                <Button className="w-full h-14 bg-[#FEFFF5] hover:bg-[#E5E5DC] text-[#0D0D0D] rounded-full font-bold">
                   Log In
                 </Button>
               </a>
@@ -144,7 +144,7 @@ export default function Dashboard() {
                     console.error("Debug login error:", err);
                   }
                 }}
-                className="w-full h-12 bg-slate-900/40 glassmorphism/5 border-white/10 text-white hover:bg-slate-900/40 glassmorphism/10 rounded-xl"
+                className="w-full h-14 bg-[#3A403A] border-transparent text-[#FEFFF5] hover:bg-[#4A524A] hover:text-white rounded-full transition-all text-base"
               >
                 Access as Test User
               </Button>
@@ -157,11 +157,11 @@ export default function Dashboard() {
         ) : (
           // Logged in and content loaded
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="flex items-center justify-start gap-2 bg-slate-900/40 glassmorphism/5 p-1 rounded-2xl mb-8 border border-white/5 w-fit">
-              <TabsTrigger value="overview" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Overview</TabsTrigger>
-              <TabsTrigger value="learning" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Learning Path</TabsTrigger>
-              <TabsTrigger value="syllabi" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Syllabi</TabsTrigger>
-              <TabsTrigger value="analytics" className="rounded-xl px-6 py-2 content-center data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400">Analytics</TabsTrigger>
+            <TabsList className="flex items-center justify-start gap-2 bg-[#141414] p-1.5 rounded-full border border-white/5 w-fit">
+              <TabsTrigger value="overview" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Overview</TabsTrigger>
+              <TabsTrigger value="learning" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Learning Path</TabsTrigger>
+              <TabsTrigger value="syllabi" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Syllabi</TabsTrigger>
+              <TabsTrigger value="analytics" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Analytics</TabsTrigger>
             </TabsList>
             
             <TabsContent value="overview" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

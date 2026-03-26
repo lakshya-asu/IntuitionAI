@@ -81,30 +81,30 @@ export default function UserPersona({ onAnalysisDone }: UserPersonaProps) {
   const getLearningPreferenceClasses = (preferences: string) => {
     switch (preferences) {
       case 'visual':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-500/20 text-blue-300 border border-blue-500/20';
       case 'auditory':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-500/20 text-purple-300 border border-purple-500/20';
       case 'reading/writing':
-        return 'bg-emerald-100 text-emerald-800';
+        return 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/20';
       case 'kinesthetic':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-500/20 text-amber-300 border border-amber-500/20';
       default:
-        return 'bg-white/5 text-white';
+        return 'bg-white/5 text-white border border-white/10';
     }
   };
 
   if (loading) {
     return (
-      <Card className="w-full">
+      <Card className="w-full glassmorphism">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Learning Profile</CardTitle>
-          <CardDescription>Understanding your learning patterns</CardDescription>
+          <CardTitle className="text-lg font-medium text-white">Learning Profile</CardTitle>
+          <CardDescription className="text-slate-400">Understanding your learning patterns</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="h-4 w-3/4 bg-slate-200 rounded animate-pulse"></div>
-            <div className="h-4 w-1/2 bg-slate-200 rounded animate-pulse"></div>
-            <div className="h-4 w-2/3 bg-slate-200 rounded animate-pulse"></div>
+            <div className="h-4 w-3/4 bg-white/5 rounded animate-pulse"></div>
+            <div className="h-4 w-1/2 bg-white/5 rounded animate-pulse"></div>
+            <div className="h-4 w-2/3 bg-white/5 rounded animate-pulse"></div>
           </div>
         </CardContent>
       </Card>

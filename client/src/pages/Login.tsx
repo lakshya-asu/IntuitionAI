@@ -121,21 +121,18 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen justify-center items-center p-4 relative overflow-hidden">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 rounded-full blur-[120px]" />
+    <div className="flex min-h-screen justify-center items-center p-4 relative overflow-hidden bg-[#0D0D0D]">
       
       <div className="w-full max-w-md z-10">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight gradient-text mb-2">
+        <div className="mb-10 text-center">
+          <h1 className="text-5xl font-extrabold tracking-tighter text-[#FEFFF5] mb-3">
             IntuitionAI
           </h1>
-          <p className="text-slate-400">Your Adaptive Learning Companion</p>
+          <p className="text-[#959C95] text-lg">Your Adaptive Learning Companion</p>
         </div>
 
-        <Card className="glassmorphism-dark border-white/10 shadow-2xl rounded-3xl overflow-hidden">
-          <CardHeader className="text-center pt-8">
+        <Card className="bg-[#141414] border border-white/5 shadow-2xl rounded-[24px] overflow-hidden">
+          <CardHeader className="text-center pt-10">
             <CardTitle className="text-2xl font-bold tracking-tight text-white">
               {mode === 'login' ? 'Welcome Back' : 'Get Started'}
             </CardTitle>
@@ -161,7 +158,7 @@ export default function Login() {
                   <Input
                     id="username"
                     placeholder="johndoe"
-                    className="bg-slate-900/40 glassmorphism/5 border-white/10 text-white placeholder:text-slate-500 h-12 rounded-xl focus:ring-emerald-500/50"
+                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 focus:ring-0 transition-all px-4"
                     value={loginUsername}
                     onChange={(e) => setLoginUsername(e.target.value)}
                   />
@@ -174,14 +171,14 @@ export default function Login() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    className="bg-slate-900/40 glassmorphism/5 border-white/10 text-white placeholder:text-slate-500 h-12 rounded-xl focus:ring-emerald-500/50"
+                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 focus:ring-0 transition-all px-4"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all duration-300" 
+                  className="w-full h-14 bg-[#FEFFF5] hover:bg-[#E5E5DC] text-[#0D0D0D] font-bold rounded-full transition-all duration-300 text-base mt-2" 
                   disabled={isLoading}
                 >
                   {isLoading ? 'Authenticating...' : 'Sign In'}
@@ -199,7 +196,7 @@ export default function Login() {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full h-12 bg-slate-900/40 glassmorphism/5 border-white/10 text-white hover:bg-slate-900/40 glassmorphism/10 hover:border-white/20 rounded-xl transition-all"
+                  className="w-full h-14 bg-[#3A403A] border-transparent text-[#FEFFF5] hover:bg-[#4A524A] hover:text-white rounded-full transition-all text-base"
                   onClick={async () => {
                     setIsLoading(true);
                     try {
@@ -240,7 +237,7 @@ export default function Login() {
                   <Input
                     id="name"
                     placeholder="John Doe"
-                    className="bg-slate-900/40 glassmorphism/5 border-white/10 text-white placeholder:text-slate-500 h-11 rounded-xl"
+                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 transition-all px-4"
                     value={registerName}
                     onChange={(e) => setRegisterName(e.target.value)}
                   />
@@ -253,7 +250,7 @@ export default function Login() {
                     id="email"
                     type="email"
                     placeholder="john@example.com"
-                    className="bg-slate-900/40 glassmorphism/5 border-white/10 text-white placeholder:text-slate-500 h-11 rounded-xl"
+                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 transition-all px-4"
                     value={registerEmail}
                     onChange={(e) => setRegisterEmail(e.target.value)}
                   />
@@ -265,7 +262,7 @@ export default function Login() {
                   <Input
                     id="register-username"
                     placeholder="johndoe"
-                    className="bg-slate-900/40 glassmorphism/5 border-white/10 text-white placeholder:text-slate-500 h-11 rounded-xl"
+                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 transition-all px-4"
                     value={registerUsername}
                     onChange={(e) => setRegisterUsername(e.target.value)}
                   />
@@ -278,14 +275,14 @@ export default function Login() {
                     id="register-password"
                     type="password"
                     placeholder="••••••••"
-                    className="bg-slate-900/40 glassmorphism/5 border-white/10 text-white placeholder:text-slate-500 h-11 rounded-xl"
+                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 transition-all px-4"
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full h-12 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg mt-2 transition-all" 
+                  className="w-full h-14 bg-[#FEFFF5] hover:bg-[#E5E5DC] text-[#0D0D0D] font-bold rounded-full transition-all duration-300 text-base mt-4" 
                   disabled={isLoading}
                 >
                   {isLoading ? 'Creating Account...' : 'Create Account'}
@@ -293,18 +290,18 @@ export default function Login() {
               </form>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2 bg-slate-900/40 glassmorphism/5 py-4">
+          <CardFooter className="flex flex-col space-y-2 bg-[#0D0D0D] py-6 rounded-b-[24px] border-t border-white/5 mt-4">
             {mode === 'login' ? (
-              <p className="text-slate-400 text-sm">
+              <p className="text-[#959C95] text-sm font-medium">
                 New to IntuitionAI? {' '}
-                <button onClick={() => setMode('register')} className="text-blue-400 hover:text-blue-300 font-semibold underline-offset-4 hover:underline">
+                <button onClick={() => setMode('register')} className="text-[#FEFFF5] hover:text-white font-semibold underline-offset-4 hover:underline transition-colors">
                   Create an account
                 </button>
               </p>
             ) : (
-              <p className="text-slate-400 text-sm">
+              <p className="text-[#959C95] text-sm font-medium">
                 Already have an account? {' '}
-                <button onClick={() => setMode('login')} className="text-blue-400 hover:text-blue-300 font-semibold underline-offset-4 hover:underline">
+                <button onClick={() => setMode('login')} className="text-[#FEFFF5] hover:text-white font-semibold underline-offset-4 hover:underline transition-colors">
                   Sign in
                 </button>
               </p>

@@ -154,60 +154,59 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-20 right-6 w-[480px] h-[600px] bg-slate-900/40 glassmorphism border border-white/10 rounded-lg shadow-xl flex flex-col z-50">
-          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-primary/5 to-secondary/5">
+        <div className="fixed bottom-24 right-6 w-[480px] h-[600px] bg-[#0A0A0A] border border-white/10 rounded-[24px] shadow-2xl flex flex-col z-50 overflow-hidden">
+          <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#141414]">
             <div className="flex items-center">
-              <Brain className="h-5 w-5 text-primary mr-2" />
+              <Brain className="h-6 w-6 text-[#FEFFF5] mr-3" />
               <div>
-                <h3 className="font-semibold">AI Learning Assistant</h3>
-                <p className="text-xs text-slate-500">Multi-agent learning support</p>
+                <h3 className="font-extrabold tracking-tight text-[#FEFFF5]">AI Learning Assistant</h3>
+                <p className="text-xs font-bold text-[#959C95] uppercase tracking-widest mt-0.5">Multi-agent Support</p>
               </div>
             </div>
             <button 
               onClick={() => setIsOpen(false)}
-              className="text-slate-500 hover:text-slate-200"
+              className="text-[#959C95] hover:text-[#FEFFF5] bg-[#0A0A0A] p-2 rounded-full border border-white/5 hover:bg-[#1A1A1A] transition-all"
             >
-              <span className="material-icons">close</span>
+              <span className="material-icons leading-none text-sm">close</span>
             </button>
           </div>
           
-          {/* Quick Actions */}
-          <div className="p-3 border-b border-white/5 bg-transparent">
+          <div className="p-4 border-b border-white/5 bg-[#0D0D0D]">
             <div className="flex gap-2 flex-wrap">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleQuickAction('recommend')}
-                className="text-xs"
+                className="text-[10px] uppercase font-bold tracking-widest rounded-full bg-[#141414] border-white/5 text-[#959C95] hover:text-[#FEFFF5] hover:bg-[#1A1A1A]"
               >
-                <Lightbulb className="h-3 w-3 mr-1" />
+                <Lightbulb className="h-3 w-3 mr-1.5" />
                 Recommend
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleQuickAction('evaluate')}
-                className="text-xs"
+                className="text-[10px] uppercase font-bold tracking-widest rounded-full bg-[#141414] border-white/5 text-[#959C95] hover:text-[#FEFFF5] hover:bg-[#1A1A1A]"
               >
-                <BarChart3 className="h-3 w-3 mr-1" />
+                <BarChart3 className="h-3 w-3 mr-1.5" />
                 Evaluate
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleQuickAction('plan')}
-                className="text-xs"
+                className="text-[10px] uppercase font-bold tracking-widest rounded-full bg-[#141414] border-white/5 text-[#959C95] hover:text-[#FEFFF5] hover:bg-[#1A1A1A]"
               >
-                <Calendar className="h-3 w-3 mr-1" />
+                <Calendar className="h-3 w-3 mr-1.5" />
                 Plan
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleQuickAction('review')}
-                className="text-xs"
+                className="text-[10px] uppercase font-bold tracking-widest rounded-full bg-[#141414] border-white/5 text-[#959C95] hover:text-[#FEFFF5] hover:bg-[#1A1A1A]"
               >
-                <BookOpen className="h-3 w-3 mr-1" />
+                <BookOpen className="h-3 w-3 mr-1.5" />
                 Review
               </Button>
             </div>
@@ -220,13 +219,13 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div 
-                  className={`max-w-[85%] rounded-lg p-3 ${
+                  className={`max-w-[85%] px-5 py-4 ${
                     message.role === 'user'
-                      ? 'bg-primary text-white rounded-tr-none'
-                      : 'bg-white/5 text-white rounded-tl-none'
+                      ? 'bg-[#FEFFF5] text-[#0D0D0D] rounded-2xl rounded-tr-none font-medium'
+                      : 'bg-[#141414] border border-white/5 text-[#959C95] rounded-2xl rounded-tl-none'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   
                   {/* Show agents involved */}
                   {message.agentsInvolved && message.agentsInvolved.length > 0 && (
@@ -246,20 +245,20 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                   
                   {/* Show recommendations */}
                   {message.recommendations && message.recommendations.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      <p className="text-xs font-medium text-slate-400">Recommendations:</p>
+                    <div className="mt-4 space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-[#FEFFF5]">Recommendations:</p>
                       {message.recommendations.slice(0, 2).map((rec, index) => (
-                        <Card key={index} className="p-2 bg-slate-900/40 glassmorphism/50">
+                        <Card key={index} className="p-4 bg-[#0A0A0A] border-white/5 rounded-xl">
                           <div className="flex justify-between items-start">
-                            <div>
-                              <p className="text-xs font-medium">{rec.title}</p>
-                              <p className="text-xs text-slate-400">{rec.description}</p>
+                            <div className="pr-4">
+                              <p className="text-sm font-bold text-[#FEFFF5] tracking-tight">{rec.title}</p>
+                              <p className="text-xs text-[#959C95] mt-1">{rec.description}</p>
                             </div>
                             <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => onRecommendationSelect?.(rec)}
-                              className="text-xs"
+                              className="text-xs bg-[#FEFFF5] text-[#0D0D0D] hover:bg-[#E5E5DC] rounded-full h-8 px-4 font-bold"
                             >
                               View
                             </Button>
@@ -269,14 +268,13 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                     </div>
                   )}
                   
-                  {/* Show next steps */}
                   {message.nextSteps && message.nextSteps.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-xs font-medium text-slate-400 mb-1">Next Steps:</p>
-                      <ul className="text-xs space-y-1">
+                    <div className="mt-5 p-4 bg-[#0D0D0D] border border-white/5 rounded-xl">
+                      <p className="text-[10px] uppercase font-bold text-[#FEFFF5] tracking-widest mb-3">Next Steps:</p>
+                      <ul className="text-sm space-y-2">
                         {message.nextSteps.slice(0, 3).map((step, index) => (
-                          <li key={index} className="flex items-start">
-                            <span className="text-primary mr-1">•</span>
+                          <li key={index} className="flex items-start text-[#959C95]">
+                            <span className="text-[#FEFFF5] mr-2 mt-0.5 material-icons text-xs">arrow_forward</span>
                             <span>{step}</span>
                           </li>
                         ))}
@@ -284,7 +282,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                     </div>
                   )}
                   
-                  <p className="text-xs mt-2 opacity-70 text-right">
+                  <p className={`text-[10px] mt-3 font-bold opacity-50 text-right ${message.role === 'user' ? 'text-[#0D0D0D]' : 'text-[#959C95]'}`}>
                     {formatTimestamp(message.timestamp)}
                   </p>
                 </div>
@@ -292,11 +290,11 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-lg p-3 bg-white/5 text-white rounded-tl-none">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></div>
-                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-200"></div>
+                <div className="max-w-[85%] rounded-2xl p-4 bg-[#141414] border border-white/5 rounded-tl-none">
+                  <div className="flex space-x-1.5 items-center justify-center h-5">
+                    <div className="w-1.5 h-1.5 bg-[#959C95] rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-[#959C95] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-1.5 h-1.5 bg-[#959C95] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
                 </div>
               </div>
@@ -304,14 +302,14 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             <div ref={messagesEndRef} />
           </div>
           
-          <div className="p-3 border-t border-white/10">
-            <div className="flex space-x-2">
+          <div className="p-4 border-t border-white/5 bg-[#141414]">
+            <div className="flex space-x-3 items-end">
               <Textarea
-                placeholder="Ask about your learning, request recommendations, or get help..."
+                placeholder="Ask about your learning..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="resize-none text-sm"
-                rows={2}
+                className="resize-none text-sm bg-[#0A0A0A] border-white/10 rounded-[18px] text-[#FEFFF5] placeholder:text-[#959C95] focus-visible:ring-0 focus-visible:border-white/30 h-[56px] min-h-[56px] py-3.5 px-5"
+                rows={1}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -323,9 +321,9 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading}
                 size="icon"
-                className="self-end"
+                className="rounded-full w-14 h-14 bg-[#FEFFF5] text-[#0D0D0D] hover:bg-[#E5E5DC] flex-shrink-0"
               >
-                <span className="material-icons">send</span>
+                <span className="material-icons pr-1">send</span>
               </Button>
             </div>
           </div>
@@ -334,9 +332,9 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
       
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-200 z-50"
+        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-[#FEFFF5] text-[#0D0D0D] shadow-[0_4px_30px_rgba(254,255,245,0.2)] flex items-center justify-center hover:scale-105 transition-all duration-300 z-50 group"
       >
-        <Brain className={`h-6 w-6 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <Brain className={`h-7 w-7 transition-transform duration-300 ${isOpen ? 'rotate-180 scale-90' : 'group-hover:scale-110'}`} />
       </button>
     </>
   );
