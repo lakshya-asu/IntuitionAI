@@ -332,28 +332,106 @@ export default function SyllabusManager() {
         </CardContent>
       </Card>
 
-      {/* Create Syllabus Form Modal would go here */}
+      {/* Create Syllabus Form Modal */}
       {showCreateForm && (
         <div className="fixed inset-0 bg-[#0D0D0D]/80 backdrop-blur-sm flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4 bg-[#141414] border-white/10 rounded-[24px]">
             <CardHeader className="pb-4">
-              <CardTitle className="text-2xl font-extrabold text-[#FEFFF5] tracking-tight">Create New Syllabus</CardTitle>
-              <CardDescription className="text-[#959C95] mt-1 text-base">Generate a personalized learning plan</CardDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-2xl font-extrabold text-[#FEFFF5] tracking-tight">Create New Syllabus</CardTitle>
+                  <CardDescription className="text-[#959C95] mt-1 text-base">Generate a personalized learning plan</CardDescription>
+                </div>
+                <button 
+                  onClick={() => setShowCreateForm(false)}
+                  className="text-[#959C95] hover:text-[#FEFFF5] bg-[#0A0A0A] p-2 rounded-full border border-white/5 hover:bg-[#1A1A1A] transition-all"
+                >
+                  <span className="material-icons leading-none text-sm">close</span>
+                </button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] p-5 rounded-2xl border border-white/5 mb-6">
-                <p className="text-sm text-[#959C95] leading-relaxed">
-                  This feature will be implemented to create personalized syllabi based on your goals and preferences using AI orchestration.
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button onClick={() => setShowCreateForm(false)} variant="outline" className="flex-1 rounded-full bg-[#1A1A1A] border-transparent text-[#959C95] hover:bg-[#2A2A2A] hover:text-[#FEFFF5]">
-                  Cancel
-                </Button>
-                <Button onClick={() => setShowCreateForm(false)} className="flex-1 rounded-full bg-[#FEFFF5] text-[#0D0D0D] font-bold hover:bg-[#E5E5DC]">
-                  Coming Soon
-                </Button>
-              </div>
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const formData = new FormData(form);
+                  const subject = formData.get('subject') as string;
+                  const goals = formData.get('goals') as string;
+                  const timeframe = parseInt(formData.get('timeframe') as string, 10);
+                  const difficulty = formData.get('difficulty') as string;
+                  
+                  createSyllabus({
+                    subject,
+                    goals: goals.split(',').map(g => g.trim()).filter(Boolean),
+                    timeframe,
+                    difficulty
+                  });
+                }}
+                className="space-y-4"
+              >
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="text-sm font-bold text-[#FEFFF5]">Subject</label>
+                  <input 
+                    id="subject"
+                    name="subject"
+                    required
+                    placeholder="e.g. Machine Learning, Astrophysics"
+                    className="w-full bg-[#0A0A0A] border border-white/10 rounded-full px-4 py-3 text-sm text-[#FEFFF5] placeholder:text-[#959C95] focus:outline-none focus:border-white/30 transition-colors"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label htmlFor="goals" className="text-sm font-bold text-[#FEFFF5]">Learning Goals (comma separated)</label>
+                  <textarea 
+                    id="goals"
+                    name="goals"
+                    required
+                    rows={2}
+                    placeholder="e.g. Master neural networks, understand gradient descent"
+                    className="w-full resize-none bg-[#0A0A0A] border border-white/10 rounded-[16px] px-4 py-3 text-sm text-[#FEFFF5] placeholder:text-[#959C95] focus:outline-none focus:border-white/30 transition-colors"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="timeframe" className="text-sm font-bold text-[#FEFFF5]">Timeframe (weeks)</label>
+                    <input 
+                      id="timeframe"
+                      name="timeframe"
+                      type="number"
+                      required
+                      min={1}
+                      max={52}
+                      defaultValue={4}
+                      className="w-full bg-[#0A0A0A] border border-white/10 rounded-full px-4 py-3 text-sm text-[#FEFFF5] focus:outline-none focus:border-white/30 transition-colors"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="difficulty" className="text-sm font-bold text-[#FEFFF5]">Difficulty</label>
+                    <select 
+                      id="difficulty"
+                      name="difficulty"
+                      defaultValue="beginner"
+                      className="w-full bg-[#0A0A0A] border border-white/10 rounded-full px-4 py-3 text-sm text-[#FEFFF5] focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                    >
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button type="button" onClick={() => setShowCreateForm(false)} variant="outline" className="flex-1 rounded-full bg-[#1A1A1A] border-transparent text-[#959C95] hover:bg-[#2A2A2A] hover:text-[#FEFFF5]">
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="flex-1 rounded-full bg-[#FEFFF5] text-[#0D0D0D] font-bold hover:bg-[#E5E5DC]">
+                    Generate with AI
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>

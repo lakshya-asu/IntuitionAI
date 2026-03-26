@@ -177,7 +177,7 @@ export default function Assessment() {
     return (
       <div className="space-y-6">
         <div 
-          className="text-lg font-medium leading-relaxed" 
+          className="text-lg font-bold leading-relaxed text-[#FEFFF5] tracking-tight" 
           dangerouslySetInnerHTML={{ 
             __html: question.type === "math" 
               ? katex.renderToString(question.text, { throwOnError: false, displayMode: true }) 
@@ -188,20 +188,29 @@ export default function Assessment() {
         <RadioGroup 
           value={selectedAnswers[question.id] || ""} 
           onValueChange={(value) => handleSelectAnswer(question.id, value)}
-          className="space-y-3"
+          className="space-y-3 mt-6"
         >
-          {question.options?.map(option => (
-            <div key={option.id} className="flex items-start space-x-2 p-3 rounded-lg border hover:bg-transparent transition-colors">
-              <RadioGroupItem value={option.id} id={`${question.id}-${option.id}`} className="mt-1" />
-              <Label 
-                htmlFor={`${question.id}-${option.id}`} 
-                className="flex-1 cursor-pointer"
-                dangerouslySetInnerHTML={{ 
-                  __html: katex.renderToString(option.text, { throwOnError: false, output: 'html' }) 
-                }}
-              />
-            </div>
-          ))}
+          {question.options?.map(option => {
+            const isSelected = selectedAnswers[question.id] === option.id;
+            return (
+              <div 
+                key={option.id} 
+                className={`flex items-start space-x-3 p-4 rounded-2xl border transition-all cursor-pointer ${isSelected ? 'bg-[#1A1A1A] border-white/30' : 'bg-[#0A0A0A] border-white/5 hover:border-white/10'}`}
+                onClick={() => handleSelectAnswer(question.id, option.id)}
+              >
+                <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected ? 'border-[#FEFFF5] bg-[#FEFFF5]' : 'border-white/20'}`}>
+                  {isSelected && <div className="w-2 h-2 rounded-full bg-[#0D0D0D]" />}
+                </div>
+                <Label 
+                  htmlFor={`${question.id}-${option.id}`} 
+                  className={`flex-1 cursor-pointer text-sm leading-relaxed ${isSelected ? 'text-[#FEFFF5]' : 'text-[#959C95]'}`}
+                  dangerouslySetInnerHTML={{ 
+                    __html: katex.renderToString(option.text, { throwOnError: false, output: 'html' }) 
+                  }}
+                />
+              </div>
+            );
+          })}
         </RadioGroup>
       </div>
     );
@@ -209,11 +218,11 @@ export default function Assessment() {
 
   if (loading) {
     return (
-      <div className="container max-w-3xl mx-auto p-6 space-y-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/4"></div>
-          <div className="h-40 bg-gray-200 rounded"></div>
+      <div className="container max-w-3xl mx-auto p-6 space-y-8 mt-12">
+        <div className="animate-pulse space-y-6">
+          <div className="h-10 bg-[#141414] rounded-full w-3/4 border border-white/5"></div>
+          <div className="h-4 bg-[#141414] rounded-full w-2/4 border border-white/5"></div>
+          <div className="h-64 bg-[#0A0A0A] rounded-[24px] border border-white/5"></div>
         </div>
       </div>
     );
@@ -221,14 +230,14 @@ export default function Assessment() {
 
   if (!assessmentData) {
     return (
-      <div className="container max-w-3xl mx-auto p-6">
-        <Card>
+      <div className="container max-w-3xl mx-auto p-6 mt-12">
+        <Card className="bg-[#141414] border-white/5 rounded-[24px]">
           <CardHeader>
-            <CardTitle>Assessment Not Found</CardTitle>
-            <CardDescription>The assessment you are looking for could not be found.</CardDescription>
+            <CardTitle className="text-2xl font-extrabold tracking-tight text-[#FEFFF5]">Assessment Not Found</CardTitle>
+            <CardDescription className="text-[#959C95]">The assessment you are looking for could not be found.</CardDescription>
           </CardHeader>
           <CardFooter>
-            <Button onClick={() => setLocation("/")}>Return Home</Button>
+            <Button onClick={() => setLocation("/")} className="rounded-full bg-[#FEFFF5] text-[#0D0D0D] font-bold hover:bg-[#E5E5DC]">Return Home</Button>
           </CardFooter>
         </Card>
       </div>
@@ -237,41 +246,39 @@ export default function Assessment() {
 
   if (assessmentComplete) {
     return (
-      <div className="container max-w-3xl mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Assessment Complete</CardTitle>
-            <CardDescription>{assessmentData.title}</CardDescription>
+      <div className="container max-w-3xl mx-auto p-6 mt-12 mb-24">
+        <Card className="bg-[#141414] border-white/5 rounded-[24px] overflow-hidden">
+          <CardHeader className="border-b border-white/5 pb-6">
+            <CardTitle className="text-3xl font-extrabold tracking-tight text-[#FEFFF5]">Assessment Complete</CardTitle>
+            <CardDescription className="text-[#959C95] text-base">{assessmentData.title}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 mb-4">
-                <span className="text-3xl font-bold text-primary">{score}%</span>
+          <CardContent className="space-y-8 pt-8">
+            <div className="text-center bg-[#0A0A0A] p-8 rounded-[24px] border border-white/5">
+              <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-[#141414] border border-white/10 mb-6 shadow-2xl">
+                <span className="text-4xl font-black text-[#FEFFF5] tracking-tighter">{score}%</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Your Score</h3>
-              <p className="text-muted-foreground">{feedback}</p>
+              <h3 className="text-xl font-bold mb-2 text-[#FEFFF5]">Your Evaluation</h3>
+              <p className="text-[#959C95] max-w-lg mx-auto leading-relaxed">{feedback}</p>
             </div>
 
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Review</h3>
+            <div className="space-y-6">
+              <h3 className="text-xl font-extrabold tracking-tight text-[#FEFFF5] px-2">Detailed Review</h3>
               {assessmentData.questions.map((question, index) => {
                 const isCorrect = selectedAnswers[question.id] === question.correctAnswer;
                 return (
-                  <div key={question.id} className="space-y-2">
-                    <div className="flex items-start">
-                      <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-2 ${isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                  <div key={question.id} className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-6">
+                    <div className="flex items-start mb-4">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-4 border ${isCorrect ? 'bg-[#FEFFF5] text-[#0D0D0D] border-transparent' : 'bg-[#141414] text-[#959C95] border-white/10'}`}>
                         {isCorrect ? (
-                          <CheckCircle2 className="w-4 h-4" />
+                          <CheckCircle2 className="w-5 h-5" />
                         ) : (
-                          <AlertCircle className="w-4 h-4" />
+                          <AlertCircle className="w-5 h-5" />
                         )}
                       </div>
                       <div>
-                        <p className="font-medium">{`Question ${index + 1}`}</p>
+                        <p className="font-bold text-[#959C95] text-sm tracking-widest uppercase mb-1">{`Question ${index + 1}`}</p>
                         <div 
-                          className="text-sm text-muted-foreground" 
+                          className="text-base font-medium text-[#FEFFF5] leading-relaxed" 
                           dangerouslySetInnerHTML={{ 
                             __html: question.type === "math" 
                               ? katex.renderToString(question.text, { throwOnError: false }) 
@@ -280,29 +287,43 @@ export default function Assessment() {
                         />
                       </div>
                     </div>
-                    <div className="pl-8">
-                      <p className="text-sm">
-                        <span className="font-medium">Your answer:</span> {' '}
-                        {question.options?.find(o => o.id === selectedAnswers[question.id])?.text || 'No answer'}
-                      </p>
-                      {!isCorrect && (
+                    <div className="pl-12 space-y-3">
+                      <div className="bg-[#141414] p-3 rounded-xl border border-white/5">
                         <p className="text-sm">
-                          <span className="font-medium">Correct answer:</span> {' '}
-                          {question.options?.find(o => o.id === question.correctAnswer)?.text}
+                          <span className="font-bold text-[#959C95] mr-2">Your answer:</span> 
+                          <span className={isCorrect ? 'text-[#FEFFF5]' : 'text-[#959C95]'}>
+                            {question.options?.find(o => o.id === selectedAnswers[question.id])?.text || 'No answer'}
+                          </span>
                         </p>
+                      </div>
+                      
+                      {!isCorrect && (
+                        <div className="bg-[#1A1A1A] p-3 rounded-xl border border-white/10">
+                          <p className="text-sm">
+                            <span className="font-bold text-[#FEFFF5] mr-2">Correct answer:</span> 
+                            <span className="text-[#FEFFF5]">
+                              {question.options?.find(o => o.id === question.correctAnswer)?.text}
+                            </span>
+                          </p>
+                        </div>
                       )}
-                      <p className="text-sm mt-1 text-muted-foreground">
-                        {question.explanation}
-                      </p>
+                      
+                      {question.explanation && (
+                        <div className="mt-4 pt-4 border-t border-white/5">
+                          <p className="text-sm text-[#959C95] leading-relaxed">
+                            <span className="font-bold text-[#FEFFF5] mr-1">Explanation:</span> {question.explanation}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={handleRetake}>Retake Assessment</Button>
-            <Button onClick={() => setLocation("/")}>Back to Dashboard</Button>
+          <CardFooter className="flex justify-between border-t border-white/5 pt-6 bg-[#0A0A0A]/50">
+            <Button variant="outline" onClick={handleRetake} className="rounded-full bg-[#1A1A1A] border-transparent text-[#959C95] hover:bg-[#2A2A2A] hover:text-[#FEFFF5]">Retake Assessment</Button>
+            <Button onClick={() => setLocation("/")} className="rounded-full bg-[#FEFFF5] text-[#0D0D0D] font-bold hover:bg-[#E5E5DC]">Back to Dashboard</Button>
           </CardFooter>
         </Card>
       </div>
@@ -313,46 +334,56 @@ export default function Assessment() {
   const progress = ((currentQuestion + 1) / assessmentData.questions.length) * 100;
 
   return (
-    <div className="container max-w-3xl mx-auto p-6 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold">{assessmentData.title}</h1>
-        <p className="text-muted-foreground">{assessmentData.description}</p>
+    <div className="container max-w-3xl mx-auto p-6 mt-12 mb-24">
+      <div className="space-y-2 mb-10">
+        <h1 className="text-4xl font-extrabold tracking-tighter text-[#FEFFF5]">{assessmentData.title}</h1>
+        <p className="text-[#959C95] text-lg">{assessmentData.description}</p>
       </div>
       
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>Question {currentQuestion + 1} of {assessmentData.questions.length}</span>
-          <span>{Math.round(progress)}% Complete</span>
+      <div className="space-y-3 mb-8">
+        <div className="flex justify-between text-sm font-bold tracking-tight uppercase">
+          <span className="text-[#959C95]">Question {currentQuestion + 1} of {assessmentData.questions.length}</span>
+          <span className="text-[#FEFFF5]">{Math.round(progress)}% Complete</span>
         </div>
-        <Progress value={progress} className="h-2" />
+        <div className="w-full bg-[#141414] rounded-full h-1.5 border border-white/5">
+          <div className="bg-[#FEFFF5] h-1.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+        </div>
       </div>
       
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="bg-[#141414] border-white/5 rounded-[24px] shadow-2xl">
+        <CardContent className="pt-8 px-8 pb-6">
           {renderQuestion(currentQuestionData)}
           
           {showFeedback && (
-            <Alert className="mt-6" variant={submitAnswerMutation.data?.correct ? "default" : "destructive"}>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>
-                {submitAnswerMutation.data?.correct ? "Correct!" : "Incorrect"}
-              </AlertTitle>
-              <AlertDescription>
-                {submitAnswerMutation.data?.feedback}
-              </AlertDescription>
-            </Alert>
+            <div className={`mt-8 p-5 rounded-2xl border ${submitAnswerMutation.data?.correct ? 'bg-[#FEFFF5] border-transparent text-[#0D0D0D]' : 'bg-[#1A1A1A] border-white/10 text-[#FEFFF5]'}`}>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  {submitAnswerMutation.data?.correct ? <CheckCircle2 className="h-5 w-5" /> : <InfoIcon className="h-5 w-5 text-[#959C95]" />}
+                </div>
+                <div>
+                  <h4 className="font-extrabold tracking-tight mb-1">
+                    {submitAnswerMutation.data?.correct ? "Correct!" : "Incorrect"}
+                  </h4>
+                  <p className={`text-sm ${submitAnswerMutation.data?.correct ? 'text-[#141414]' : 'text-[#959C95]'}`}>
+                    {submitAnswerMutation.data?.feedback}
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between border-t border-white/5 pt-6 px-8 bg-[#0A0A0A]/50 rounded-b-[24px]">
           <Button 
             variant="outline" 
             onClick={() => setLocation("/")}
+            className="rounded-full bg-[#1A1A1A] border-transparent text-[#959C95] hover:bg-[#2A2A2A] hover:text-[#FEFFF5]"
           >
             Cancel
           </Button>
           <Button
             onClick={handleNext}
             disabled={!selectedAnswers[currentQuestionData.id] || submitAnswerMutation.isPending || showFeedback}
+            className="rounded-full bg-[#FEFFF5] text-[#0D0D0D] font-bold hover:bg-[#E5E5DC] disabled:opacity-50"
           >
             {submitAnswerMutation.isPending ? 
               "Checking..." : 
