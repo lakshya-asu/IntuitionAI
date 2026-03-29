@@ -430,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = (req.session as any)?.userId!;
       const syllabi = await storage.getSyllabi(userId);
-      const activeSyllabus = syllabi.find(s => s.status === 'active');
+      const activeSyllabus = syllabi.find(s => s.isActive || s.status === 'active');
       
       res.json({
         syllabi,
@@ -851,18 +851,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.saveChatMessage({
         userId,
         role: "assistant",
-        content: response,
+        content: response.text,
         conversationId
       });
+
+      // Handle potential tool calls
+      if (response.toolCalls && response.toolCalls.length > 0) {
+        for (const call of response.toolCalls) {
+          if (call.name === 'create_syllabus') {
+            const { subject, goals, timeframe, difficulty } = call.input;
+            if (subject && goals) {
+              const syllabusRequest = {
+                subject,
+                goals,
+                timeframe: timeframe || 4,
+                difficulty: difficulty || 'beginner',
+                userId
+              };
+              
+              // Trigger background generation using the orchestrator
+              syllabusGenerator.generatePersonalizedSyllabus(syllabusRequest)
+                .then(async (result) => {
+                  await storage.createSyllabus(result.syllabus);
+                  console.log(`[Chatbot Agent] Successfully generated and saved syllabus for ${subject}`);
+                }).catch((err: any) => {
+                  console.error("[Chatbot Agent] Failed to generate syllabus:", err);
+                });
+            }
+          }
+        }
+      }
       
       // After several messages, analyze the user's learning persona
       const userMessages = await storage.getChatMessages(userId, conversationId);
       if (userMessages.length >= 5) {
         try {
-          // Analyze user persona based on chat history
-          const personaAnalysis = await analyzeUserPersona(userMessages);
+          // Pass the last 10 messages for analysis
+          const messagesForAnalysis = userMessages.slice(-10);
+          const personaAnalysis = await analyzeUserPersona(messagesForAnalysis.map(m => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            timestamp: m.timestamp || new Date()
+          })));
           
-          // Save the persona
           await storage.saveUserPersona(userId, {
             contentFormat: personaAnalysis.contentFormat || [],
             studyHabits: personaAnalysis.studyHabits || [],
@@ -870,21 +901,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             learningPreferences: personaAnalysis.learningPreferences || "visual",
             rawAnalysis: personaAnalysis
           });
-        } catch (personaError) {
-          console.error("Error analyzing user persona:", personaError);
-          // Don't fail the entire request if persona analysis fails
+        } catch (error) {
+          console.error("Failed to analyze user persona:", error);
+          // Don't fail the request if persona analysis fails
         }
       }
       
-      res.json({ response });
-    } catch (error: any) {
-      console.error("Chatbot error:", error);
-      res.status(500).json({ 
-        message: "Failed to get chatbot response",
-        error: error.message
-      });
+      res.json({ message: response.text });
+    } catch (error) {
+      console.error("Chatbot response error:", error);
+      res.status(500).json({ message: "Failed to generate chatbot response" });
     }
   });
+
   
   // Get user persona
   app.get("/api/user/persona", requireAuth, async (req, res) => {

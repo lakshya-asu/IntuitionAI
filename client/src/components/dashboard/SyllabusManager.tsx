@@ -14,6 +14,7 @@ interface Module {
   estimatedTime: number;
   status: 'not-started' | 'in-progress' | 'completed';
   progress: number;
+  links?: { title: string; url: string; description: string }[];
 }
 
 interface Syllabus {
@@ -204,7 +205,20 @@ export default function SyllabusManager() {
                   <div className="flex-1">
                     <h5 className="font-bold text-[#FEFFF5] text-lg tracking-tight mb-1">{module.title}</h5>
                     <p className="text-sm text-[#959C95] mb-4">{module.description}</p>
-                    <div className="flex gap-2 mt-2">
+                    
+                    {module.links && module.links.length > 0 && (
+                      <div className="flex flex-col gap-2 mb-4 mt-2 p-3 bg-[#141414] rounded-xl border border-white/5">
+                        <span className="text-xs font-bold text-[#959C95] uppercase tracking-wider">Suggested Resources:</span>
+                        {module.links.map((link, idx) => (
+                          <a key={idx} href={link.url} target="_blank" rel="noreferrer" className="text-sm text-blue-400 hover:text-blue-300 truncate hover:underline flex items-center gap-1">
+                            <span className="material-icons text-[14px]">link</span>
+                            {link.title}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {module.topics.slice(0, 3).map((topic, index) => (
                         <Badge key={index} variant="outline" className="text-[10px] uppercase tracking-widest bg-[#141414] border-white/5 text-[#959C95] rounded-full px-3">
                           {topic}

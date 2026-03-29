@@ -149,11 +149,27 @@ export class DatabaseStorage implements IStorage {
   async getLearningPath(): Promise<any[]> {
     if (!this.currentUser) return [];
     
-    // Fetch all modules and user progress
-    const allModules = await db.select().from(modules);
+    // Check for an active syllabus
+    const activeSyllabuses = await db.select().from(syllabi).where(and(eq(syllabi.userId, this.currentUser.id), eq(syllabi.isActive, true))).limit(1);
+    
+    let pathModules: any[] = [];
+    if (activeSyllabuses.length > 0) {
+      const activeSyllabus = activeSyllabuses[0];
+      pathModules = activeSyllabus.modules.map((mod: any, index: number) => ({
+        id: mod.id || `syl-${activeSyllabus.id}-mod-${index}`,
+        title: mod.title,
+        description: mod.description,
+        topics: mod.topics || [],
+        links: mod.links || [],
+      }));
+    } else {
+      // Fallback
+      pathModules = await db.select().from(modules);
+    }
+    
     const userProgress = await db.select().from(userModules).where(eq(userModules.userId, this.currentUser.id));
     
-    return allModules.map(m => {
+    return pathModules.map(m => {
       const prog = userProgress.find(p => p.moduleId === m.id);
       return {
         id: m.id,
@@ -162,7 +178,8 @@ export class DatabaseStorage implements IStorage {
         status: prog ? prog.status : "upcoming",
         progress: prog ? prog.progress : 0,
         completedOn: prog && prog.completedAt ? new Date(prog.completedAt).toISOString().split('T')[0] : undefined,
-        topics: m.topics,
+        topics: m.topics || [],
+        links: m.links || [],
       };
     });
   }
@@ -374,7 +391,11 @@ export class DatabaseStorage implements IStorage {
   async getSyllabus(id: number): Promise<Syllabus | undefined> { const s = await db.select().from(syllabi).where(eq(syllabi.id, id)); return s[0]; }
   async createSyllabus(syl: any): Promise<Syllabus> { const [s] = await db.insert(syllabi).values({...syl, createdAt: new Date(), updatedAt: new Date()}).returning(); return s; }
   async updateSyllabus(id: number, updates: Partial<Syllabus>): Promise<Syllabus> { const [s] = await db.update(syllabi).set({...updates, updatedAt: new Date()}).where(eq(syllabi.id, id)).returning(); return s; }
-  async activateSyllabus(id: number): Promise<void> { await db.update(syllabi).set({status: 'active'}).where(eq(syllabi.id, id)); }
+  async activateSyllabus(id: number): Promise<void> { 
+    if (!this.currentUser) return;
+    await db.update(syllabi).set({isActive: false, status: 'draft'}).where(eq(syllabi.userId, this.currentUser.id));
+    await db.update(syllabi).set({isActive: true, status: 'active'}).where(eq(syllabi.id, id)); 
+  }
   
   // Calendars
   async getCalendarEvents(userId: number): Promise<CalendarEvent[]> { return db.select().from(calendarEvents).where(eq(calendarEvents.userId, userId)); }

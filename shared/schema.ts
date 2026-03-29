@@ -138,6 +138,7 @@ export const syllabi = pgTable("syllabi", {
   difficulty: text("difficulty").notNull(),
   estimatedDuration: integer("estimated_duration").notNull(), // in weeks
   modules: jsonb("modules").$type<any[]>().notNull().default([]), // array of module objects
+  isActive: boolean("is_active").notNull().default(false),
   prerequisites: jsonb("prerequisites").$type<string[]>().notNull().default([]),
   learningObjectives: jsonb("learning_objectives").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").notNull().defaultNow(),

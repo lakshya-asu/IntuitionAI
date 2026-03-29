@@ -219,13 +219,13 @@ export async function generateAdaptiveTesting({
 // Chatbot service using Claude
 export async function generateChatbotResponse(
   messages: { role: 'user' | 'assistant' | 'system'; content: string }[]
-): Promise<string> {
+): Promise<{ text: string, toolCalls?: any[] }> {
   try {
     const systemPrompt = messages.find(m => m.role === 'system')?.content || `You are an AI learning assistant for IntuitionAI, an adaptive learning platform. 
           Your purpose is to help users navigate their personalized learning journey, suggest resources, 
           answer questions about educational content, and provide guidance on their learning path.
           Keep responses helpful, encouraging, and focused on the user's educational goals.
-          When appropriate, suggest assessments, learning modules, or resources that might benefit them.
+          When the user asks to learn a new subject, create a curriculum, or generate a syllabus, ALWAYS use the 'create_syllabus' tool to fulfill their request.
           Always maintain a supportive, patient tone. Your goal is to empower the user in their learning journey.`;
 
     const validMessages = messages
@@ -242,9 +242,50 @@ export async function generateChatbotResponse(
       messages: validMessages,
       max_tokens: 500,
       temperature: 0.7,
+      tools: [
+        {
+          name: "create_syllabus",
+          description: "Generate a personalized learning syllabus for the user based on their stated goals and subject. Call this when the user explicitly asks to learn a new topic, build a curriculum, or create a syllabus.",
+          input_schema: {
+            type: "object",
+            properties: {
+              subject: { type: "string", description: "The core subject to learn (e.g., 'Machine Learning')" },
+              goals: { 
+                type: "array", 
+                items: { type: "string" }, 
+                description: "A list of 2-4 specific learning goals based on the user's request" 
+              },
+              timeframe: { type: "integer", description: "The expected timeframe in weeks (default to 4 if unspecified)" },
+              difficulty: { type: "string", enum: ["beginner", "intermediate", "advanced"], description: "The difficulty level based on user's current knowledge (default 'beginner')" }
+            },
+            required: ["subject", "goals"]
+          }
+        }
+      ]
     });
 
-    return response.content[0].type === "text" ? response.content[0].text : "I'm sorry, I couldn't generate a response.";
+    let textResponse = "";
+    const toolCalls = [];
+
+    for (const block of response.content) {
+      if (block.type === "text") {
+        textResponse += block.text;
+      } else if (block.type === "tool_use") {
+        toolCalls.push({
+          name: block.name,
+          input: block.input
+        });
+        if (!textResponse) {
+          textResponse = `I'll be happy to help you with that! I'm creating a comprehensive ${block.input.timeframe || 4}-week syllabus for ${block.input.subject} right now.`;
+        }
+      }
+    }
+
+    if (!textResponse && toolCalls.length === 0) {
+      textResponse = "I'm sorry, I couldn't generate a response.";
+    }
+
+    return { text: textResponse, toolCalls: toolCalls.length > 0 ? toolCalls : undefined };
   } catch (error) {
     console.error("Error generating chatbot response:", error);
     throw error;

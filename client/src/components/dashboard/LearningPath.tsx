@@ -10,7 +10,8 @@ interface LearningPathProps {
     progress?: number;
     completedOn?: string;
     topics: string[];
-    isAiGenerated?: boolean; // New prop to indicate dynamically inserted modules
+    isAiGenerated?: boolean;
+    links?: { title: string; url: string; description: string }[];
   }[];
 }
 
@@ -116,6 +117,18 @@ export default function LearningPath({ learningPath }: LearningPathProps) {
                         </span>
                       ))}
                     </div>
+
+                    {item.links && item.links.length > 0 && (
+                      <div className="flex flex-col gap-2 mt-4 p-3 bg-[#111] rounded-xl border border-white/5">
+                        <span className="text-[10px] font-bold text-[#959C95] uppercase tracking-wider">Suggested External Resources</span>
+                        {item.links.map((link, idx) => (
+                          <a key={idx} href={link.url} target="_blank" rel="noreferrer" className="text-sm text-blue-400 hover:text-blue-300 truncate hover:underline flex items-center gap-1.5">
+                            <span className="material-icons text-[14px]">open_in_new</span>
+                            {link.title}
+                          </a>
+                        ))}
+                      </div>
+                    )}
 
                     <AnimatePresence>
                       {expandedNode === item.id && (

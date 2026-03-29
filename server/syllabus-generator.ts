@@ -56,6 +56,27 @@ export class SyllabusGenerator {
         curriculumStructure,
         userPersona
       );
+
+      // Web Search Enrichment (Phase 11)
+      if (detailedSyllabus && Array.isArray(detailedSyllabus.modules)) {
+        try {
+          const { search, SafeSearchType } = await import('duck-duck-scrape');
+          for (const mod of detailedSyllabus.modules) {
+             const query = `${request.subject} ${mod.title || ''} free course tutorial video`;
+             const searchResults = await search(query, { safeSearch: SafeSearchType.OFF });
+             
+             if (searchResults && searchResults.results && searchResults.results.length > 0) {
+               mod.links = searchResults.results.slice(0, 3).map((r: any) => ({
+                 title: r.title,
+                 url: r.url,
+                 description: r.description
+               }));
+             }
+          }
+        } catch (e) {
+          console.error("Agentic Web Search Failed:", e);
+        }
+      }
       
       // Generate learning schedule
       const schedule = await this.generateLearningSchedule(
