@@ -110,7 +110,7 @@ export class EvaluatorAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 2000,
         system: "You are an expert learning performance analyst." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -156,7 +156,7 @@ export class EvaluatorAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 2000,
         system: "You are an expert at analyzing learning progress patterns." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -211,7 +211,7 @@ export class EvaluatorAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 2000,
         system: "You are an expert learning evaluator providing comprehensive assessments." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -264,7 +264,7 @@ export class EvaluatorAgent {
       `;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 2000,
         system: "You are an adaptive assessment evaluator." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]

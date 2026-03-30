@@ -110,7 +110,7 @@ export class StudentInteractionAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 2000,
         system: "You are an expert at analyzing student learning interactions." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -157,7 +157,7 @@ export class StudentInteractionAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         temperature: 0.7,
         max_tokens: 500,
         system: "You are a supportive, intelligent learning assistant focused on helping students achieve their learning goals.",
@@ -190,7 +190,7 @@ export class StudentInteractionAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 2000,
         system: "Extract learning preferences from student messages." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
