@@ -4,7 +4,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key",
 });
 
-const MODEL = "claude-3-haiku-20240307";
+const MODEL = "claude-3-5-haiku-20241022";
 
 interface UserData {
   id: number;
@@ -273,10 +273,10 @@ export async function generateChatbotResponse(
       } else if (block.type === "tool_use") {
         toolCalls.push({
           name: block.name,
-          input: block.input
+          input: block.input as any
         });
         if (!textResponse) {
-          textResponse = `I'll be happy to help you with that! I'm creating a comprehensive ${block.input.timeframe || 4}-week syllabus for ${block.input.subject} right now.`;
+          textResponse = `I'll be happy to help you with that! I'm creating a comprehensive ${(block.input as any).timeframe || 4}-week syllabus for ${(block.input as any).subject} right now.`;
         }
       }
     }
