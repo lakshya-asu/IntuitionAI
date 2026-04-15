@@ -7,18 +7,23 @@ import SkillProficiency from "@/components/dashboard/SkillProficiency";
 import UserPersona from "@/components/dashboard/UserPersona";
 import LearningAssistant from "@/components/dashboard/LearningAssistant";
 import SyllabusManager from "@/components/dashboard/SyllabusManager";
+import AdaptiveGrid from "@/components/layout/AdaptiveGrid";
+import MotionTile from "@/components/layout/MotionTile";
+import AssessmentTile from "@/components/tiles/AssessmentTile";
+import ResourceTile from "@/components/tiles/ResourceTile";
+import SyllabusNodeTile from "@/components/tiles/SyllabusNodeTile";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { loginAsTestUser } from "@/lib/utils";
 import { Button } from "@/components/ui/button.js";
 import { Card } from "@/components/ui/card.js";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.js";
+import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [autoLoginAttempted, setAutoLoginAttempted] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const { data: userData, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ["/api/user"],
@@ -155,51 +160,61 @@ export default function Dashboard() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
           </div>
         ) : (
-          // Logged in and content loaded
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="flex items-center justify-start gap-2 bg-[#141414] p-1.5 rounded-full border border-white/5 w-fit">
-              <TabsTrigger value="overview" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Overview</TabsTrigger>
-              <TabsTrigger value="learning" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Learning Path</TabsTrigger>
-              <TabsTrigger value="syllabi" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Syllabi</TabsTrigger>
-              <TabsTrigger value="analytics" className="rounded-full px-6 py-2 content-center data-[state=active]:bg-[#FEFFF5] data-[state=active]:text-[#0D0D0D] text-[#959C95]">Analytics</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                  <ProgressSummary stats={statsData as any} />
-                </div>
-                <div className="lg:col-span-1">
+          // Logged in and content loaded: Adaptive Grid Layout
+          <div className="relative w-full">
+            <AdaptiveGrid columns={4}>
+              
+              {/* Assessment Priority Tile - Rendered if Evaluator suggests one */}
+              {assessmentsData && (assessmentsData as any[]).length > 0 && (
+                <MotionTile id="assessment-cta" size="2x1" priority={true}>
+                  <AssessmentTile 
+                    topic={(assessmentsData as any[])[0].topic || (assessmentsData as any[])[0].subject}
+                    difficulty={(assessmentsData as any[])[0].difficulty}
+                    onStart={() => {
+                       setLocation(`/assessment/${(assessmentsData as any[])[0].id}`);
+                    }}
+                  />
+                </MotionTile>
+              )}
+
+              {/* Progress Summary Tile (2x1) */}
+              <MotionTile id="progress-summary" size="2x1">
+                <ProgressSummary stats={statsData as any} />
+              </MotionTile>
+              
+              {/* Persona Tile (1x2 tall tile) */}
+              <MotionTile id="persona" size="1x2">
+                <div className="h-full overflow-y-auto custom-scrollbar">
                   <UserPersona onAnalysisDone={() => queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] })} />
                 </div>
-              </div>
-              <Recommendations recommendations={recommendationsData as any} />
-              <SuggestedAssessments assessments={assessmentsData as any} />
-            </TabsContent>
-            
-            <TabsContent value="learning" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <LearningPath learningPath={learningPathData as any} />
-              <SkillProficiency skills={skillsData as any} />
-            </TabsContent>
-            
-            <TabsContent value="syllabi" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <SyllabusManager />
-            </TabsContent>
-            
-            <TabsContent value="analytics" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <SkillProficiency skills={skillsData as any} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card className="glassmorphism p-8 rounded-3xl border-white/5">
-                  <h3 className="text-xl font-bold mb-4 text-white">Learning Analytics</h3>
-                  <p className="text-slate-400 leading-relaxed">Detailed analytics will be available here, showing your learning patterns, time spent, and progress trends.</p>
-                </Card>
-                <Card className="glassmorphism p-8 rounded-3xl border-white/5">
-                  <h3 className="text-xl font-bold mb-4 text-white">Performance Insights</h3>
-                  <p className="text-slate-400 leading-relaxed">AI-powered insights about your learning performance and recommendations for improvement.</p>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
+              </MotionTile>
+
+              {/* Syllabus Next Nodes */}
+              {learningPathData && (learningPathData as any).modules?.slice(0, 2).map((mod: any, idx: number) => (
+                <MotionTile id={`syllabus-node-${mod.id}`} size="1x1" key={`mod-${mod.id}`}>
+                  <SyllabusNodeTile 
+                     title={mod.title}
+                     description={mod.description}
+                     progress={Math.floor(Math.random() * 40)}
+                     isActive={idx === 0}
+                  />
+                </MotionTile>
+              ))}
+
+              {/* Resource Recommendation Tiles */}
+              {recommendationsData && (recommendationsData as any[]).slice(0, 3).map((rec: any, idx: number) => (
+                <MotionTile id={`resource-node-${rec.id || idx}`} size="1x1" key={`rec-${rec.id || idx}`}>
+                   <ResourceTile 
+                     type={rec.type || 'video'}
+                     title={rec.title}
+                     description={rec.description || rec.reason || "Recommended resource based on your learning style."}
+                     onClick={() => console.log("Open resource", rec)}
+                   />
+                </MotionTile>
+              ))}
+              
+            </AdaptiveGrid>
+          </div>
         )}
         
         {/* AI Learning Assistant */}

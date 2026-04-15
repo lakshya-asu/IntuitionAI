@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { Brain, MessageSquare, Target, BookOpen, BarChart3, Calendar, Lightbulb } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -41,6 +42,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
   const [currentContext, setCurrentContext] = useState<string>('general');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Scroll to bottom of messages
   useEffect(() => {
@@ -101,6 +103,15 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
       
       setMessages(prev => [...prev, assistantMessage]);
       setIsLoading(false);
+      
+      // Invalidate queries to trigger AdaptiveGrid resorting dynamically!
+      // When agent interacts, we might have updated Syllabus or Persona.
+      if (data.agentsInvolved && data.agentsInvolved.length > 0) {
+         queryClient.invalidateQueries({ queryKey: ["/api/user/persona"] });
+         queryClient.invalidateQueries({ queryKey: ["/api/learning-path"] });
+         queryClient.invalidateQueries({ queryKey: ["/api/assessments/suggested"] });
+         queryClient.invalidateQueries({ queryKey: ["/api/recommendations"] });
+      }
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -163,7 +174,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="fixed bottom-24 right-6 w-[480px] h-[600px] bg-[#0A0A0A] border border-white/10 rounded-[24px] shadow-2xl flex flex-col z-50 overflow-hidden"
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[90%] max-w-[600px] h-[500px] bg-[#0A0A0A] border border-white/10 rounded-[24px] shadow-2xl flex flex-col z-[100] overflow-hidden"
         >
           <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#141414]">
             <div className="flex items-center">
@@ -345,12 +356,27 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
       )}
     </AnimatePresence>
       
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-[#FEFFF5] text-[#0D0D0D] shadow-[0_4px_30px_rgba(254,255,245,0.2)] flex items-center justify-center hover:scale-105 transition-all duration-300 z-50 group"
-      >
-        <Brain className={`h-7 w-7 transition-transform duration-300 ${isOpen ? 'rotate-180 scale-90' : 'group-hover:scale-110'}`} />
-      </button>
+      {!isOpen && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+          {/* Quick actions that float when collapsed */}
+          <div className="flex gap-2 mb-3 bg-[#0D0D0D]/80 backdrop-blur-md px-4 py-2 border border-white/5 rounded-full shadow-lg">
+             <button onClick={() => { setIsOpen(true); handleQuickAction('recommend'); }} className="text-xs font-bold text-[#959C95] hover:text-[#FEFFF5] px-2 flex items-center"><Lightbulb className="w-3 h-3 mr-1"/> Suggest</button>
+             <button onClick={() => { setIsOpen(true); handleQuickAction('evaluate'); }} className="text-xs font-bold text-[#959C95] hover:text-[#FEFFF5] px-2 flex items-center"><BarChart3 className="w-3 h-3 mr-1"/> Evaluate</button>
+          </div>
+          
+          {/* The main input pill replacing the circle button */}
+          <button
+            onClick={() => setIsOpen(true)}
+            className="group w-[400px] max-w-[90vw] h-14 rounded-full bg-[#141414] border border-white/10 shadow-[0_4px_40px_rgba(0,0,0,0.5)] flex items-center px-4 hover:border-white/30 hover:bg-[#1A1A1A] transition-all duration-300"
+          >
+            <Brain className="h-5 w-5 text-[#FEFFF5] mr-3 group-hover:scale-110 transition-transform" />
+            <span className="text-[#959C95] text-sm font-medium flex-1 text-left">Ask IntuitionAI about your learning...</span>
+            <div className="w-8 h-8 rounded-full bg-[#FEFFF5] flex items-center justify-center text-[#0D0D0D]">
+               <span className="material-icons text-sm">auto_awesome</span>
+            </div>
+          </button>
+        </div>
+      )}
     </>
   );
 }
