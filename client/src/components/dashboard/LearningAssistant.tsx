@@ -173,12 +173,12 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="w-full bg-[#0A0A0A] border border-white/10 rounded-[24px] shadow-[0_-10px_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden mb-4 origin-bottom"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="w-full bg-[#0A0A0A]/70 backdrop-blur-xl border border-white/10 rounded-[24px] shadow-[0_-10px_50px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden mb-4 origin-bottom"
             style={{ maxHeight: '65vh', height: '500px' }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#141414] shrink-0">
+            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#141414]/50 shrink-0">
               <div className="flex items-center">
                 <Brain className="h-6 w-6 text-[#FEFFF5] mr-3" />
                 <div>
@@ -195,7 +195,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
             </div>
             
             {/* Quick Actions */}
-            <div className="p-3 border-b border-white/5 bg-[#0D0D0D] shrink-0">
+            <div className="p-3 border-b border-white/5 bg-[#0D0D0D]/50 shrink-0">
               <div className="flex gap-2 flex-nowrap overflow-x-auto custom-scrollbar pb-1">
                 <Button
                   size="sm"
@@ -246,7 +246,7 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                   <div 
                     className={`max-w-[88%] lg:max-w-[85%] px-5 py-4 ${
                       message.role === 'user'
-                        ? 'bg-[#141414] border border-white/10 text-[#FEFFF5] rounded-3xl rounded-br-md font-medium shadow-md'
+                        ? 'bg-[#141414]/80 border border-white/10 text-[#FEFFF5] rounded-3xl rounded-br-md font-medium shadow-md'
                         : 'bg-transparent text-[#959C95] rounded-none'
                     }`}
                   >
@@ -353,15 +353,14 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
       
       {/* The main input pill (Always visible and anchored at bottom) */}
       <div 
-        className={`w-full transition-all duration-300 ${isOpen ? 'bg-[#141414] rounded-2xl rounded-tr-sm rounded-tl-sm' : 'bg-[#141414] rounded-full'} border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.8)] p-2 pl-3 flex items-end group focus-within:border-white/30`}
+        className={`w-full transition-all duration-300 ${isOpen ? 'bg-[#141414]/90 backdrop-blur-xl rounded-2xl rounded-tr-sm rounded-tl-sm' : 'bg-[#141414]/95 backdrop-blur-xl rounded-full'} border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.8)] p-2 pl-3 flex items-end group focus-within:border-white/30`}
       >
-         <div className="h-12 w-10 flex items-center justify-center flex-shrink-0 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
-             <Brain className={`h-5 w-5 transition-transform duration-300 ${isOpen ? 'text-emerald-400 scale-110' : 'text-[#FEFFF5] group-hover:scale-110 group-hover:text-emerald-200'}`} />
+         <div className="h-12 w-10 flex items-center justify-center flex-shrink-0 cursor-pointer" onClick={() => setIsOpen(!isOpen)} title="Toggle Chat History">
+             <Brain className={`h-5 w-5 transition-transform duration-300 ${isOpen ? 'text-cyan-400 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' : 'text-[#FEFFF5] group-hover:scale-110 group-hover:text-cyan-200'}`} />
          </div>
          <Textarea
-           placeholder={isOpen ? "Type a message..." : "Ask IntuitionAI about your learning..."}
+           placeholder="Ask IntuitionAI about your learning..."
            value={inputMessage}
-           onFocus={() => setIsOpen(true)}
            onChange={(e) => setInputMessage(e.target.value)}
            className="resize-none text-[15px] bg-transparent border-0 text-[#FEFFF5] placeholder:text-[#959C95] focus-visible:ring-0 h-[48px] min-h-[48px] py-3 px-3 flex-1 shadow-none"
            rows={1}

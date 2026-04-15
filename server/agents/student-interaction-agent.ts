@@ -15,15 +15,15 @@ function extractJson(text: string) {
 async function callLLMWithFallback(system: string, prompt: string, maxTokens: number = 2000, temperature: number = 0.5) {
   try {
     const response = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
+      model: "claude-3-haiku-20240307", // use stable haiku to avoid 404
       max_tokens: maxTokens,
       temperature,
       system,
       messages: [{ role: "user", content: prompt }]
     });
     return response.content[0].type === "text" ? response.content[0].text : "";
-  } catch (anthropicError) {
-    console.warn("Anthropic API failed, falling back to OpenAI GPT-4o...", anthropicError);
+  } catch (anthropicError: any) {
+    console.warn(`Anthropic API failed (${anthropicError.message || anthropicError}), falling back to OpenAI GPT-4o...`);
     try {
       const gptResponse = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -35,8 +35,8 @@ async function callLLMWithFallback(system: string, prompt: string, maxTokens: nu
         ]
       });
       return gptResponse.choices[0].message.content || "";
-    } catch (openaiError) {
-      console.error("OpenAI API fallback also failed:", openaiError);
+    } catch (openaiError: any) {
+      console.error(`OpenAI API fallback also failed (${openaiError.message || openaiError})`);
       throw openaiError; // Both failed
     }
   }

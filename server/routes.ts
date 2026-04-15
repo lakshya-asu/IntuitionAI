@@ -5,6 +5,7 @@ import { db } from "./db.js";
 import { sql } from "drizzle-orm";
 import { generateRecommendations, generateAdaptiveTesting, generateSkillAssessment, generateChatbotResponse, analyzeUserPersona } from "./openai-service.js";
 import { orchestratorAgent } from "./agents/orchestrator-agent.js";
+import { evaluatorAgent } from "./agents/evaluator-agent.js";
 import { syllabusGenerator } from "./syllabus-generator.js";
 import type { ChatMessage, InsertCalendarEvent } from "../shared/schema.js";
 import { insertCalendarEventSchema } from "../shared/schema.js";
@@ -683,54 +684,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const assessmentId = req.params.id;
       
-      // Using a static assessment with 3 questions for all assessment IDs
-      // This makes the assessment experience consistent for demo purposes
-      const assessment = {
-        id: assessmentId,
-        title: "Machine Learning Fundamentals Assessment",
-        description: "This assessment tests your understanding of key machine learning concepts with three fundamental questions.",
-        questions: [
-          {
-            id: "q1",
-            type: "mcq",
-            text: "In gradient descent optimization for a neural network, which of the following expressions correctly represents the weight update rule for a single weight $w_{ij}$ using backpropagation where $\\eta$ is the learning rate, $E$ is the error function, and $\\frac{\\partial E}{\\partial w_{ij}}$ is the partial derivative of the error with respect to the weight?",
-            options: [
-              { id: "a", text: "$w_{ij}^{new} = w_{ij}^{old} - \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
-              { id: "b", text: "$w_{ij}^{new} = w_{ij}^{old} + \\eta \\frac{\\partial E}{\\partial w_{ij}}$" },
-              { id: "c", text: "$w_{ij}^{new} = w_{ij}^{old} - \\frac{\\partial E}{\\partial w_{ij}} \\cdot \\eta$" },
-              { id: "d", text: "$w_{ij}^{new} = w_{ij}^{old} \\cdot (1 - \\eta \\frac{\\partial E}{\\partial w_{ij}})$" }
-            ],
-            correctAnswer: "a",
-            explanation: "In gradient descent, we update weights by moving in the direction opposite to the gradient of the error function. The correct formula subtracts the gradient multiplied by the learning rate from the current weight value."
-          },
-          {
-            id: "q2",
-            type: "mcq",
-            text: "What is the primary difference between supervised and unsupervised learning?",
-            options: [
-              { id: "a", text: "Supervised learning requires a GPU, while unsupervised learning works on CPU" },
-              { id: "b", text: "Supervised learning uses labeled training data, while unsupervised learning does not" },
-              { id: "c", text: "Supervised learning is always more accurate than unsupervised learning" },
-              { id: "d", text: "Supervised learning works with image data, while unsupervised learning works with text data" }
-            ],
-            correctAnswer: "b",
-            explanation: "Supervised learning uses labeled training data where the target outputs are known, while unsupervised learning works with unlabeled data and tries to find patterns or structure in the data without explicit guidance."
-          },
-          {
-            id: "q3",
-            type: "mcq",
-            text: "If the accuracy of a machine learning model on the training set is 95% but only 70% on the test set, this is most likely an example of:",
-            options: [
-              { id: "a", text: "Underfitting" },
-              { id: "b", text: "Overfitting" },
-              { id: "c", text: "Regularization" },
-              { id: "d", text: "Normalization" }
-            ],
-            correctAnswer: "b",
-            explanation: "This scenario describes overfitting, where the model performs well on the training data but fails to generalize to unseen data. The large gap between training and test performance is a classic sign of overfitting."
-          }
-        ]
+      // Look up topic based on ID or provide a fallback
+      const topicMap: Record<string, string> = {
+        "machine-learning": "Machine Learning Fundamentals",
+        "neural-networks": "Neural Networks and Deep Learning",
+        "data-science": "Data Science and Statistics",
+        "quantum-physics": "Quantum Physics",
+        "perception": "Perception Systems",
+        "cognitive-systems": "Cognitive Systems"
       };
+      
+      const topic = topicMap[assessmentId] || assessmentId.replace(/-/g, ' ');
+      
+      // Let the evaluating agent dynamically construct the assessment
+      const assessment = await evaluatorAgent.generateAssessment(topic, "intermediate");
+      assessment.id = assessmentId;
+      
+      // Generate guaranteed unique IDs for questions and answers
+      if (assessment.questions) {
+        assessment.questions.forEach((q: any, i: number) => {
+          q.id = `q${i + 1}`;
+          if (q.options) {
+             q.options.forEach((opt: any, j: number) => {
+               opt.id = String.fromCharCode(97 + j); // a, b, c, d
+             });
+          }
+        });
+      }
       
       res.json(assessment);
     } catch (error) {

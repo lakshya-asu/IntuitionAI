@@ -110,7 +110,7 @@ export class EvaluatorAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert learning performance analyst." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -156,7 +156,7 @@ export class EvaluatorAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert at analyzing learning progress patterns." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -211,7 +211,7 @@ export class EvaluatorAgent {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert learning evaluator providing comprehensive assessments." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -264,7 +264,7 @@ export class EvaluatorAgent {
       `;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an adaptive assessment evaluator." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -282,6 +282,56 @@ export class EvaluatorAgent {
         weaknesses: [],
         recommendations: []
       };
+    }
+  }
+  async generateAssessment(
+    topic: string,
+    difficulty: string
+  ): Promise<any> {
+    const prompt = `
+      Generate a 3-question assessment about ${topic} at a ${difficulty} difficulty level.
+      
+      Requirements for questions:
+      - 3 multiple-choice questions
+      - Each question must have exactly 4 options with ids 'a', 'b', 'c', 'd'
+      - One explicitly correct answer per question
+      - Include a helpful explanation for the correct answer
+      - If math, use LaTeX format with $ or $$
+      
+      You must return a JSON object with this shape:
+      {
+        "title": "Assessment Title",
+        "description": "Short description",
+        "questions": [
+          {
+            "id": "q1",
+            "type": "mcq",
+            "text": "Question text...",
+            "options": [
+              { "id": "a", "text": "Option A text" },
+              { "id": "b", "text": "Option B text" },
+              ...
+            ],
+            "correctAnswer": "a",
+            "explanation": "Why this is correct..."
+          }
+        ]
+      }
+    `;
+
+    try {
+      const response = await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 1500,
+        system: "You are an expert curriculum designer. Output ONLY valid JSON containing the assessment structure.",
+        messages: [{ role: "user", content: prompt }]
+      });
+
+      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      return extractJson(content);
+    } catch (error) {
+      console.error("Assessment generation error:", error);
+      throw error;
     }
   }
 }

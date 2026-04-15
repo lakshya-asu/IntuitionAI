@@ -139,7 +139,7 @@ export class SyllabusGenerator {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert educational assessor." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -193,7 +193,7 @@ export class SyllabusGenerator {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert curriculum designer." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -240,7 +240,7 @@ export class SyllabusGenerator {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert syllabus designer creating detailed learning plans." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -280,7 +280,7 @@ export class SyllabusGenerator {
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert learning schedule optimizer." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]
@@ -351,7 +351,7 @@ export class SyllabusGenerator {
       `;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 2000,
         system: "You are an expert at adapting learning plans based on student performance." + " You must output ONLY valid JSON.",
         messages: [{ role: "user", content: prompt }]

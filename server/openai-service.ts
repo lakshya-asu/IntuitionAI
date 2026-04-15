@@ -4,7 +4,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key",
 });
 
-const MODEL = "claude-3-5-haiku-20241022";
+const MODEL = "claude-3-haiku-20240307";
 
 interface UserData {
   id: number;
