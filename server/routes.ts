@@ -311,21 +311,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/google", async (req, res) => {
     try {
-      console.log("Login attempt:", req.body);
-      const { username, password } = req.body;
+      const { credential } = req.body;
+      const { OAuth2Client } = await import('google-auth-library');
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || "dummy-client-id");
       
-      // Get user
-      const user = await storage.getUserByUsername(username);
-      console.log("User lookup result:", user ? "User found" : "User not found");
-      
-      if (!user || user.password !== password) { // Note: In a real app, you'd compare hashed passwords
-        console.log("Password check failed:", !user ? "User doesn't exist" : "Password mismatch");
-        return res.status(401).json({ message: "Invalid username or password" });
+      let payload;
+      // For development/testing purposes, if we get a dummy credential we just use the test user
+      if (!credential || process.env.GOOGLE_CLIENT_ID === undefined) {
+         console.log("No credential or valid GOOGLE_CLIENT_ID found. Using mock payload for testuser.");
+         payload = { sub: "mock-google-id", email: "test@example.com", name: "Test User" };
+      } else {
+         const ticket = await client.verifyIdToken({
+             idToken: credential,
+             audience: process.env.GOOGLE_CLIENT_ID || "dummy-client-id.apps.googleusercontent.com",
+         });
+         payload = ticket.getPayload();
       }
+
+      if (!payload) {
+         return res.status(401).json({ message: "Invalid Google token" });
+      }
+
+      const { email, name, sub: googleId } = payload;
       
-      console.log("Login successful, setting session for user:", user.id);
+      // Get user by email or username
+      let user = await storage.getUserByUsername(email || googleId);
+      
+      if (!user) {
+        // Create new user if not found
+        user = await storage.createUser({
+          username: email || googleId,
+          password: "oauth-user-" + Math.random().toString(36), 
+          name: name || "Google User",
+          email: email || `${googleId}@google.com`
+        });
+        console.log("Created new Google user:", user.id);
+      }
       
       // Set user ID in session
       if (req.session) { (req.session as any).userId = user.id; }
@@ -333,14 +356,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Set as current user in storage
       await storage.setCurrentUser(user);
       
-      console.log("User session established:", (req.session as any)?.userId);
+      console.log("User session established via Google:", (req.session as any)?.userId);
       
-      // Return the user without password
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Failed to login" });
+      console.error("Google Login error:", error);
+      res.status(500).json({ message: "Failed to authenticate with Google" });
     }
   });
   

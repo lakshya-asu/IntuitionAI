@@ -1,12 +1,45 @@
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { storage } from "../storage.js";
 import type { ChatMessage, InsertAgentInteraction } from "../../shared/schema.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY || "sk-dummy-key" });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "sk-dummy-key" });
 
 function extractJson(text: string) {
   const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
   return match ? JSON.parse(match[0]) : {};
+}
+
+// Fallback logic for LLM calls
+async function callLLMWithFallback(system: string, prompt: string, maxTokens: number = 2000, temperature: number = 0.5) {
+  try {
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      max_tokens: maxTokens,
+      temperature,
+      system,
+      messages: [{ role: "user", content: prompt }]
+    });
+    return response.content[0].type === "text" ? response.content[0].text : "";
+  } catch (anthropicError) {
+    console.warn("Anthropic API failed, falling back to OpenAI GPT-4o...", anthropicError);
+    try {
+      const gptResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        max_tokens: maxTokens,
+        temperature,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: prompt }
+        ]
+      });
+      return gptResponse.choices[0].message.content || "";
+    } catch (openaiError) {
+      console.error("OpenAI API fallback also failed:", openaiError);
+      throw openaiError; // Both failed
+    }
+  }
 }
 
 export interface StudentInteractionContext {
@@ -109,14 +142,8 @@ export class StudentInteractionAgent {
     `;
 
     try {
-      const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
-        max_tokens: 2000,
-        system: "You are an expert at analyzing student learning interactions." + " You must output ONLY valid JSON.",
-        messages: [{ role: "user", content: prompt }]
-      });
-
-      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      const systemMsg = "You are an expert at analyzing student learning interactions. You must output ONLY valid JSON.";
+      const content = await callLLMWithFallback(systemMsg, prompt, 2000, 0.2);
       return extractJson(content);
     } catch (error) {
       console.error("Message analysis error:", error);
@@ -156,15 +183,9 @@ export class StudentInteractionAgent {
     `;
 
     try {
-      const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
-        temperature: 0.7,
-        max_tokens: 500,
-        system: "You are a supportive, intelligent learning assistant focused on helping students achieve their learning goals.",
-        messages: [{ role: "user", content: prompt }]
-      });
-
-      return response.content[0].type === "text" ? response.content[0].text : "I'm here to help with your learning. Could you tell me more about what you'd like to explore?";
+      const systemMsg = "You are a supportive, intelligent learning assistant focused on helping students achieve their learning goals.";
+      const response = await callLLMWithFallback(systemMsg, prompt, 500, 0.7);
+      return response || "I'm here to help with your learning. Could you tell me more about what you'd like to explore?";
     } catch (error) {
       console.error("Response generation error:", error);
       return "I'm here to help with your learning. Could you tell me more about what you'd like to explore?";
@@ -189,14 +210,8 @@ export class StudentInteractionAgent {
     `;
 
     try {
-      const response = await anthropic.messages.create({
-        model: "claude-3-5-haiku-20241022",
-        max_tokens: 2000,
-        system: "Extract learning preferences from student messages." + " You must output ONLY valid JSON.",
-        messages: [{ role: "user", content: prompt }]
-      });
-
-      const content = response.content[0].type === "text" ? response.content[0].text : "{}";
+      const systemMsg = "Extract learning preferences from student messages. You must output ONLY valid JSON.";
+      const content = await callLLMWithFallback(systemMsg, prompt, 2000, 0.2);
       return extractJson(content);
     } catch (error) {
       console.error("Preference extraction error:", error);

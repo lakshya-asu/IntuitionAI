@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
+import { GoogleLogin } from '@react-oauth/google';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -23,6 +24,36 @@ export default function Login() {
   
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Google authentication failed');
+      }
+
+      toast({
+        title: 'Login successful',
+        description: 'Redirecting to dashboard...',
+      });
+
+      setLocation('/');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   async function handleLoginSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -151,38 +182,18 @@ export default function Login() {
 
             {mode === 'login' ? (
               <form onSubmit={handleLoginSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label htmlFor="username" className="text-sm font-medium text-slate-300 ml-1">
-                    Username
-                  </label>
-                  <Input
-                    id="username"
-                    placeholder="johndoe"
-                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 focus:ring-0 transition-all px-4"
-                    value={loginUsername}
-                    onChange={(e) => setLoginUsername(e.target.value)}
+                <div className="flex justify-center mb-6">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => {
+                      setError("Google Login Failed");
+                    }}
+                    useOneTap
+                    theme="filled_black"
+                    shape="pill"
+                    text="continue_with"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="password" className="text-sm font-medium text-slate-300 ml-1">
-                    Password
-                  </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    className="bg-[#0D0D0D] border-white/10 text-[#FEFFF5] placeholder:text-[#959C95] h-14 rounded-2xl focus:border-white/30 focus:ring-0 transition-all px-4"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full h-14 bg-[#FEFFF5] hover:bg-[#E5E5DC] text-[#0D0D0D] font-bold rounded-full transition-all duration-300 text-base mt-2" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Authenticating...' : 'Sign In'}
-                </Button>
                 
                 <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">

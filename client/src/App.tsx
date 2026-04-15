@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient.js";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "@/components/ui/toaster";
 import Dashboard from "@/pages/Dashboard";
 import Curriculum from "@/pages/Curriculum";
@@ -12,6 +13,21 @@ import Calendar from "@/pages/Calendar";
 import Assessment from "@/pages/Assessment";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
+
+import PageTransition from "@/components/layout/PageTransition";
+
+// Higher order component for animated routes
+const AnimatedRoute = ({ component: Component, ...rest }: any) => {
+  return (
+    <Route {...rest}>
+      {(params) => (
+        <PageTransition>
+          <Component {...params} />
+        </PageTransition>
+      )}
+    </Route>
+  );
+};
 
 function Router() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -26,7 +42,6 @@ function Router() {
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
-          // Redirect to login if not on login page already
           if (window.location.pathname !== '/login') {
             setLocation('/login');
           }
@@ -39,31 +54,34 @@ function Router() {
     checkAuth();
   }, [setLocation]);
 
-  // Loading state while checking authentication
   if (isAuthenticated === null) {
     return <div className="h-screen w-full flex items-center justify-center">Loading...</div>;
   }
 
   return (
     <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/" component={Dashboard} />
-      <Route path="/curriculum" component={Curriculum} />
-      <Route path="/library" component={Library} />
-      <Route path="/analytics" component={Analytics} />
-      <Route path="/settings" component={Settings} />
-      <Route path="/calendar" component={Calendar} />
-      <Route path="/assessment/:id" component={Assessment} />
+      <AnimatedRoute path="/login" component={Login} />
+      <AnimatedRoute path="/" component={Dashboard} />
+      <AnimatedRoute path="/curriculum" component={Curriculum} />
+      <AnimatedRoute path="/library" component={Library} />
+      <AnimatedRoute path="/analytics" component={Analytics} />
+      <AnimatedRoute path="/settings" component={Settings} />
+      <AnimatedRoute path="/calendar" component={Calendar} />
+      <AnimatedRoute path="/assessment/:id" component={Assessment} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "dummy-client-id.apps.googleusercontent.com";
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <GoogleOAuthProvider clientId={clientId}>
+        <Router />
+        <Toaster />
+      </GoogleOAuthProvider>
     </QueryClientProvider>
   );
 }

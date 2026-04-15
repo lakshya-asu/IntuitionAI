@@ -5,6 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Brain, MessageSquare, Target, BookOpen, BarChart3, Calendar, Lightbulb } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
   id: string;
@@ -153,8 +156,15 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
 
   return (
     <>
+    <AnimatePresence>
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-[480px] h-[600px] bg-[#0A0A0A] border border-white/10 rounded-[24px] shadow-2xl flex flex-col z-50 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="fixed bottom-24 right-6 w-[480px] h-[600px] bg-[#0A0A0A] border border-white/10 rounded-[24px] shadow-2xl flex flex-col z-50 overflow-hidden"
+        >
           <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#141414]">
             <div className="flex items-center">
               <Brain className="h-6 w-6 text-[#FEFFF5] mr-3" />
@@ -225,7 +235,11 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
                       : 'bg-[#141414] border border-white/5 text-[#959C95] rounded-2xl rounded-tl-none'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap prose prose-invert prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10 max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                   
                   {/* Show agents involved */}
                   {message.agentsInvolved && message.agentsInvolved.length > 0 && (
@@ -327,8 +341,9 @@ export default function LearningAssistant({ onRecommendationSelect, onActionTrig
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
       
       <button
         onClick={() => setIsOpen(!isOpen)}

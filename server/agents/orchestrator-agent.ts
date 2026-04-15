@@ -2,6 +2,7 @@ import { studentInteractionAgent } from "./student-interaction-agent.js";
 import { recommendationAgent } from "./recommendation-agent.js";
 import { evaluatorAgent } from "./evaluator-agent.js";
 import { storage } from "../storage.js";
+import { syllabusGenerator } from "../syllabus-generator.js";
 import type { ChatMessage } from "../../shared/schema.js";
 
 export interface OrchestrationContext {
@@ -102,6 +103,11 @@ export class OrchestratorAgent {
       sequence.push('evaluator');
     }
     
+    if (inputAnalysis.needsSyllabusUpdate) {
+      agents.push('syllabus_generator');
+      sequence.push('syllabus_generator');
+    }
+    
     return {
       agents,
       sequence,
@@ -116,6 +122,7 @@ export class OrchestratorAgent {
     intent: string;
     needsRecommendations: boolean;
     needsEvaluation: boolean;
+    needsSyllabusUpdate: boolean;
     complexity: 'simple' | 'moderate' | 'complex';
     urgency: 'low' | 'medium' | 'high';
   }> {
@@ -136,6 +143,13 @@ export class OrchestratorAgent {
       input.includes('progress') ||
       context.sessionType === 'assessment';
     
+    const needsSyllabusUpdate = 
+      input.includes('update syllabus') ||
+      input.includes('change syllabus') ||
+      input.includes('curriculum') ||
+      input.includes('new goals') ||
+      input.includes('adapt plan');
+    
     let intent = 'question';
     if (input.includes('practice')) intent = 'practice';
     else if (input.includes('test') || input.includes('quiz')) intent = 'assessment';
@@ -152,6 +166,7 @@ export class OrchestratorAgent {
       intent,
       needsRecommendations,
       needsEvaluation,
+      needsSyllabusUpdate,
       complexity,
       urgency
     };
@@ -196,6 +211,19 @@ export class OrchestratorAgent {
             topic: context.currentActivity,
             timeSpent: context.timeAvailable
           });
+          break;
+          
+        case 'syllabus_generator':
+          const syllabi = await storage.getSyllabi(userId);
+          const activeSyllabus = syllabi.find(s => s.isActive || s.status === 'active');
+          if (activeSyllabus) {
+            results.syllabusUpdate = await syllabusGenerator.adaptSyllabus(
+              activeSyllabus.id,
+              userId,
+              { studentInteraction: userInput },
+              []
+            );
+          }
           break;
       }
     }
@@ -263,6 +291,22 @@ export class OrchestratorAgent {
       }
       
       nextSteps.push(...(results.evaluation.nextSteps || []));
+    }
+    
+    // Incorporate syllabus update results
+    if (results.syllabusUpdate) {
+      agentsInvolved.push('syllabus_generator');
+      
+      response += `\n\nI've also updated your syllabus based on our conversation. ${results.syllabusUpdate.reasoning}`;
+      actions.push({
+        type: 'action',
+        description: 'Review updated syllabus',
+        source: 'syllabus_generator'
+      });
+      
+      if (results.syllabusUpdate.changes && results.syllabusUpdate.changes.length > 0) {
+         response += `\nChanges made: ${results.syllabusUpdate.changes.join(', ')}`;
+      }
     }
     
     // Calculate overall confidence
